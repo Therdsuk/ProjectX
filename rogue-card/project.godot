@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="rogueCard"
-run/main_scene="uid://dvhfn0vvypjn0"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+run/main_scene="res://Scenes/Battle/BattleScene.tscn"
 
 [dotnet]
 

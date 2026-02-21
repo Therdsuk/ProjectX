@@ -1,64 +1,38 @@
-namespace RogueCard.Cards
+using Godot;
+
+/// <summary>
+/// Godot Resource representing a single card's data.
+/// Store each card as a .tres file under Resources/Cards/.
+///
+/// Usage: Load via ResourceLoader.Load&lt;CardData&gt;("res://Resources/Cards/fireball.tres")
+/// </summary>
+[GlobalClass]
+public partial class CardData : Resource
 {
-    /// <summary>
-    /// Base card data structure
-    /// TODO: Complete implementation with card effects and upgrades
-    /// </summary>
-    public class CardData
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        
-        // Cost and resource requirements
-        public int Energy { get; set; }
-        public int Mana { get; set; }
-        
-        // Card properties
-        public Core.CardSpeed Speed { get; set; }
-        public Core.CardType Type { get; set; }
-        
-        // Range and effect
-        public int Range { get; set; }
-        public string EffectId { get; set; }
-        
-        // Combat properties
-        public int BaseDamage { get; set; }
-        public int UpgradeLevel { get; set; }
-    }
+    /// <summary>Unique identifier used for lookups and serialisation.</summary>
+    [Export] public string Id          { get; set; } = "";
 
-    /// <summary>
-    /// Manages player decks
-    /// TODO: Implement deck validation and card management
-    /// </summary>
-    public class Deck
-    {
-        public string DeckId { get; set; }
-        public string OwnerCharacterId { get; set; }
-        
-        private System.Collections.Generic.List<CardData> Cards { get; set; }
-        
-        public const int MAX_CARDS = 30;
-        public const int MAX_COPIES = 3;
+    /// <summary>Display name shown in the UI.</summary>
+    [Export] public string Name        { get; set; } = "Unnamed Card";
 
-        public Deck()
-        {
-            Cards = new System.Collections.Generic.List<CardData>();
-        }
+    /// <summary>Flavour/effect text shown on the card.</summary>
+    [Export] public string Description { get; set; } = "";
 
-        // TODO: Add card to deck with validation
-        // TODO: Remove card from deck
-        // TODO: Upgrade card in deck
-        // TODO: Save/load deck from file
-    }
+    /// <summary>Which phase this card can be played in.</summary>
+    [Export] public CardType CardType  { get; set; } = CardType.Battle;
 
-    /// <summary>
-    /// Card effect system
-    /// TODO: Implement effect resolution and callbacks
-    /// </summary>
-    public interface ICardEffect
-    {
-        void Resolve(Core.BattlePhase phase);
-        bool IsValidTarget(string targetId);
-    }
+    /// <summary>Mana cost to play this card.</summary>
+    [Export] public int Cost           { get; set; } = 1;
+
+    /// <summary>Tile range of the card's effect on the grid.</summary>
+    [Export] public int Range          { get; set; } = 1;
+
+    /// <summary>Activation speed tier in the battle queue.</summary>
+    [Export] public CardSpeed Speed    { get; set; } = CardSpeed.Fast;
+
+    /// <summary>How many times this card has been upgraded (0 = base).</summary>
+    [Export] public int UpgradeLevel   { get; set; } = 0;
+
+    // Upgrade: override fields — future milestone
+    // public CardData UpgradedVersion { get; set; }
 }

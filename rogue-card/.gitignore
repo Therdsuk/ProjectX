@@ -2,51 +2,24 @@
 .godot/
 /android/
 
-# Mono/.NET-specific
-.mono/
-.vs/
-.vscode/
+# .NET / C# build output
 bin/
 obj/
-*.csproj.user
-*.sln.DotSettings
-*.DotSettings
-*.sln
+*.user
+*.suo
+.vs/
 
-# IDE
-.idea/
-*.swp
-*.swo
-*~
+# NuGet
+packages/
+*.nupkg
+
+# OS files
 .DS_Store
 Thumbs.db
 
-# Build artifacts
-build/
-dist/
-*.exe
-*.dll
-*.pdb
-export/
+# IDE
+.vscode/settings.json
+.idea/
 
-# Logs
-*.log
-
-# Rider/.NET
-*.sln
-*.csproj.user
-
-# Environment variables
-.env
-.env.local
-
-# Temporary files
-*.backup
-*.tmp
-temp/
-user_settings/
-
-# Scene backups
-*.tscn~
-*.tres~
-*.gd~
+# Godot export templates (large binaries)
+/export/
