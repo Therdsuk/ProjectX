@@ -4,7 +4,7 @@ using Godot;
 /// Represents an enemy-controlled character on the battle board.
 /// Mirrors PlayerCharacter structure; AI decision logic will be added in M4.
 /// </summary>
-public partial class EnemyCharacter : Node2D
+public partial class EnemyCharacter : Node3D
 {
     [Export] public CharacterData Data { get; set; }
 

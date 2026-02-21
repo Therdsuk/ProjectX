@@ -11,7 +11,7 @@ using Godot;
 ///
 /// Higher milestones will add movement, animation, and card-play logic.
 /// </summary>
-public partial class PlayerCharacter : Node2D
+public partial class PlayerCharacter : Node3D
 {
     // -------------------------------------------------------------------------
     // Configuration (set via Inspector or BattleManager at spawn time)

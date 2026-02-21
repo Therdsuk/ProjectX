@@ -1,53 +1,59 @@
-[gd_scene load_steps=7 format=3 uid="uid://battle_scene_001"]
+[gd_scene format=3 uid="uid://dvhfn0vvypjn0"]
 
-[ext_resource type="Script" path="res://Scripts/Battle/BattleManager.cs" id="1_battlemanager"]
-[ext_resource type="Script" path="res://Scripts/Battle/BattleBoard.cs" id="2_battleboard"]
-[ext_resource type="Script" path="res://Scripts/Battle/BattleHUD.cs" id="3_battlehud"]
+[ext_resource type="Script" uid="uid://xmnbw1wbo2js" path="res://Scripts/Battle/BattleBoard.cs" id="2_battleboard"]
+[ext_resource type="Script" uid="uid://budvwt11o82u2" path="res://Scripts/Battle/BattleManager.cs" id="2_k6flv"]
+[ext_resource type="Script" uid="uid://hioo46j0yc3n" path="res://Scripts/Battle/BattleHUD.cs" id="3_battlehud"]
 
-[node name="BattleScene" type="Node2D"]
+[node name="BattleScene" type="Node3D" unique_id=1687087767]
 
-[node name="BattleBoard" type="Node2D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1073214230]
+transform = Transform3D(1, 0, 0, 0, 0.707106, 0.707106, 0, -0.707106, 0.707106, 8, 10, 16)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=523438424]
+transform = Transform3D(0.866025, 0.433013, -0.25, 0, 0.5, 0.866025, 0.5, -0.75, 0.433013, 0, 10, 0)
+shadow_enabled = true
+
+[node name="BattleBoard" type="Node3D" parent="." unique_id=764612228]
 script = ExtResource("2_battleboard")
-columns = 8
-rows = 6
-cell_size = 80
-position = Vector2(80, 80)
 
-[node name="BattleManager" type="Node" parent="."]
-script = ExtResource("1_battlemanager")
-board = NodePath("../BattleBoard")
-hud = NodePath("../BattleHUD")
+[node name="BattleManager" type="Node" parent="." unique_id=1046962995 node_paths=PackedStringArray("Board", "HUD", "MainCamera")]
+script = ExtResource("2_k6flv")
+Board = NodePath("../BattleBoard")
+HUD = NodePath("../BattleHUD")
+MainCamera = NodePath("../Camera3D")
 
-[node name="BattleHUD" type="CanvasLayer" parent="."]
+[node name="BattleHUD" type="CanvasLayer" parent="." unique_id=2095286352]
 script = ExtResource("3_battlehud")
 
-[node name="PanelBackground" type="Panel" parent="BattleHUD"]
+[node name="PanelBackground" type="Panel" parent="BattleHUD" unique_id=1886859401]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="TopBar" type="HBoxContainer" parent="BattleHUD"]
-anchors_preset = 1
+[node name="TopBar" type="HBoxContainer" parent="BattleHUD" unique_id=696084872]
+anchors_preset = 10
 anchor_right = 1.0
-offset_top = 0.0
 offset_bottom = 50.0
 grow_horizontal = 2
 
-[node name="RoundLabel" type="Label" parent="BattleHUD/TopBar"]
+[node name="RoundLabel" type="Label" parent="BattleHUD/TopBar" unique_id=859225392]
 custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
 text = "Round 1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PhaseLabel" type="Label" parent="BattleHUD/TopBar"]
+[node name="PhaseLabel" type="Label" parent="BattleHUD/TopBar" unique_id=1719281604]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "⚡ MOVE PHASE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="NextPhaseBtn" type="Button" parent="BattleHUD/TopBar"]
+[node name="NextPhaseBtn" type="Button" parent="BattleHUD/TopBar" unique_id=353143354]
 custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
 text = "Next Phase  [Space]"

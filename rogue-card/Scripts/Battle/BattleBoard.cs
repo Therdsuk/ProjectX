@@ -11,7 +11,7 @@ using System.Collections.Generic;
 ///
 /// Attach to a Node2D in BattleScene.tscn called "BattleBoard".
 /// </summary>
-public partial class BattleBoard : Node2D
+public partial class BattleBoard : Node3D
 {
     // -------------------------------------------------------------------------
     // Configuration (editable in Inspector)
@@ -19,7 +19,7 @@ public partial class BattleBoard : Node2D
 
     [Export] public int Columns    { get; set; } = 8;
     [Export] public int Rows       { get; set; } = 6;
-    [Export] public int CellSize   { get; set; } = 80;  // pixels
+    [Export] public float CellSize { get; set; } = 2.0f;  // meters in 3D
 
     // -------------------------------------------------------------------------
     // Internal State
@@ -28,8 +28,11 @@ public partial class BattleBoard : Node2D
     /// <summary>2-D array of cell data indexed by [col, row].</summary>
     private FieldCell[,] _cells;
 
+    /// <summary>2-D array of 3D meshes for visual highlighting.</summary>
+    private MeshInstance3D[,] _cellMeshes;
+
     /// <summary>Mapping from grid position → occupying character node (null if empty).</summary>
-    private readonly Dictionary<Vector2I, Node2D> _occupants = new();
+    private readonly Dictionary<Vector2I, Node3D> _occupants = new();
 
     // -------------------------------------------------------------------------
     // Lifecycle
@@ -48,6 +51,7 @@ public partial class BattleBoard : Node2D
     public void GenerateBoard()
     {
         _cells = new FieldCell[Columns, Rows];
+        _cellMeshes = new MeshInstance3D[Columns, Rows];
         _occupants.Clear();
 
         for (int col = 0; col < Columns; col++)
@@ -67,22 +71,22 @@ public partial class BattleBoard : Node2D
     // Coordinate Helpers
     // -------------------------------------------------------------------------
 
-    /// <summary>Convert a grid position to world (pixel) position (top-left of cell).</summary>
-    public Vector2 GridToWorld(Vector2I grid)
+    /// <summary>Convert a grid position to world pos (top-left of cell usually, but keeping logic consistent).</summary>
+    public Vector3 GridToWorld(Vector2I grid)
     {
-        return new Vector2(grid.X * CellSize, grid.Y * CellSize);
+        return new Vector3(grid.X * CellSize, 0, grid.Y * CellSize);
     }
 
     /// <summary>Convert a world position to the nearest grid coordinate.</summary>
-    public Vector2I WorldToGrid(Vector2 world)
+    public Vector2I WorldToGrid(Vector3 world)
     {
-        return new Vector2I((int)(world.X / CellSize), (int)(world.Y / CellSize));
+        return new Vector2I((int)(world.X / CellSize), (int)(world.Z / CellSize));
     }
 
     /// <summary>World position at the centre of a cell.</summary>
-    public Vector2 CellCentre(Vector2I grid)
+    public Vector3 CellCentre(Vector2I grid)
     {
-        return GridToWorld(grid) + new Vector2(CellSize / 2f, CellSize / 2f);
+        return GridToWorld(grid) + new Vector3(CellSize / 2f, 0, CellSize / 2f);
     }
 
     // -------------------------------------------------------------------------
@@ -95,11 +99,11 @@ public partial class BattleBoard : Node2D
     public bool IsOccupied(Vector2I grid)
         => IsInBounds(grid) && _occupants[grid] != null;
 
-    public Node2D GetOccupant(Vector2I grid)
+    public Node3D GetOccupant(Vector2I grid)
         => IsInBounds(grid) ? _occupants[grid] : null;
 
     /// <summary>Place a unit on the board at the given grid cell.</summary>
-    public bool PlaceUnit(Node2D unit, Vector2I grid)
+    public bool PlaceUnit(Node3D unit, Vector2I grid)
     {
         if (!IsInBounds(grid))
         {
@@ -150,15 +154,79 @@ public partial class BattleBoard : Node2D
                     ? new Color(0.20f, 0.22f, 0.28f)   // dark slate
                     : new Color(0.25f, 0.27f, 0.35f);  // slightly lighter
 
-                var rect = new ColorRect
+                // Give each cell a unique material instance so changing one doesn't change all
+                var material = new StandardMaterial3D();
+                material.AlbedoColor = fill;
+                
+                var plane = new PlaneMesh { Size = new Vector2(CellSize - 0.1f, CellSize - 0.1f) };
+                
+                var meshInstance = new MeshInstance3D
                 {
-                    Size     = new Vector2(CellSize - 2, CellSize - 2),
-                    Position = GridToWorld(new Vector2I(col, row)) + new Vector2(1, 1),
-                    Color    = fill,
-                    Name     = $"Cell_{col}_{row}"
+                    Mesh = plane,
+                    MaterialOverride = material,
+                    Position = CellCentre(new Vector2I(col, row)),
+                    Name = $"Cell_{col}_{row}"
                 };
-                AddChild(rect);
+                AddChild(meshInstance);
+                _cellMeshes[col, row] = meshInstance;
+
+                // Add collision so we can detect mouse clicks via Raycast
+                var staticBody = new StaticBody3D();
+                meshInstance.AddChild(staticBody);
+                
+                var collisionShape = new CollisionShape3D();
+                var boxShape = new BoxShape3D { Size = new Vector3(CellSize, 0.1f, CellSize) };
+                collisionShape.Shape = boxShape;
+                staticBody.AddChild(collisionShape);
             }
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Gameplay Helpers (Highlighter & Move)
+    // -------------------------------------------------------------------------
+
+    /// <summary>Change a cell's color to show it's valid for an action.</summary>
+    public void HighlightCell(Vector2I grid, Color color)
+    {
+        if (!IsInBounds(grid)) return;
+        var mat = _cellMeshes[grid.X, grid.Y].MaterialOverride as StandardMaterial3D;
+        if (mat != null) mat.AlbedoColor = color;
+    }
+
+    /// <summary>Reset all highlights back to their default checkerboard colors.</summary>
+    public void ClearHighlights()
+    {
+        for (int col = 0; col < Columns; col++)
+        {
+            for (int row = 0; row < Rows; row++)
+            {
+                bool even = (col + row) % 2 == 0;
+                Color fill = even
+                    ? new Color(0.20f, 0.22f, 0.28f)
+                    : new Color(0.25f, 0.27f, 0.35f);
+
+                HighlightCell(new Vector2I(col, row), fill);
+            }
+        }
+    }
+
+    /// <summary>Move a unit cleanly from one cell to another, using a Tween.</summary>
+    public void MoveUnit(Node3D unit, Vector2I from, Vector2I to)
+    {
+        if (!IsInBounds(to) || IsOccupied(to)) return;
+
+        // Update Backend
+        if (IsInBounds(from) && _occupants[from] == unit)
+        {
+             _occupants[from] = null;
+        }
+        _occupants[to] = unit;
+
+        // Update Physics (Slide smoothly over 0.2 seconds)
+        Tween tween = GetTree().CreateTween();
+        tween.TweenProperty(unit, "position", CellCentre(to), 0.2f)
+             .SetTrans(Tween.TransitionType.Quad)
+             .SetEase(Tween.EaseType.Out);
     }
 }

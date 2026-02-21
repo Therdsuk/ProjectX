@@ -16,7 +16,7 @@ public class ActivationQueue
     // Queue Entry
     // -------------------------------------------------------------------------
 
-    public record QueueEntry(CardData Card, Node2D Caster, int CharacterSpeed);
+    public record QueueEntry(CardData Card, Node3D Caster, int CharacterSpeed);
 
     private readonly List<QueueEntry> _entries = new();
 
@@ -25,7 +25,7 @@ public class ActivationQueue
     // -------------------------------------------------------------------------
 
     /// <summary>Add a card-play action to the queue.</summary>
-    public void Enqueue(CardData card, Node2D caster, int characterSpeed)
+    public void Enqueue(CardData card, Node3D caster, int characterSpeed)
     {
         _entries.Add(new QueueEntry(card, caster, characterSpeed));
     }
