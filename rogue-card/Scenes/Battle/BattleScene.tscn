@@ -1,0 +1,53 @@
+[gd_scene load_steps=7 format=3 uid="uid://battle_scene_001"]
+
+[ext_resource type="Script" path="res://Scripts/Battle/BattleManager.cs" id="1_battlemanager"]
+[ext_resource type="Script" path="res://Scripts/Battle/BattleBoard.cs" id="2_battleboard"]
+[ext_resource type="Script" path="res://Scripts/Battle/BattleHUD.cs" id="3_battlehud"]
+
+[node name="BattleScene" type="Node2D"]
+
+[node name="BattleBoard" type="Node2D" parent="."]
+script = ExtResource("2_battleboard")
+columns = 8
+rows = 6
+cell_size = 80
+position = Vector2(80, 80)
+
+[node name="BattleManager" type="Node" parent="."]
+script = ExtResource("1_battlemanager")
+board = NodePath("../BattleBoard")
+hud = NodePath("../BattleHUD")
+
+[node name="BattleHUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_battlehud")
+
+[node name="PanelBackground" type="Panel" parent="BattleHUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopBar" type="HBoxContainer" parent="BattleHUD"]
+anchors_preset = 1
+anchor_right = 1.0
+offset_top = 0.0
+offset_bottom = 50.0
+grow_horizontal = 2
+
+[node name="RoundLabel" type="Label" parent="BattleHUD/TopBar"]
+custom_minimum_size = Vector2(140, 0)
+text = "Round 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PhaseLabel" type="Label" parent="BattleHUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "⚡ MOVE PHASE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextPhaseBtn" type="Button" parent="BattleHUD/TopBar"]
+custom_minimum_size = Vector2(140, 0)
+text = "Next Phase  [Space]"
