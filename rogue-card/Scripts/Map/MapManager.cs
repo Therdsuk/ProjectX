@@ -1,31 +1,44 @@
-using Godot;
-using System.Collections.Generic;
-
-/// <summary>
-/// Tracks the player's current position on the map and handles node selection.
-/// M5 milestone — stub.
-/// </summary>
-public partial class MapManager : Node
+namespace RogueCard.Map
 {
-    public static MapManager Instance { get; private set; }
-
-    private List<MapNode> _map      = new();
-    private int           _currentNodeId = 0;
-
-    public override void _Ready()
+    /// <summary>
+    /// Adventure map node types
+    /// TODO: Implement node spawning and transitions
+    /// </summary>
+    public enum NodeType
     {
-        if (Instance != null) { QueueFree(); return; }
-        Instance = this;
+        Battle,
+        City,
+        Event,
+        Boss,
+        Treasure
     }
 
-    public void LoadMap(List<MapNode> map) => _map = map;
-
-    public MapNode CurrentNode => _map.Find(n => n.Id == _currentNodeId);
-
-    public void TravelTo(int nodeId)
+    /// <summary>
+    /// Individual map node
+    /// TODO: Implement node data and transition logic
+    /// </summary>
+    public class MapNode
     {
-        _currentNodeId = nodeId;
-        GD.Print($"[MapManager] Travelled to node {nodeId} ({CurrentNode?.Type})");
-        // M5: trigger the appropriate scene based on node type
+        public string NodeId { get; set; }
+        public NodeType Type { get; set; }
+        public int Difficulty { get; set; }
+        
+        // TODO: Node position on map
+        // TODO: Node rewards
+        // TODO: Node connections
+    }
+
+    /// <summary>
+    /// Adventure map manager
+    /// TODO: Implement map generation and navigation
+    /// </summary>
+    public class MapManager
+    {
+        private System.Collections.Generic.List<MapNode> _nodes;
+        
+        // TODO: Generate random map with nodes
+        // TODO: Calculate shortest path to destination
+        // TODO: Track visited nodes
+        // TODO: Handle node transitions
     }
 }

@@ -1,225 +1,137 @@
 using Godot;
+using RogueCard.Core;
+using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Central controller for the battle scene.
-///
-/// M1 responsibilities:
-///   - Receive the board and HUD references
-///   - Hold a list of player and enemy units
-///   - Manage the round/phase state machine
-///   - Expose "Next Phase" advance (called by the HUD button or keyboard shortcut)
-///
-/// State machine:
-///   RoundStart → MovePhase → BattlePhase → SetupPhase → RoundStart (loop)
-///                                                     ↓
-///                                              BattleEnd (if win/lose condition met)
+/// Main battle manager that coordinates the entire battle system
 /// </summary>
 public partial class BattleManager : Node
 {
-    // -------------------------------------------------------------------------
-    // Scene Node References (wire these up in BattleScene.tscn)
-    // -------------------------------------------------------------------------
+    [Signal]
+    public delegate void BattleStartedEventHandler();
 
-    [Export] public BattleBoard Board { get; set; }
-    [Export] public BattleHUD   HUD   { get; set; }
+    [Signal]
+    public delegate void BattleEndedEventHandler(string winner);
 
-    // -------------------------------------------------------------------------
-    // State
-    // -------------------------------------------------------------------------
+    private PhaseManager _phaseManager;
+    private BoardManager _boardManager;
+    private Node3D _battleScene;
 
-    private BattlePhase _currentPhase = BattlePhase.MovePhase;
-    private int         _roundNumber  = 1;
+    [Export]
+    public bool DEBUG_MODE = true;
 
-    private readonly List<PlayerCharacter> _players = new();
-    private readonly List<EnemyCharacter>  _enemies = new();
-
-    private bool _battleActive = false;
-
-    // -------------------------------------------------------------------------
-    // Lifecycle
-    // -------------------------------------------------------------------------
+    public PhaseManager PhaseManager => _phaseManager;
+    public BoardManager BoardManager => _boardManager;
 
     public override void _Ready()
     {
-        // Connect HUD next-phase button
-        if (HUD != null)
-            HUD.NextPhaseRequested += OnNextPhaseRequested;
-
-        // M1: auto-start battle when scene loads
-        StartBattle();
-    }
-
-    // -------------------------------------------------------------------------
-    // Battle Flow
-    // -------------------------------------------------------------------------
-
-    /// <summary>Called once when the scene is ready to begin battle.</summary>
-    public void StartBattle()
-    {
-        GD.Print($"[BattleManager] Battle started — Round {_roundNumber}");
-        _battleActive = true;
-        _currentPhase = BattlePhase.MovePhase;
-        EnterPhase(_currentPhase);
-    }
-
-    /// <summary>Advance to the next phase in the round sequence.</summary>
-    public void AdvancePhase()
-    {
-        if (!_battleActive) return;
-
-        // Check win/lose before advancing
-        if (CheckBattleEnd()) return;
-
-        _currentPhase = _currentPhase switch
+        GD.Print("BattleManager: Initializing battle system...");
+        
+        // Get or create phase manager
+        _phaseManager = GetNodeOrNull<PhaseManager>("PhaseManager");
+        if (_phaseManager == null)
         {
-            BattlePhase.MovePhase   => BattlePhase.BattlePhase,
-            BattlePhase.BattlePhase => BattlePhase.SetupPhase,
-            BattlePhase.SetupPhase  => NextRound(),
-            _                       => BattlePhase.MovePhase
-        };
+            _phaseManager = new PhaseManager();
+            _phaseManager.Name = "PhaseManager";
+            AddChild(_phaseManager);
+        }
 
-        EnterPhase(_currentPhase);
+        // Get or create board manager
+        _boardManager = GetNodeOrNull<BoardManager>("BoardVisuals/BoardManager");
+        if (_boardManager == null)
+        {
+            var visualsNode = GetNode<Node3D>("BoardVisuals");
+            _boardManager = new BoardManager();
+            _boardManager.Name = "BoardManager";
+            visualsNode.AddChild(_boardManager);
+        }
+
+        // Connect phase signals
+        if (_phaseManager != null)
+        {
+            _phaseManager.PhaseChanged += OnPhaseChanged;
+            _phaseManager.PhaseStarted += OnPhaseStarted;
+            _phaseManager.PhaseEnded += OnPhaseEnded;
+        }
+
+        GD.Print("BattleManager: Initialization complete");
+        EmitSignal(SignalName.BattleStarted);
     }
 
-    // -------------------------------------------------------------------------
-    // Phase Entry Logic
-    // -------------------------------------------------------------------------
-
-    private void EnterPhase(BattlePhase phase)
+    public override void _Process(double delta)
     {
-        GD.Print($"[BattleManager] Round {_roundNumber} — Entering phase: {phase}");
-
-        // Notify the event bus (HUD listens to update its label)
-        EventBus.Instance?.EmitSignal(EventBus.SignalName.PhaseChanged, (int)phase);
-
-        switch (phase)
+        // Handle input for phase changes (for testing)
+        if (DEBUG_MODE && Input.IsActionJustPressed("ui_accept"))
         {
-            case BattlePhase.MovePhase:
-                OnEnterMovePhase();
-                break;
-            case BattlePhase.BattlePhase:
-                OnEnterBattlePhase();
-                break;
-            case BattlePhase.SetupPhase:
-                OnEnterSetupPhase();
-                break;
+            AdvancePhase();
         }
     }
-
-    private void OnEnterMovePhase()
-    {
-        // M1: placeholder — players will move characters here
-        GD.Print("[BattleManager] Move Phase: players may move and play Move cards.");
-    }
-
-    private void OnEnterBattlePhase()
-    {
-        // M2+: populate ActivationQueue, resolve cards
-        GD.Print("[BattleManager] Battle Phase: players play attack/buff/debuff cards.");
-    }
-
-    private void OnEnterSetupPhase()
-    {
-        // M2+: resolve Setup cards; refill player hands
-        GD.Print("[BattleManager] Setup Phase: players play setup cards; hand refilled.");
-        RefillAllHands();
-    }
-
-    // -------------------------------------------------------------------------
-    // Round Transition
-    // -------------------------------------------------------------------------
-
-    private BattlePhase NextRound()
-    {
-        _roundNumber++;
-        GD.Print($"[BattleManager] === Round {_roundNumber} Start ===");
-        return BattlePhase.MovePhase;
-    }
-
-    // -------------------------------------------------------------------------
-    // Win / Lose Check
-    // -------------------------------------------------------------------------
-
-    /// <summary>Returns true if the battle has ended.</summary>
-    private bool CheckBattleEnd()
-    {
-        bool allEnemiesDead  = _enemies.TrueForAll(e => !e.IsAlive);
-        bool allPlayersDead  = _players.TrueForAll(p => !p.IsAlive);
-
-        if (_enemies.Count > 0 && allEnemiesDead)
-        {
-            EndBattle(true);
-            return true;
-        }
-        if (_players.Count > 0 && allPlayersDead)
-        {
-            EndBattle(false);
-            return true;
-        }
-        return false;
-    }
-
-    private void EndBattle(bool playerWon)
-    {
-        _battleActive = false;
-        GD.Print($"[BattleManager] Battle ended. Player won: {playerWon}");
-        EventBus.Instance?.EmitSignal(EventBus.SignalName.BattleEnded, playerWon);
-        // M4+: show reward screen or game-over screen via GameManager
-    }
-
-    // -------------------------------------------------------------------------
-    // Unit Management
-    // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Spawn a player character onto the board.
-    /// Call this from BattleScene._Ready() or a test setup method.
+    /// Advance to the next battle phase
     /// </summary>
-    public void AddPlayer(PlayerCharacter player, Vector2I startCell)
+    public void AdvancePhase()
     {
-        _players.Add(player);
-        Board?.PlaceUnit(player, startCell);
-        player.GridPosition = startCell;
-    }
-
-    /// <summary>Spawn an enemy onto the board.</summary>
-    public void AddEnemy(EnemyCharacter enemy, Vector2I startCell)
-    {
-        _enemies.Add(enemy);
-        Board?.PlaceUnit(enemy, startCell);
-        enemy.GridPosition = startCell;
-    }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    private void RefillAllHands()
-    {
-        foreach (var player in _players)
-            player.DrawToHandLimit();
-    }
-
-    // -------------------------------------------------------------------------
-    // Signal Handlers
-    // -------------------------------------------------------------------------
-
-    private void OnNextPhaseRequested()
-    {
-        AdvancePhase();
-    }
-
-    // -------------------------------------------------------------------------
-    // Input (keyboard shortcut for quick testing during M1)
-    // -------------------------------------------------------------------------
-
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        if (@event is InputEventKey key && key.Pressed && !key.Echo)
+        if (_phaseManager != null)
         {
-            if (key.Keycode == Key.Space)
-                AdvancePhase();
+            _phaseManager.AdvancePhase();
         }
+    }
+
+    /// <summary>
+    /// Set a specific battle phase
+    /// </summary>
+    public void SetPhase(BattlePhase phase)
+    {
+        if (_phaseManager != null)
+        {
+            _phaseManager.SetPhase(phase);
+        }
+    }
+
+    /// <summary>
+    /// Get current battle phase
+    /// </summary>
+    public BattlePhase GetCurrentPhase()
+    {
+        return _phaseManager?.CurrentPhase ?? BattlePhase.Move;
+    }
+
+    /// <summary>
+    /// Get current round number
+    /// </summary>
+    public int GetCurrentRound()
+    {
+        return _phaseManager?.CurrentRound ?? 1;
+    }
+
+    // Signal handlers
+    private void OnPhaseChanged(BattlePhase newPhase)
+    {
+        GD.Print($"BattleManager: Phase changed to {newPhase}");
+        if (DEBUG_MODE)
+        {
+            GD.Print($"  Description: {_phaseManager.GetPhaseDescription()}");
+        }
+    }
+
+    private void OnPhaseStarted(BattlePhase phase)
+    {
+        GD.Print($"BattleManager: {_phaseManager.GetPhaseDisplayName()} started");
+    }
+
+    private void OnPhaseEnded(BattlePhase phase)
+    {
+        GD.Print($"BattleManager: {phase} ended");
+    }
+
+    /// <summary>
+    /// End the current battle
+    /// </summary>
+    public void EndBattle(string winner)
+    {
+        GD.Print($"BattleManager: Battle ended - Winner: {winner}");
+        EmitSignal(SignalName.BattleEnded, winner);
     }
 }
