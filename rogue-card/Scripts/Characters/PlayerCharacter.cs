@@ -36,6 +36,8 @@ public partial class PlayerCharacter : Node3D
     public CardDeck Deck  { get; } = new();
     public CardHand Hand  { get; } = new();
 
+    private HealthBar3D _healthBar;
+
     public bool IsAlive => CurrentHp > 0;
 
     // -------------------------------------------------------------------------
@@ -44,6 +46,9 @@ public partial class PlayerCharacter : Node3D
 
     public override void _Ready()
     {
+        _healthBar = new HealthBar3D();
+        AddChild(_healthBar);
+
         if (Data != null)
             InitialiseFromData(Data);
     }
@@ -67,13 +72,16 @@ public partial class PlayerCharacter : Node3D
         // Initialise deck from the class starting deck
         Deck.InitialiseDeck(data.StartingDeck);
 
+        _healthBar?.UpdateHealth(CurrentHp, MaxHp, isEnemy: false);
+
         GD.Print($"[PlayerCharacter] Initialised: {data.ClassName} | HP:{MaxHp} MP:{MaxMana} EN:{MaxEnergy}");
     }
 
-    /// <summary>Apply damage (positive value) or healing (negative value).</summary>
     public void ModifyHp(int amount)
     {
         CurrentHp = Mathf.Clamp(CurrentHp - amount, 0, MaxHp);
+        _healthBar?.UpdateHealth(CurrentHp, MaxHp, isEnemy: false);
+        
         EventBus.Instance?.EmitSignal(EventBus.SignalName.CharacterHpChanged, Data?.Id ?? "", CurrentHp);
 
         if (CurrentHp <= 0)

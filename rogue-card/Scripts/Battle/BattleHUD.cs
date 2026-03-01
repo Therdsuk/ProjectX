@@ -16,6 +16,15 @@ public partial class BattleHUD : CanvasLayer
     /// <summary>Emitted when the player presses the Next Phase button.</summary>
     [Signal] public delegate void NextPhaseRequestedEventHandler();
 
+    /// <summary>Emitted when the player clicks a card button in their hand.</summary>
+    [Signal] public delegate void CardPlayedRequestedEventHandler(int cardIndex);
+
+    /// <summary>Emitted when the player hovers over a card button in their hand.</summary>
+    [Signal] public delegate void CardHoveredEventHandler(int cardIndex);
+
+    /// <summary>Emitted when the player's mouse leaves a card button in their hand.</summary>
+    [Signal] public delegate void CardUnhoveredEventHandler(int cardIndex);
+
     // -------------------------------------------------------------------------
     // Child Node References (wire in Inspector via @Export or find by name)
     // -------------------------------------------------------------------------
@@ -23,6 +32,7 @@ public partial class BattleHUD : CanvasLayer
     [Export] public Label  PhaseLabel  { get; set; }
     [Export] public Label  RoundLabel  { get; set; }
     [Export] public Button NextPhaseBtn { get; set; }
+    [Export] public HBoxContainer HandContainer { get; set; }
 
     // -------------------------------------------------------------------------
     // Lifecycle
@@ -63,6 +73,41 @@ public partial class BattleHUD : CanvasLayer
     {
         if (RoundLabel != null)
             RoundLabel.Text = $"Round {round}";
+    }
+
+    /// <summary>Clear and recreate card buttons in the hand container.</summary>
+    public void UpdateHand(System.Collections.Generic.IReadOnlyList<CardData> cards)
+    {
+        if (HandContainer == null) return;
+
+        // Clear existing card buttons
+        foreach (Node child in HandContainer.GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        // Create new buttons for each card in hand
+        for (int i = 0; i < cards.Count; i++)
+        {
+            var card = cards[i];
+            int index = i; // capture for the lambda
+
+            var btn = new Button
+            {
+                Text = $"{card.Name}\nCost: {card.Cost}",
+                CustomMinimumSize = new Vector2(100, 140)
+            };
+
+            // When clicked, request to play this card
+            btn.Pressed += () => EmitSignal(SignalName.CardPlayedRequested, index);
+            
+            // Hover logic for previewing targeting
+            btn.MouseEntered += () => EmitSignal(SignalName.CardHovered, index);
+            btn.MouseExited += () => EmitSignal(SignalName.CardUnhovered, index);
+
+            HandContainer.AddChild(btn);
+        }
+        GD.Print($"[BattleHUD] Rendered {cards.Count} cards in hand.");
     }
 
     // -------------------------------------------------------------------------

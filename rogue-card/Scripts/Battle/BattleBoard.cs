@@ -211,6 +211,56 @@ public partial class BattleBoard : Node3D
         }
     }
 
+    /// <summary>Calculates and returns a list of valid grid cells covered by the specified AoE.</summary>
+    public List<Vector2I> GetCellsInAoE(Vector2I targetCell, AreaOfEffect aoe, Vector2I playerPos)
+    {
+        var cells = new List<Vector2I>();
+        
+        switch (aoe)
+        {
+            case AreaOfEffect.SingleNode:
+                if (IsInBounds(targetCell)) cells.Add(targetCell);
+                break;
+                
+            case AreaOfEffect.Cross:
+                Vector2I[] crossOffsets = { Vector2I.Zero, Vector2I.Up, Vector2I.Down, Vector2I.Left, Vector2I.Right };
+                foreach (var offset in crossOffsets)
+                {
+                    var pos = targetCell + offset;
+                    if (IsInBounds(pos)) cells.Add(pos);
+                }
+                break;
+                
+            case AreaOfEffect.Square3x3:
+                for (int x = -1; x <= 1; x++)
+                {
+                    for (int y = -1; y <= 1; y++)
+                    {
+                        var pos = targetCell + new Vector2I(x, y);
+                        if (IsInBounds(pos)) cells.Add(pos);
+                    }
+                }
+                break;
+                
+            case AreaOfEffect.LineForward:
+                // Direction from player to target for the line beam
+                Vector2I dir = new Vector2I(Mathf.Sign(targetCell.X - playerPos.X), Mathf.Sign(targetCell.Y - playerPos.Y));
+                
+                // If diagonal or same cell, default to horizontal beam
+                if (dir.X != 0 && dir.Y != 0) dir.Y = 0; 
+                if (dir == Vector2I.Zero) dir = Vector2I.Right;
+                
+                for (int i = 0; i < 5; i++) // Example max beam length
+                {
+                    var pos = targetCell + dir * i;
+                    if (IsInBounds(pos)) cells.Add(pos);
+                }
+                break;
+        }
+        
+        return cells;
+    }
+
     /// <summary>Move a unit cleanly from one cell to another, using a Tween.</summary>
     public void MoveUnit(Node3D unit, Vector2I from, Vector2I to)
     {

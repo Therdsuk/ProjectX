@@ -46,6 +46,11 @@ public partial class BattleManager : Node
     private bool _isMovePending  = false;
     private Vector2I _moveOrigin;
 
+    // Targeting State
+    private int _hoveredCardIndex = -1;
+    private int _selectedCardIndex = -1;
+    private Vector2I _lastHoveredCell = new Vector2I(-999, -999);
+
     // -------------------------------------------------------------------------
     // Lifecycle
     // -------------------------------------------------------------------------
@@ -59,14 +64,15 @@ public partial class BattleManager : Node
 
         // Connect HUD next-phase button
         if (HUD != null)
+        {
             HUD.NextPhaseRequested += OnNextPhaseRequested;
+            HUD.CardPlayedRequested += OnCardPlayedRequested;
+            HUD.CardHovered += OnCardHovered;
+            HUD.CardUnhovered += OnCardUnhovered;
+        }
 
         // M1: auto-start battle when scene loads
         StartBattle();
-
-        // Spawn test characters after the battle (and board generation) has started
-        // Using CallDeferred ensures all nodes are fully initialized in the scene tree
-        CallDeferred(MethodName.SpawnTestUnits);
     }
 
     // -------------------------------------------------------------------------
@@ -108,6 +114,11 @@ public partial class BattleManager : Node
     private void EnterPhase(BattlePhase phase)
     {
         GD.Print($"[BattleManager] Round {_roundNumber} — Entering phase: {phase}");
+
+        _selectedCardIndex = -1;
+        _hoveredCardIndex = -1;
+        _lastHoveredCell = new Vector2I(-999, -999);
+        Board?.ClearHighlights();
 
         // Notify the event bus (HUD listens to update its label)
         EventBus.Instance?.EmitSignal(EventBus.SignalName.PhaseChanged, (int)phase);
@@ -217,46 +228,18 @@ public partial class BattleManager : Node
         enemy.GridPosition = startCell;
     }
 
-    private void SpawnTestUnits()
+    /// <summary>Called by the DebugBattleSpawner to initialize turn mechanics after setting up the board.</summary>
+    public void DebugInitializePlayerTurn(PlayerCharacter player)
     {
-        // --- 1. Spawn a Test Player ---
-        var player = new PlayerCharacter { Name = "TestPlayer" };
-        
-        // Add a visual 3D box so we can see the player
-        var playerMesh = new MeshInstance3D();
-        playerMesh.Mesh = new BoxMesh();
-        // Lift the box slightly so it sits on top of the floor tile
-        playerMesh.Position = new Vector3(0, 0.5f, 0); 
-        player.AddChild(playerMesh);
-        
-        // Must add to the SceneTree securely
-        Board.AddChild(player);
-        
-        // Register to BattleManager & Board at Grid Pos (Col 1, Row 2)
-        AddPlayer(player, new Vector2I(1, 2));
-
-        // --- 2. Spawn a Test Enemy ---
-        var enemy = new EnemyCharacter { Name = "TestEnemy" };
-        
-        // Add a red 3D box so we can visually tell it's an enemy
-        var enemyMesh = new MeshInstance3D();
-        var material = new StandardMaterial3D();
-        material.AlbedoColor = new Color(1.0f, 0.0f, 0.0f); // Red
-        enemyMesh.Mesh = new CapsuleMesh { Material = material }; // Make enemy a capsule
-        enemyMesh.Position = new Vector3(0, 1.0f, 0);
-        enemy.AddChild(enemyMesh);
-        
-        Board.AddChild(enemy);
-        
-        // Register at Grid Pos (Col 6, Row 2)
-        AddEnemy(enemy, new Vector2I(6, 2));
-
-        // Fix: SpawnTestUnits is called deferred, so OnEnterMovePhase() fired before the player existed.
-        // We must manually trigger the move calculation here for the spawned unit!
-        if (_currentPhase == BattlePhase.MovePhase && !_playerHasMoved && _players.Count > 0)
+        // Fix: Force calculation since the player did not exist when OnEnterMovePhase fired internally.
+        if (_currentPhase == BattlePhase.MovePhase && !_playerHasMoved)
         {
-            ShowValidMoves(_players[0]);
+            ShowValidMoves(player);
         }
+
+        // Draw the initial cards and update the visual hand HUD immediately
+        player.DrawToHandLimit();
+        HUD?.UpdateHand(player.Hand.Cards);
     }
 
     // -------------------------------------------------------------------------
@@ -300,9 +283,45 @@ public partial class BattleManager : Node
         if (@event is InputEventKey key && key.Pressed && !key.Echo && key.Keycode == Key.Space)
         {
             if (_isMovePending) CancelPendingMove();
+            _selectedCardIndex = -1;
             Board?.ClearHighlights(); 
             AdvancePhase();
             return;
+        }
+
+        // Handle Target Preview via Mouse Motion
+        if (@event is InputEventMouseMotion mouseMotion)
+        {
+            if (_currentPhase == BattlePhase.BattlePhase && MainCamera != null)
+            {
+                if (_hoveredCardIndex != -1 || _selectedCardIndex != -1)
+                {
+                    var spaceState = GetViewport().World3D.DirectSpaceState;
+                    var rayOrigin = MainCamera.ProjectRayOrigin(mouseMotion.Position);
+                    var rayEnd = rayOrigin + MainCamera.ProjectRayNormal(mouseMotion.Position) * 1000f;
+
+                    var query = PhysicsRayQueryParameters3D.Create(rayOrigin, rayEnd);
+                    var result = spaceState.IntersectRay(query);
+
+                    if (result.Count > 0)
+                    {
+                        Vector3 hitPosition = (Vector3)result["position"];
+                        Vector2I hoveredCell = Board.WorldToGrid(hitPosition);
+
+                        if (hoveredCell != _lastHoveredCell)
+                        {
+                            _lastHoveredCell = hoveredCell;
+                            int activeCardIdx = _selectedCardIndex != -1 ? _selectedCardIndex : _hoveredCardIndex;
+                            UpdateTargetingPreview(activeCardIdx, hoveredCell);
+                        }
+                    }
+                    else if (_lastHoveredCell != new Vector2I(-999, -999))
+                    {
+                        _lastHoveredCell = new Vector2I(-999, -999);
+                        if (_selectedCardIndex == -1) Board.ClearHighlights(); 
+                    }
+                }
+            }
         }
 
         // Mouse clicks on the grid
@@ -336,6 +355,47 @@ public partial class BattleManager : Node
 
                         TrySelectOrConfirmMove(clickedCell);
                     }
+                }
+            }
+
+            if (_currentPhase == BattlePhase.BattlePhase && MainCamera != null)
+            {
+                if (mouseBtn.ButtonIndex == MouseButton.Left && _selectedCardIndex != -1 && _players.Count > 0)
+                {
+                    var spaceState = GetViewport().World3D.DirectSpaceState;
+                    var rayOrigin = MainCamera.ProjectRayOrigin(mouseBtn.Position);
+                    var rayEnd = rayOrigin + MainCamera.ProjectRayNormal(mouseBtn.Position) * 1000f;
+
+                    var query = PhysicsRayQueryParameters3D.Create(rayOrigin, rayEnd);
+                    var result = spaceState.IntersectRay(query);
+
+                    if (result.Count > 0)
+                    {
+                        Vector3 hitPosition = (Vector3)result["position"];
+                        Vector2I clickedCell = Board.WorldToGrid(hitPosition);
+
+                        var player = _players[0];
+                        var card = player.Hand.Cards[_selectedCardIndex];
+                        var validTargets = GetValidTargetCells(player, card);
+
+                        if (validTargets.Contains(clickedCell))
+                        {
+                            ExecuteCardPlay(player, _selectedCardIndex, clickedCell);
+                        }
+                        else
+                        {
+                            GD.Print("[BattleManager] Invalid target for card.");
+                        }
+                    }
+                }
+                
+                if (mouseBtn.ButtonIndex == MouseButton.Right && _selectedCardIndex != -1)
+                {
+                    _selectedCardIndex = -1;
+                    Board.ClearHighlights();
+                    GD.Print("[BattleManager] Cancelled card targeting via Right-Click.");
+                    // Reset to hover preview if we are still hovering
+                    if (_hoveredCardIndex != -1) UpdateTargetingPreview(_hoveredCardIndex, _lastHoveredCell);
                 }
             }
         }
@@ -400,7 +460,15 @@ public partial class BattleManager : Node
     private void RefillAllHands()
     {
         foreach (var player in _players)
+        {
             player.DrawToHandLimit();
+        }
+        
+        // M1: Since we only have one test player visibly bound to the HUD right now
+        if (_players.Count > 0)
+        {
+            HUD?.UpdateHand(_players[0].Hand.Cards);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -410,5 +478,160 @@ public partial class BattleManager : Node
     private void OnNextPhaseRequested()
     {
         AdvancePhase();
+    }
+
+    private void OnCardPlayedRequested(int index)
+    {
+        if (_currentPhase != BattlePhase.BattlePhase || _players.Count == 0) return;
+
+        var player = _players[0];
+        if (index < 0 || index >= player.Hand.Cards.Count) return;
+        var card = player.Hand.Cards[index];
+
+        if (card.Target == TargetType.Self || card.Target == TargetType.Global)
+        {
+            ExecuteCardPlay(player, index, player.GridPosition);
+        }
+        else
+        {
+            if (_selectedCardIndex == index)
+            {
+                _selectedCardIndex = -1;
+                Board.ClearHighlights();
+                GD.Print("[BattleManager] Cancelled card selection.");
+            }
+            else
+            {
+                _selectedCardIndex = index;
+                GD.Print($"[BattleManager] Selected '{card.Name}'. Click a valid target.");
+                UpdateTargetingPreview(_selectedCardIndex, _lastHoveredCell);
+            }
+        }
+    }
+
+    private void ExecuteCardPlay(PlayerCharacter player, int cardIndex, Vector2I targetCell)
+    {
+        var playedCard = player.Hand.PlayCard(cardIndex);
+
+        if (playedCard != null)
+        {
+            GD.Print($"[BattleManager] Played card '{playedCard.Name}' (Cost: {playedCard.Cost}) aiming at {targetCell}.");
+
+            // --- Immediate Effect Resolution (M1 Stub) ---
+            // Before we implement the full M2 Activation Queue, just apply the damage instantly!
+            var affectedCells = Board.GetCellsInAoE(targetCell, playedCard.AoeShape, player.GridPosition);
+            foreach (var cell in affectedCells)
+            {
+                var occupant = Board.GetOccupant(cell);
+                if (occupant is EnemyCharacter enemy)
+                {
+                    if (playedCard.BaseDamage > 0) enemy.ModifyHp(playedCard.BaseDamage);
+                    if (playedCard.BaseHealing > 0) enemy.ModifyHp(-playedCard.BaseHealing);
+                }
+                else if (occupant is PlayerCharacter p)
+                {
+                    if (playedCard.BaseDamage > 0) p.ModifyHp(playedCard.BaseDamage);
+                    if (playedCard.BaseHealing > 0) p.ModifyHp(-playedCard.BaseHealing);
+                }
+            }
+            
+            // Send it to the discard pile (conceptually happens after effect resolution, doing it here for testing)
+            player.Deck.Discard(playedCard);
+            
+            // Re-render the hand
+            HUD?.UpdateHand(player.Hand.Cards);
+
+            _selectedCardIndex = -1;
+            _hoveredCardIndex = -1;
+            Board.ClearHighlights();
+        }
+    }
+
+    private void OnCardHovered(int index)
+    {
+        if (_currentPhase != BattlePhase.BattlePhase || _selectedCardIndex != -1) return;
+        _hoveredCardIndex = index;
+        UpdateTargetingPreview(_hoveredCardIndex, _lastHoveredCell);
+    }
+
+    private void OnCardUnhovered(int index)
+    {
+        if (_currentPhase != BattlePhase.BattlePhase || _selectedCardIndex != -1) return;
+        if (_hoveredCardIndex == index)
+        {
+            _hoveredCardIndex = -1;
+            Board.ClearHighlights();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Targeting Helpers
+    // -------------------------------------------------------------------------
+    
+    private void UpdateTargetingPreview(int cardIndex, Vector2I hoveredCell)
+    {
+        Board.ClearHighlights();
+        if (_players.Count == 0 || cardIndex < 0 || cardIndex >= _players[0].Hand.Cards.Count) return;
+
+        var player = _players[0];
+        var card = player.Hand.Cards[cardIndex];
+
+        // 1. Determine valid aiming cells (Yellow)
+        var validTargets = GetValidTargetCells(player, card);
+
+        foreach (var cell in validTargets)
+        {
+            Board.HighlightCell(cell, new Color(0.8f, 0.8f, 0.2f)); // Yellow
+        }
+
+        // 2. If hovering over a valid target, show the splash AOE (Red)
+        if (validTargets.Contains(hoveredCell))
+        {
+            var aoeCells = Board.GetCellsInAoE(hoveredCell, card.AoeShape, player.GridPosition);
+            foreach (var aoeCell in aoeCells)
+            {
+                Board.HighlightCell(aoeCell, new Color(0.8f, 0.2f, 0.2f)); // Red
+            }
+        }
+    }
+
+    private List<Vector2I> GetValidTargetCells(PlayerCharacter player, CardData card)
+    {
+        var validCells = new List<Vector2I>();
+        int range = card.Range;
+        Vector2I origin = player.GridPosition;
+
+        for (int q = -range; q <= range; q++)
+        {
+            for (int r = -range; r <= range; r++)
+            {
+                if (Mathf.Abs(q) + Mathf.Abs(r) <= range)
+                {
+                    var cell = origin + new Vector2I(q, r);
+                    if (Board.IsInBounds(cell))
+                    {
+                        bool isValid = false;
+                        switch (card.Target)
+                        {
+                            case TargetType.Self:
+                                isValid = (cell == origin);
+                                break;
+                            case TargetType.SingleEnemy:
+                                isValid = Board.IsOccupied(cell) && Board.GetOccupant(cell) is EnemyCharacter;
+                                break;
+                            case TargetType.AnyTile:
+                                isValid = true;
+                                break;
+                            case TargetType.Global:
+                                isValid = true;
+                                break;
+                        }
+
+                        if (isValid) validCells.Add(cell);
+                    }
+                }
+            }
+        }
+        return validCells;
     }
 }

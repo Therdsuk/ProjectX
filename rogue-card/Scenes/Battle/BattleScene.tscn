@@ -3,6 +3,17 @@
 [ext_resource type="Script" uid="uid://xmnbw1wbo2js" path="res://Scripts/Battle/BattleBoard.cs" id="2_battleboard"]
 [ext_resource type="Script" uid="uid://budvwt11o82u2" path="res://Scripts/Battle/BattleManager.cs" id="2_k6flv"]
 [ext_resource type="Script" uid="uid://hioo46j0yc3n" path="res://Scripts/Battle/BattleHUD.cs" id="3_battlehud"]
+[ext_resource type="Script" uid="uid://3p3prfqh4d55" path="res://Scripts/Battle/DebugBattleSpawner.cs" id="4_debugspawner"]
+[ext_resource type="Script" uid="uid://0kauqqcvxqou" path="res://Scripts/Battle/DebugUnitSetup.cs" id="4_glr0r"]
+
+[sub_resource type="Resource" id="Resource_18ceg"]
+script = ExtResource("4_glr0r")
+StartPos = Vector2i(2, 2)
+
+[sub_resource type="Resource" id="Resource_kb2gb"]
+script = ExtResource("4_glr0r")
+IsPlayer = false
+StartPos = Vector2i(5, 2)
 
 [node name="BattleScene" type="Node3D" unique_id=1687087767]
 
@@ -15,6 +26,8 @@ shadow_enabled = true
 
 [node name="BattleBoard" type="Node3D" parent="." unique_id=764612228]
 script = ExtResource("2_battleboard")
+Columns = 12
+Rows = 12
 
 [node name="BattleManager" type="Node" parent="." unique_id=1046962995 node_paths=PackedStringArray("Board", "HUD", "MainCamera")]
 script = ExtResource("2_k6flv")
@@ -22,8 +35,18 @@ Board = NodePath("../BattleBoard")
 HUD = NodePath("../BattleHUD")
 MainCamera = NodePath("../Camera3D")
 
-[node name="BattleHUD" type="CanvasLayer" parent="." unique_id=2095286352]
+[node name="DebugBattleSpawner" type="Node" parent="." unique_id=1244340499 node_paths=PackedStringArray("Manager", "Board")]
+script = ExtResource("4_debugspawner")
+Manager = NodePath("../BattleManager")
+Board = NodePath("../BattleBoard")
+UnitsToSpawn = Array[ExtResource("4_glr0r")]([SubResource("Resource_18ceg"), SubResource("Resource_kb2gb")])
+
+[node name="BattleHUD" type="CanvasLayer" parent="." unique_id=2095286352 node_paths=PackedStringArray("PhaseLabel", "RoundLabel", "NextPhaseBtn", "HandContainer")]
 script = ExtResource("3_battlehud")
+PhaseLabel = NodePath("TopBar/PhaseLabel")
+RoundLabel = NodePath("TopBar/RoundLabel")
+NextPhaseBtn = NodePath("TopBar/NextPhaseBtn")
+HandContainer = NodePath("HandContainer")
 
 [node name="PanelBackground" type="Panel" parent="BattleHUD" unique_id=1886859401]
 anchors_preset = 15
@@ -57,3 +80,15 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 text = "Next Phase  [Space]"
+
+[node name="HandContainer" type="HBoxContainer" parent="BattleHUD" unique_id=-1542847364]
+custom_minimum_size = Vector2(0, 150)
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -170.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1

@@ -18,10 +18,15 @@ public partial class EnemyCharacter : Node3D
     public CardDeck Deck { get; } = new();
     public CardHand Hand { get; } = new();
 
+    private HealthBar3D _healthBar;
+
     public bool IsAlive => CurrentHp > 0;
 
     public override void _Ready()
     {
+        _healthBar = new HealthBar3D();
+        AddChild(_healthBar);
+
         if (Data != null)
             InitialiseFromData(Data);
     }
@@ -35,12 +40,14 @@ public partial class EnemyCharacter : Node3D
         CurrentMana = MaxMana;
         Hand.MaxHandSize = data.HandSize;
         Deck.InitialiseDeck(data.StartingDeck);
+        _healthBar?.UpdateHealth(CurrentHp, MaxHp, isEnemy: true);
         GD.Print($"[EnemyCharacter] Initialised: {data.ClassName} | HP:{MaxHp}");
     }
 
     public void ModifyHp(int amount)
     {
         CurrentHp = Mathf.Clamp(CurrentHp - amount, 0, MaxHp);
+        _healthBar?.UpdateHealth(CurrentHp, MaxHp, isEnemy: true);
         if (CurrentHp <= 0)
             GD.Print($"[EnemyCharacter] {Data?.ClassName} defeated.");
     }

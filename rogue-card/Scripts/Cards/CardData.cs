@@ -24,8 +24,20 @@ public partial class CardData : Resource
     /// <summary>Mana cost to play this card.</summary>
     [Export] public int Cost           { get; set; } = 1;
 
-    /// <summary>Tile range of the card's effect on the grid.</summary>
+    /// <summary>What kind of entity or coordinate validly receives this card.</summary>
+    [Export] public TargetType Target  { get; set; } = TargetType.SingleEnemy;
+
+    /// <summary>Tile range max-distance of the card's target selection.</summary>
     [Export] public int Range          { get; set; } = 1;
+
+    /// <summary>Shape of the Area of Effect applied when targeting is resolved.</summary>
+    [Export] public AreaOfEffect AoeShape { get; set; } = AreaOfEffect.SingleNode;
+
+    /// <summary>Base damage dealt to targets within the Area of Effect.</summary>
+    [Export] public int BaseDamage     { get; set; } = 0;
+
+    /// <summary>Base healing applied to targets within the Area of Effect.</summary>
+    [Export] public int BaseHealing    { get; set; } = 0;
 
     /// <summary>Activation speed tier in the battle queue.</summary>
     [Export] public CardSpeed Speed    { get; set; } = CardSpeed.Fast;
