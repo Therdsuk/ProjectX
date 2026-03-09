@@ -40,8 +40,24 @@ public partial class BattleHUD : CanvasLayer
     // Lifecycle
     // -------------------------------------------------------------------------
 
+    public HBoxContainer QueueContainer { get; private set; }
+
     public override void _Ready()
     {
+        // Dynamically build the Visual Queue Container at the top of the screen
+        var queueMargin = new MarginContainer();
+        queueMargin.SetAnchorsPreset(Control.LayoutPreset.TopWide);
+        queueMargin.AddThemeConstantOverride("margin_top", 10);
+        queueMargin.MouseFilter = Control.MouseFilterEnum.Ignore;
+        
+        QueueContainer = new HBoxContainer
+        {
+            Alignment = BoxContainer.AlignmentMode.Center,
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+        };
+        queueMargin.AddChild(QueueContainer);
+        AddChild(queueMargin);
+
         // Connect button
         if (NextPhaseBtn != null)
             NextPhaseBtn.Pressed += OnNextPhaseBtnPressed;
@@ -118,6 +134,34 @@ public partial class BattleHUD : CanvasLayer
             HandContainer.AddChild(btn);
         }
         GD.Print($"[BattleHUD] Rendered {cards.Count} cards in hand.");
+    }
+
+    public void UpdateQueueDisplay(System.Collections.Generic.IReadOnlyList<QueuedAction> queue)
+    {
+        if (QueueContainer == null) return;
+
+        // Clear existing visual queue
+        foreach (Node child in QueueContainer.GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        // Add new UI elements for each queued action
+        foreach (var action in queue)
+        {
+            var panel = new PanelContainer();
+            panel.CustomMinimumSize = new Vector2(90, 120);
+            
+            var lbl = new Label
+            {
+                Text = $"{action.Card.Name}\nLvl {action.Card.UpgradeLevel}\nSpd: {action.Card.Speed}",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                AutowrapMode = TextServer.AutowrapMode.Word
+            };
+            panel.AddChild(lbl);
+            QueueContainer.AddChild(panel);
+        }
     }
 
     // -------------------------------------------------------------------------

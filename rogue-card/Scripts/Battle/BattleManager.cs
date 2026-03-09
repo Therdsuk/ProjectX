@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Central controller for the battle scene.
@@ -53,6 +54,7 @@ public partial class BattleManager : Node
 
     // M2 Activation Queue
     private readonly List<QueuedAction> _activationQueue = new();
+    private bool _isResolvingQueue = false;
 
     // -------------------------------------------------------------------------
     // Lifecycle
@@ -100,9 +102,9 @@ public partial class BattleManager : Node
     }
 
     /// <summary>Advance to the next phase in the round sequence.</summary>
-    public void AdvancePhase()
+    public async void AdvancePhase()
     {
-        if (!_battleActive) return;
+        if (!_battleActive || _isResolvingQueue) return;
 
         // Only the Host is allowed to advance the phase!
         if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
@@ -120,7 +122,24 @@ public partial class BattleManager : Node
         // Try to intercept leaving the Battle Phase to resolve the Queue first
         if (_currentPhase == BattlePhase.BattlePhase)
         {
-            ResolveActivationQueue();
+            _isResolvingQueue = true;
+
+            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+            {
+                SteamManager.Instance.BroadcastMessage("QUEUE_RESOLVE_START");
+            }
+            
+            await ResolveActivationQueueAsync();
+            
+            _currentPhase = BattlePhase.SetupPhase;
+            
+            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+            {
+                SteamManager.Instance.BroadcastMessage($"PHASE:{(int)_currentPhase}:{_roundNumber}");
+            }
+            EnterPhase(_currentPhase);
+            _isResolvingQueue = false;
+            return;
         }
 
         _currentPhase = _currentPhase switch
@@ -187,6 +206,44 @@ public partial class BattleManager : Node
                     }
                 }
             }
+        }
+        else if (parts[0] == "QUEUE_ACTION")
+        {
+            if (parts.Length == 4 && int.TryParse(parts[2], out int tX) && int.TryParse(parts[3], out int tY))
+            {
+                HostProcessCardPlay(sender, parts[1], new Vector2I(tX, tY));
+            }
+        }
+        else if (parts[0] == "QUEUE_ADD")
+        {
+            if (parts.Length == 5 && ulong.TryParse(parts[1], out ulong pId) && int.TryParse(parts[3], out int tX) && int.TryParse(parts[4], out int tY))
+            {
+                string cardId = parts[2];
+                var player = _players.Find(p => p.SteamId == pId);
+                if (player != null)
+                {
+                    // Find a card by ID in hand
+                    var targetCard = player.Hand.Cards.FirstOrDefault(c => c.Id == cardId);
+                    if (targetCard != null)
+                    {
+                        // Remove from hand physically
+                        player.Hand.PlayCard(targetCard);
+                        var targetCell = new Vector2I(tX, tY);
+                        _activationQueue.Add(new QueuedAction(player.Data, targetCard, targetCell, player.GridPosition));
+                        
+                        // Resort instantly for visual display
+                        _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
+                        
+                        player.Deck.Discard(targetCard);
+                        if (player == _players[0]) HUD?.UpdateHand(player.Hand.Cards);
+                        HUD?.UpdateQueueDisplay(_activationQueue);
+                    }
+                }
+            }
+        }
+        else if (parts[0] == "QUEUE_RESOLVE_START")
+        {
+            _ = ResolveActivationQueueAsync();
         }
     }
 
@@ -599,25 +656,30 @@ public partial class BattleManager : Node
 
     private void ExecuteCardPlay(PlayerCharacter player, int cardIndex, Vector2I targetCell)
     {
-        var playedCard = player.Hand.PlayCard(cardIndex);
-
-        if (playedCard != null)
+        var card = player.Hand.Cards[cardIndex];
+        
+        if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
         {
-            GD.Print($"[BattleManager] Played '{playedCard.Name}' aiming at {targetCell}. Added to Activation Queue.");
-            
-            // Queue the action
-            _activationQueue.Add(new QueuedAction(player.Data, playedCard, targetCell, player.GridPosition));
-
-            // Send it to the discard pile (conceptually happens after effect resolution, doing it here for testing)
-            player.Deck.Discard(playedCard);
-            
-            // Re-render the hand
-            HUD?.UpdateHand(player.Hand.Cards);
-
-            _selectedCardIndex = -1;
-            _hoveredCardIndex = -1;
-            Board.ClearHighlights();
+            var hostId = SteamManager.Instance.CurrentLobby.Value.Owner.Id;
+            if (hostId == Steamworks.SteamClient.SteamId)
+            {
+                HostProcessCardPlay(Steamworks.SteamClient.SteamId, card.Id, targetCell);
+            }
+            else
+            {
+                SteamManager.Instance.SendMessageToHost($"QUEUE_ACTION:{card.Id}:{targetCell.X}:{targetCell.Y}");
+            }
         }
+
+        _selectedCardIndex = -1;
+        _hoveredCardIndex = -1;
+        Board.ClearHighlights();
+    }
+
+    private void HostProcessCardPlay(Steamworks.SteamId sender, string cardId, Vector2I targetCell)
+    {
+        SteamManager.Instance.BroadcastMessage($"QUEUE_ADD:{sender.Value}:{cardId}:{targetCell.X}:{targetCell.Y}");
+        OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"QUEUE_ADD:{sender.Value}:{cardId}:{targetCell.X}:{targetCell.Y}");
     }
 
     private void OnCardHovered(int index)
@@ -712,17 +774,23 @@ public partial class BattleManager : Node
     // Activation Queue Resolution
     // -------------------------------------------------------------------------
     
-    private void ResolveActivationQueue()
+    private async System.Threading.Tasks.Task ResolveActivationQueueAsync()
     {
         if (_activationQueue.Count == 0) return;
 
         GD.Print($"[BattleManager] Resolving Activation Queue ({_activationQueue.Count} actions)...");
 
-        // Sort by CardSpeed (Burst=0, Fast=1, Slow=2)
-        _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
+        // The queue is already pre-sorted by CardSpeed upon addition
+        HUD?.UpdateQueueDisplay(_activationQueue);
 
-        foreach (var action in _activationQueue)
+        while (_activationQueue.Count > 0)
         {
+            var action = _activationQueue[0];
+            _activationQueue.RemoveAt(0);
+
+            // Wait 1.5 seconds so players can see the card highlight or parse what's happening
+            await ToSignal(GetTree().CreateTimer(1.5f), SceneTreeTimer.SignalName.Timeout);
+
             GD.Print($"  -> Executing {action.Card.Name} (Speed: {action.Card.Speed}) at target {action.TargetCell}");
             
             var affectedCells = Board.GetCellsInAoE(action.TargetCell, action.Card.AoeShape, action.CasterOrigin);
@@ -740,8 +808,9 @@ public partial class BattleManager : Node
                     if (action.Card.BaseHealing > 0) p.ModifyHp(-action.Card.BaseHealing);
                 }
             }
-        }
 
-        _activationQueue.Clear();
+            // Update display to shrink the queue natively
+            HUD?.UpdateQueueDisplay(_activationQueue);
+        }
     }
 }
