@@ -224,9 +224,22 @@ public partial class BattleManager : Node
                 {
                     // Find a card by ID in hand
                     var targetCard = player.Hand.Cards.FirstOrDefault(c => c.Id == cardId);
+                    
+                    // Fallback: If local simulation desynchronised because of RNG, grab the reference from ANY deck
+                    if (targetCard == null)
+                    {
+                        foreach (var p in _players)
+                        {
+                            targetCard = p.Deck.DrawPile.FirstOrDefault(c => c.Id == cardId) ?? 
+                                         p.Hand.Cards.FirstOrDefault(c => c.Id == cardId) ??
+                                         p.Deck.DiscardPile.FirstOrDefault(c => c.Id == cardId);
+                            if (targetCard != null) break;
+                        }
+                    }
+
                     if (targetCard != null)
                     {
-                        // Remove from hand physically
+                        // Remove from hand physically (won't crash if it wasn't there)
                         player.Hand.PlayCard(targetCard);
                         var targetCell = new Vector2I(tX, tY);
                         _activationQueue.Add(new QueuedAction(player.Data, targetCard, targetCell, player.GridPosition));

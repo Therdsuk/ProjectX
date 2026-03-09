@@ -9,6 +9,12 @@ public partial class CardDeck : RefCounted
     private readonly List<CardData> _drawPile    = new();
     private readonly List<CardData> _discardPile = new();
 
+    /// <summary>Read-only view of the draw pile.</summary>
+    public IReadOnlyList<CardData> DrawPile => _drawPile;
+
+    /// <summary>Read-only view of the discard pile.</summary>
+    public IReadOnlyList<CardData> DiscardPile => _discardPile;
+
     // -------------------------------------------------------------------------
     // Initialisation
     // -------------------------------------------------------------------------
