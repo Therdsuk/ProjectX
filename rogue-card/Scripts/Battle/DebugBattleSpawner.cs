@@ -70,7 +70,7 @@ public partial class DebugBattleSpawner : Node
             };
             AddMockCardsToDeck(data, true);
 
-            var player = new PlayerCharacter { Name = $"Player_{member.Name}" };
+            var player = new PlayerCharacter { Name = $"Player_{member.Name}", SteamId = member.Id.Value };
             player.InitialiseFromData(data);
             
             var playerMesh = new MeshInstance3D { Mesh = new BoxMesh(), Position = new Vector3(0, 0.5f, 0) };

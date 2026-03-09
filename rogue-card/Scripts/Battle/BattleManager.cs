@@ -158,6 +158,36 @@ public partial class BattleManager : Node
                 EnterPhase(_currentPhase);
             }
         }
+        else if (parts[0] == "MOVE")
+        {
+            // Host receives this request from a Client
+            if (parts.Length == 3 && int.TryParse(parts[1], out int targetX) && int.TryParse(parts[2], out int targetY))
+            {
+                // In a full game we would validate the range server-side here. Trusting client for now.
+                HostProcessMove(sender, new Vector2I(targetX, targetY));
+            }
+        }
+        else if (parts[0] == "MOVE_CONFIRM")
+        {
+            // All clients receive this directive from the Host
+            if (parts.Length == 4 && ulong.TryParse(parts[1], out ulong pId) && int.TryParse(parts[2], out int tX) && int.TryParse(parts[3], out int tY))
+            {
+                var targetCell = new Vector2I(tX, tY);
+                var movingPlayer = _players.Find(p => p.SteamId == pId);
+                
+                if (movingPlayer != null)
+                {
+                    Board.MoveUnit(movingPlayer, movingPlayer.GridPosition, targetCell);
+                    movingPlayer.GridPosition = targetCell;
+                    
+                    // If it was the local player, refresh the visual highlight rings
+                    if (movingPlayer == _players[0] && _currentPhase == BattlePhase.MovePhase)
+                    {
+                        ShowValidMoves(movingPlayer);
+                    }
+                }
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -200,10 +230,9 @@ public partial class BattleManager : Node
     {
         GD.Print("[BattleManager] Move Phase: players may move and play Move cards.");
         
-        // M1 Test: Calculate and highlight valid moves for the first player
-        _playerHasMoved = false;
         if (_players.Count > 0)
         {
+            _moveOrigin = _players[0].GridPosition;
             ShowValidMoves(_players[0]);
         }
     }
@@ -291,8 +320,9 @@ public partial class BattleManager : Node
     public void DebugInitializePlayerTurn(PlayerCharacter player)
     {
         // Fix: Force calculation since the player did not exist when OnEnterMovePhase fired internally.
-        if (_currentPhase == BattlePhase.MovePhase && !_playerHasMoved)
+        if (_currentPhase == BattlePhase.MovePhase)
         {
+            _moveOrigin = player.GridPosition;
             ShowValidMoves(player);
         }
 
@@ -310,30 +340,38 @@ public partial class BattleManager : Node
         Board?.ClearHighlights();
         _validMoves.Clear();
 
-        // If we cancel a move, we revert to this origin
-        _moveOrigin = player.GridPosition;
-
         for (int q = -_testMoveRange; q <= _testMoveRange; q++)
         {
             for (int r = -_testMoveRange; r <= _testMoveRange; r++)
             {
-                // Simple Manhattan distance
                 if (Mathf.Abs(q) + Mathf.Abs(r) <= _testMoveRange)
                 {
                     Vector2I checkPos = _moveOrigin + new Vector2I(q, r);
 
-                    if (Board.IsInBounds(checkPos) && (!Board.IsOccupied(checkPos) || checkPos == _moveOrigin))
+                    if (Board.IsInBounds(checkPos))
                     {
-                        _validMoves.Add(checkPos);
-                        // Highlight valid cell green
-                        Board.HighlightCell(checkPos, new Color(0.1f, 0.7f, 0.2f)); 
+                        var occupant = Board.GetOccupant(checkPos);
+                        // Allow moving through/onto other players, but not enemies
+                        bool blocked = occupant != null && occupant is EnemyCharacter;
+                        
+                        if (!blocked || checkPos == _moveOrigin)
+                        {
+                            _validMoves.Add(checkPos);
+                            Board.HighlightCell(checkPos, new Color(0.1f, 0.7f, 0.2f)); 
+                        }
                     }
                 }
             }
         }
         
-        // Highlight player's underlying cell distinctively (e.g., cyan/blue)
+        // Highlight Origin in Blue
         Board.HighlightCell(_moveOrigin, new Color(0.2f, 0.4f, 0.8f));
+        
+        // Highlight Current Position distinctly (Yellow) if we moved away from origin
+        if (player.GridPosition != _moveOrigin)
+        {
+            Board.HighlightCell(player.GridPosition, new Color(0.8f, 0.8f, 0.2f));
+        }
     }
 
     public override void _Input(InputEvent @event)
@@ -386,18 +424,18 @@ public partial class BattleManager : Node
         // Mouse clicks on the grid
         if (@event is InputEventMouseButton mouseBtn && mouseBtn.Pressed)
         {
-            if (_currentPhase == BattlePhase.MovePhase && !_playerHasMoved && _players.Count > 0)
+            if (_currentPhase == BattlePhase.MovePhase && _players.Count > 0)
             {
                 if (MainCamera == null) return;
 
-                // Right Click to Cancel
-                if (mouseBtn.ButtonIndex == MouseButton.Right && _isMovePending)
+                // Right Click to Cancel back to origin
+                if (mouseBtn.ButtonIndex == MouseButton.Right)
                 {
                     CancelPendingMove();
                     return;
                 }
 
-                // Left Click to Select / Confirm
+                // Left Click to Request Move
                 if (mouseBtn.ButtonIndex == MouseButton.Left)
                 {
                     var spaceState = GetViewport().World3D.DirectSpaceState;
@@ -462,36 +500,23 @@ public partial class BattleManager : Node
 
     private void TrySelectOrConfirmMove(Vector2I targetPos)
     {
-        var player = _players[0];
-
-        // 1. Confirming a move (Clicking the cell we are currently standing on while testing)
-        if (_isMovePending && player.GridPosition == targetPos)
+        // Check if the clicked cell is valid (or the origin to cancel)
+        if (_validMoves.Contains(targetPos) || targetPos == _moveOrigin)
         {
-            _playerHasMoved = true;
-            _isMovePending = false;
-            Board.ClearHighlights();
-            GD.Print($"[BattleManager] Player confirmed move at {targetPos}. Turn finished.");
-            return;
-        }
-
-        // 2. Testing a move (Clicking a valid green square)
-        if (_validMoves.Contains(targetPos))
-        {
-            Board.MoveUnit(player, player.GridPosition, targetPos);
-            player.GridPosition = targetPos;
+            GD.Print($"[BattleManager] Requesting move to {targetPos}.");
             
-            _isMovePending = true;
-            
-            // Re-draw valid moves based on ORIGIN, but highlight current location in Blue
-            // We temporarily manipulate validMoves logic below for visual feedback:
-            Board.ClearHighlights();
-            foreach (var validCell in _validMoves)
+            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
             {
-                Board.HighlightCell(validCell, new Color(0.1f, 0.7f, 0.2f)); 
+                var hostId = SteamManager.Instance.CurrentLobby.Value.Owner.Id;
+                if (hostId == Steamworks.SteamClient.SteamId)
+                {
+                    HostProcessMove(Steamworks.SteamClient.SteamId, targetPos);
+                }
+                else
+                {
+                    SteamManager.Instance.SendMessageToHost($"MOVE:{targetPos.X}:{targetPos.Y}");
+                }
             }
-            Board.HighlightCell(targetPos, new Color(0.2f, 0.4f, 0.8f)); // Highlight new selected location
-
-            GD.Print($"[BattleManager] Testing move to {targetPos}. Left-click again to confirm, Right-click to cancel.");
         }
         else
         {
@@ -499,17 +524,21 @@ public partial class BattleManager : Node
         }
     }
 
+    private void HostProcessMove(Steamworks.SteamId sender, Vector2I targetPos)
+    {
+        // Tell everyone else
+        SteamManager.Instance.BroadcastMessage($"MOVE_CONFIRM:{sender.Value}:{targetPos.X}:{targetPos.Y}");
+        // Process it locally for ourselves (since Broadcast doesn't send loopback)
+        OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"MOVE_CONFIRM:{sender.Value}:{targetPos.X}:{targetPos.Y}");
+    }
+
     private void CancelPendingMove()
     {
-        if (!_isMovePending) return;
-
         var player = _players[0];
-        Board.MoveUnit(player, player.GridPosition, _moveOrigin);
-        player.GridPosition = _moveOrigin;
-        _isMovePending = false;
-
-        ShowValidMoves(player); // Recalculate and re-highlight green from origin
-        GD.Print($"[BattleManager] Move cancelled. Returned to {_moveOrigin}");
+        if (player.GridPosition != _moveOrigin)
+        {
+            TrySelectOrConfirmMove(_moveOrigin);
+        }
     }
     
     // -------------------------------------------------------------------------

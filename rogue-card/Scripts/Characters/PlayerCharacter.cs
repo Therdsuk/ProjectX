@@ -16,8 +16,8 @@ public partial class PlayerCharacter : Node3D
     // -------------------------------------------------------------------------
     // Configuration (set via Inspector or BattleManager at spawn time)
     // -------------------------------------------------------------------------
-
     [Export] public CharacterData Data { get; set; }
+    public ulong SteamId { get; set; }
 
     // -------------------------------------------------------------------------
     // Runtime Battle Stats
