@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 /// <summary>
 /// A playground script for debugging the BattleScene.
@@ -36,8 +37,88 @@ public partial class DebugBattleSpawner : Node
 
     private void SpawnTestUnits()
     {
-        GD.Print($"[DebugBattleSpawner] Spawning {UnitsToSpawn.Count} test units...");
+        var lobby = SteamManager.Instance?.CurrentLobby;
+        
+        if (lobby.HasValue)
+        {
+            GD.Print($"[DebugBattleSpawner] Spawning from Steam Lobby ({lobby.Value.MemberCount} members)...");
+            SpawnLobbyUnits(lobby.Value);
+        }
+        else
+        {
+            GD.Print($"[DebugBattleSpawner] No Steam Lobby found. Spawning {UnitsToSpawn.Count} test units from Inspector...");
+            SpawnInspectorUnits();
+        }
+    }
 
+    private void SpawnLobbyUnits(Steamworks.Data.Lobby lobby)
+    {
+        PlayerCharacter localPlayer = null;
+        var remotePlayers = new List<PlayerCharacter>();
+        var remoteStartPositions = new List<Vector2I>();
+        
+        int xOffset = 0;
+
+        foreach (var member in lobby.Members)
+        {
+            var data = new CharacterData 
+            { 
+                ClassName = member.Name, 
+                BaseHp = 100, 
+                BaseMana = 3, 
+                HandSize = 5 
+            };
+            AddMockCardsToDeck(data, true);
+
+            var player = new PlayerCharacter { Name = $"Player_{member.Name}" };
+            player.InitialiseFromData(data);
+            
+            var playerMesh = new MeshInstance3D { Mesh = new BoxMesh(), Position = new Vector3(0, 0.5f, 0) };
+            player.AddChild(playerMesh);
+            
+            Board.AddChild(player);
+            
+            var startPos = new Vector2I(xOffset, 0);
+            
+            if (member.Id == Steamworks.SteamClient.SteamId)
+            {
+                localPlayer = player;
+                Manager.AddPlayer(localPlayer, startPos);
+            }
+            else
+            {
+                remotePlayers.Add(player);
+                remoteStartPositions.Add(startPos);
+            }
+            
+            xOffset += 2;
+        }
+
+        // Add remote players AFTER local player so the local player is always _players[0] for control
+        for (int i = 0; i < remotePlayers.Count; i++)
+        {
+            Manager.AddPlayer(remotePlayers[i], remoteStartPositions[i]);
+        }
+
+        // Spawn one Test Enemy
+        var enemyData = new CharacterData { ClassName = "Debug Enemy", BaseHp = 50, BaseMana = 3, HandSize = 5 };
+        var enemy = new EnemyCharacter { Name = "TestEnemy_Center" };
+        enemy.InitialiseFromData(enemyData);
+        var material = new StandardMaterial3D { AlbedoColor = new Color(1.0f, 0.0f, 0.0f) };
+        var enemyMesh = new MeshInstance3D { Mesh = new CapsuleMesh { Material = material }, Position = new Vector3(0, 1.0f, 0) };
+        enemy.AddChild(enemyMesh);
+        
+        Board.AddChild(enemy);
+        Manager.AddEnemy(enemy, new Vector2I(4, 4));
+
+        if (localPlayer != null)
+        {
+            Manager.DebugInitializePlayerTurn(localPlayer);
+        }
+    }
+
+    private void SpawnInspectorUnits()
+    {
         PlayerCharacter firstPlayer = null;
 
         foreach (var setup in UnitsToSpawn)

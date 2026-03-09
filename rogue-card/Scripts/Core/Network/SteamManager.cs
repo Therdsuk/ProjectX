@@ -22,6 +22,7 @@ public partial class SteamManager : Node
     public static event System.Action<Steamworks.Data.Lobby> OnLobbyJoinedEvent;
     public static event System.Action<Steamworks.Friend> OnPlayerJoinedEvent;
     public static event System.Action<Steamworks.Friend> OnPlayerLeftEvent;
+    public static event System.Action OnLobbyDataUpdatedEvent; // Fires when either lobby data or member data changes
 
     public override void _EnterTree()
     {
@@ -48,6 +49,8 @@ public partial class SteamManager : Node
                 SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
                 SteamMatchmaking.OnLobbyMemberJoined += OnLobbyMemberJoined;
                 SteamMatchmaking.OnLobbyMemberLeave += OnLobbyMemberLeft;
+                SteamMatchmaking.OnLobbyMemberDataChanged += OnLobbyMemberDataChanged;
+                SteamMatchmaking.OnLobbyDataChanged += OnLobbyDataChanged;
                 
                 // This is the big one: Fires when you accept an invite from the Steam Overlay
                 SteamFriends.OnGameLobbyJoinRequested += OnGameLobbyJoinRequested;
@@ -88,6 +91,21 @@ public partial class SteamManager : Node
         // We successfully created it, but OnLobbyCreated callback will handle the rest!
     }
 
+    public void ToggleReady(bool isReady)
+    {
+        CurrentLobby?.SetMemberData("ready", isReady ? "true" : "false");
+        OnLobbyDataUpdatedEvent?.Invoke(); // Force UI update locally
+    }
+
+    public void StartGame()
+    {
+        // Only the host can start the game
+        if (CurrentLobby?.Owner.Id == SteamClient.SteamId)
+        {
+            CurrentLobby?.SetData("started", "true");
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Steam Callbacks
     // -------------------------------------------------------------------------
@@ -108,6 +126,8 @@ public partial class SteamManager : Node
         
         // We set metadata on the lobby so peers know what game they are connecting to
         lobby.SetData("name", $"{SteamClient.Name}'s Rogue Card Match");
+        lobby.SetData("started", "false");
+        lobby.SetMemberData("ready", "false"); // We start unready
 
         GD.Print($"[SteamManager] Lobby created successfully! ID: {lobby.Id}");
         GD.Print("[SteamManager] You can now Shift+Tab and invite friends!");
@@ -121,6 +141,9 @@ public partial class SteamManager : Node
     {
         CurrentLobby = lobby;
         GD.Print($"[SteamManager] Successfully entered lobby: {lobby.Id}");
+        
+        // Setup initial ready state for ourselves
+        lobby.SetMemberData("ready", "false");
         
         // If we are not the owner, we just joined someone else's game!
         if (lobby.Owner.Id != SteamClient.SteamId)
@@ -155,6 +178,18 @@ public partial class SteamManager : Node
     {
         GD.Print($"[SteamManager] Player Left the Lobby: {friend.Name}");
         OnPlayerLeftEvent?.Invoke(friend);
+    }
+
+    private void OnLobbyMemberDataChanged(Steamworks.Data.Lobby lobby, Steamworks.Friend friend)
+    {
+        // Fired when someone toggles their Ready state
+        OnLobbyDataUpdatedEvent?.Invoke();
+    }
+
+    private void OnLobbyDataChanged(Steamworks.Data.Lobby lobby)
+    {
+        // Fired when Host changes lobby data (e.g. started = true)
+        OnLobbyDataUpdatedEvent?.Invoke();
     }
 
     // -------------------------------------------------------------------------
