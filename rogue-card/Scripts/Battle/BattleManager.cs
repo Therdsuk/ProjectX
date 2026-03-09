@@ -51,6 +51,9 @@ public partial class BattleManager : Node
     private int _selectedCardIndex = -1;
     private Vector2I _lastHoveredCell = new Vector2I(-999, -999);
 
+    // M2 Activation Queue
+    private readonly List<QueuedAction> _activationQueue = new();
+
     // -------------------------------------------------------------------------
     // Lifecycle
     // -------------------------------------------------------------------------
@@ -83,6 +86,7 @@ public partial class BattleManager : Node
     public void StartBattle()
     {
         GD.Print($"[BattleManager] Battle started — Round {_roundNumber}");
+        
         _battleActive = true;
         _currentPhase = BattlePhase.MovePhase;
         EnterPhase(_currentPhase);
@@ -95,6 +99,12 @@ public partial class BattleManager : Node
 
         // Check win/lose before advancing
         if (CheckBattleEnd()) return;
+
+        // Try to intercept leaving the Battle Phase to resolve the Queue first
+        if (_currentPhase == BattlePhase.BattlePhase)
+        {
+            ResolveActivationQueue();
+        }
 
         _currentPhase = _currentPhase switch
         {
@@ -120,8 +130,14 @@ public partial class BattleManager : Node
         _lastHoveredCell = new Vector2I(-999, -999);
         Board?.ClearHighlights();
 
-        // Notify the event bus (HUD listens to update its label)
+        // Notify the event bus (HUD listens to update its label and internal phase)
         EventBus.Instance?.EmitSignal(EventBus.SignalName.PhaseChanged, (int)phase);
+
+        // Update the hand UI to reflect the new phase (enables/disables buttons accordingly)
+        if (_players.Count > 0)
+        {
+            HUD?.UpdateHand(_players[0].Hand.Cards);
+        }
 
         switch (phase)
         {
@@ -515,26 +531,11 @@ public partial class BattleManager : Node
 
         if (playedCard != null)
         {
-            GD.Print($"[BattleManager] Played card '{playedCard.Name}' (Cost: {playedCard.Cost}) aiming at {targetCell}.");
-
-            // --- Immediate Effect Resolution (M1 Stub) ---
-            // Before we implement the full M2 Activation Queue, just apply the damage instantly!
-            var affectedCells = Board.GetCellsInAoE(targetCell, playedCard.AoeShape, player.GridPosition);
-            foreach (var cell in affectedCells)
-            {
-                var occupant = Board.GetOccupant(cell);
-                if (occupant is EnemyCharacter enemy)
-                {
-                    if (playedCard.BaseDamage > 0) enemy.ModifyHp(playedCard.BaseDamage);
-                    if (playedCard.BaseHealing > 0) enemy.ModifyHp(-playedCard.BaseHealing);
-                }
-                else if (occupant is PlayerCharacter p)
-                {
-                    if (playedCard.BaseDamage > 0) p.ModifyHp(playedCard.BaseDamage);
-                    if (playedCard.BaseHealing > 0) p.ModifyHp(-playedCard.BaseHealing);
-                }
-            }
+            GD.Print($"[BattleManager] Played '{playedCard.Name}' aiming at {targetCell}. Added to Activation Queue.");
             
+            // Queue the action
+            _activationQueue.Add(new QueuedAction(player.Data, playedCard, targetCell, player.GridPosition));
+
             // Send it to the discard pile (conceptually happens after effect resolution, doing it here for testing)
             player.Deck.Discard(playedCard);
             
@@ -633,5 +634,42 @@ public partial class BattleManager : Node
             }
         }
         return validCells;
+    }
+
+    // -------------------------------------------------------------------------
+    // Activation Queue Resolution
+    // -------------------------------------------------------------------------
+    
+    private void ResolveActivationQueue()
+    {
+        if (_activationQueue.Count == 0) return;
+
+        GD.Print($"[BattleManager] Resolving Activation Queue ({_activationQueue.Count} actions)...");
+
+        // Sort by CardSpeed (Burst=0, Fast=1, Slow=2)
+        _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
+
+        foreach (var action in _activationQueue)
+        {
+            GD.Print($"  -> Executing {action.Card.Name} (Speed: {action.Card.Speed}) at target {action.TargetCell}");
+            
+            var affectedCells = Board.GetCellsInAoE(action.TargetCell, action.Card.AoeShape, action.CasterOrigin);
+            foreach (var cell in affectedCells)
+            {
+                var occupant = Board.GetOccupant(cell);
+                if (occupant is EnemyCharacter enemy)
+                {
+                    if (action.Card.BaseDamage > 0) enemy.ModifyHp(action.Card.BaseDamage);
+                    if (action.Card.BaseHealing > 0) enemy.ModifyHp(-action.Card.BaseHealing);
+                }
+                else if (occupant is PlayerCharacter p)
+                {
+                    if (action.Card.BaseDamage > 0) p.ModifyHp(action.Card.BaseDamage);
+                    if (action.Card.BaseHealing > 0) p.ModifyHp(-action.Card.BaseHealing);
+                }
+            }
+        }
+
+        _activationQueue.Clear();
     }
 }

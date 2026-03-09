@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="rogueCard"
-run/main_scene="res://Scenes/Battle/BattleScene.tscn"
+run/main_scene="res://Scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 EventBus="*res://Scripts/Core/EventBus.cs"
+SteamManager="*res://Scripts/Core/Network/SteamManager.cs"
 
 [dotnet]
 

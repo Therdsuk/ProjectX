@@ -34,6 +34,8 @@ public partial class BattleHUD : CanvasLayer
     [Export] public Button NextPhaseBtn { get; set; }
     [Export] public HBoxContainer HandContainer { get; set; }
 
+    private BattlePhase _currentPhase = BattlePhase.MovePhase;
+
     // -------------------------------------------------------------------------
     // Lifecycle
     // -------------------------------------------------------------------------
@@ -98,12 +100,20 @@ public partial class BattleHUD : CanvasLayer
                 CustomMinimumSize = new Vector2(100, 140)
             };
 
+            // Disable the button if the card is not playable in the current phase
+            bool isPlayable = false;
+            if (_currentPhase == BattlePhase.MovePhase && card.CardType == CardType.Move) isPlayable = true;
+            if (_currentPhase == BattlePhase.BattlePhase && (card.CardType == CardType.Battle || card.CardType == CardType.Buff || card.CardType == CardType.Debuff)) isPlayable = true;
+            if (_currentPhase == BattlePhase.SetupPhase && card.CardType == CardType.Setup) isPlayable = true;
+
+            btn.Disabled = !isPlayable;
+
             // When clicked, request to play this card
             btn.Pressed += () => EmitSignal(SignalName.CardPlayedRequested, index);
             
-            // Hover logic for previewing targeting
-            btn.MouseEntered += () => EmitSignal(SignalName.CardHovered, index);
-            btn.MouseExited += () => EmitSignal(SignalName.CardUnhovered, index);
+            // Hover logic for previewing targeting (only emit if not disabled)
+            btn.MouseEntered += () => { if (!btn.Disabled) EmitSignal(SignalName.CardHovered, index); };
+            btn.MouseExited += () => { if (!btn.Disabled) EmitSignal(SignalName.CardUnhovered, index); };
 
             HandContainer.AddChild(btn);
         }
@@ -121,7 +131,7 @@ public partial class BattleHUD : CanvasLayer
 
     private void OnPhaseChanged(int phaseInt)
     {
-        var phase = (BattlePhase)phaseInt;
-        UpdatePhaseDisplay(phase);
+        _currentPhase = (BattlePhase)phaseInt;
+        UpdatePhaseDisplay(_currentPhase);
     }
 }
