@@ -23,6 +23,7 @@ public partial class SteamManager : Node
     public static event System.Action<Steamworks.Friend> OnPlayerJoinedEvent;
     public static event System.Action<Steamworks.Friend> OnPlayerLeftEvent;
     public static event System.Action OnLobbyDataUpdatedEvent; // Fires when either lobby data or member data changes
+    public static event System.Action<Steamworks.SteamId, string> OnNetworkMessageEvent; // For gameplay sync
 
     public override void _EnterTree()
     {
@@ -104,6 +105,37 @@ public partial class SteamManager : Node
         {
             CurrentLobby?.SetData("started", "true");
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Networking (P2P Messaging over Steam)
+    // -------------------------------------------------------------------------
+
+    public void BroadcastMessage(string jsonMessage)
+    {
+        if (!CurrentLobby.HasValue) return;
+
+        byte[] payload = System.Text.Encoding.UTF8.GetBytes(jsonMessage);
+
+        foreach (var member in CurrentLobby.Value.Members)
+        {
+            // Don't send it back to ourselves
+            if (member.Id != SteamClient.SteamId)
+            {
+                SteamNetworking.SendP2PPacket(member.Id, payload, payload.Length, 0, P2PSend.Reliable);
+            }
+        }
+    }
+
+    public void SendMessageToHost(string jsonMessage)
+    {
+        if (!CurrentLobby.HasValue) return;
+        
+        var hostId = CurrentLobby.Value.Owner.Id;
+        if (hostId == SteamClient.SteamId) return; // We ARE the host
+
+        byte[] payload = System.Text.Encoding.UTF8.GetBytes(jsonMessage);
+        SteamNetworking.SendP2PPacket(hostId, payload, payload.Length, 0, P2PSend.Reliable);
     }
 
     // -------------------------------------------------------------------------
@@ -202,6 +234,25 @@ public partial class SteamManager : Node
         {
             // Must be called every frame to process Steam events/callbacks
             SteamClient.RunCallbacks();
+
+            // Pump Custom P2P Networking
+            ReceiveNetworkPackets();
+        }
+    }
+
+    private void ReceiveNetworkPackets()
+    {
+        while (SteamNetworking.IsP2PPacketAvailable())
+        {
+            var packet = SteamNetworking.ReadP2PPacket();
+            if (packet.HasValue)
+            {
+                // Accept the connection from the sender if this is their first packet
+                SteamNetworking.AcceptP2PSessionWithUser(packet.Value.SteamId);
+                
+                string decodedJson = System.Text.Encoding.UTF8.GetString(packet.Value.Data);
+                OnNetworkMessageEvent?.Invoke(packet.Value.SteamId, decodedJson);
+            }
         }
     }
 

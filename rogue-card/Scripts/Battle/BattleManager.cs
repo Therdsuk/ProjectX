@@ -74,8 +74,15 @@ public partial class BattleManager : Node
             HUD.CardUnhovered += OnCardUnhovered;
         }
 
+        SteamManager.OnNetworkMessageEvent += OnSteamNetworkMessage;
+
         // M1: auto-start battle when scene loads
         StartBattle();
+    }
+
+    public override void _ExitTree()
+    {
+        SteamManager.OnNetworkMessageEvent -= OnSteamNetworkMessage;
     }
 
     // -------------------------------------------------------------------------
@@ -97,6 +104,16 @@ public partial class BattleManager : Node
     {
         if (!_battleActive) return;
 
+        // Only the Host is allowed to advance the phase!
+        if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+        {
+            if (SteamManager.Instance.CurrentLobby.Value.Owner.Id != Steamworks.SteamClient.SteamId)
+            {
+                GD.Print("[BattleManager] Only the Host can advance the phase.");
+                return;
+            }
+        }
+
         // Check win/lose before advancing
         if (CheckBattleEnd()) return;
 
@@ -114,7 +131,33 @@ public partial class BattleManager : Node
             _                       => BattlePhase.MovePhase
         };
 
+        // Broadcast to all clients!
+        if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+        {
+            SteamManager.Instance.BroadcastMessage($"PHASE:{(int)_currentPhase}:{_roundNumber}");
+        }
+
         EnterPhase(_currentPhase);
+    }
+
+    private void OnSteamNetworkMessage(Steamworks.SteamId sender, string message)
+    {
+        GD.Print($"[BattleManager] Received Network Msg from {sender.Value}: {message}");
+        var parts = message.Split(':');
+        
+        if (parts.Length > 0 && parts[0] == "PHASE")
+        {
+            if (parts.Length == 3 && int.TryParse(parts[1], out int phaseId) && int.TryParse(parts[2], out int round))
+            {
+                // Sync to Host's active phase and round
+                _roundNumber = round;
+                _currentPhase = (BattlePhase)phaseId;
+                
+                // If we skipped BattlePhase (because the host resolved it instantly), we still need to run resolution locally
+                // Note: The host should technically send all the exact battle queue events, but for now we sync phases
+                EnterPhase(_currentPhase);
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
