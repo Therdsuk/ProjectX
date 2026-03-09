@@ -55,6 +55,9 @@ public partial class SteamManager : Node
                 
                 // This is the big one: Fires when you accept an invite from the Steam Overlay
                 SteamFriends.OnGameLobbyJoinRequested += OnGameLobbyJoinRequested;
+
+                // Listen for P2P network connections
+                SteamNetworking.OnP2PSessionRequest += OnP2PSessionRequest;
             }
             else
             {
@@ -224,6 +227,25 @@ public partial class SteamManager : Node
         OnLobbyDataUpdatedEvent?.Invoke();
     }
 
+    private void OnP2PSessionRequest(Steamworks.SteamId steamid)
+    {
+        // Only accept connections from people playing with us in our lobby!
+        if (CurrentLobby.HasValue)
+        {
+            foreach (var member in CurrentLobby.Value.Members)
+            {
+                if (member.Id == steamid)
+                {
+                    GD.Print($"[SteamManager] Accepting P2P Session from Lobby Member: {member.Name}");
+                    SteamNetworking.AcceptP2PSessionWithUser(steamid);
+                    return;
+                }
+            }
+        }
+        
+        GD.PrintErr($"[SteamManager] Rejecting P2P Session from unknown user: {steamid}");
+    }
+
     // -------------------------------------------------------------------------
     // Godot Loops
     // -------------------------------------------------------------------------
@@ -260,6 +282,7 @@ public partial class SteamManager : Node
     {
         if (IsSteamInitialized)
         {
+            SteamNetworking.OnP2PSessionRequest -= OnP2PSessionRequest;
             CurrentLobby?.Leave();
             SteamClient.Shutdown();
             GD.Print("[SteamManager] SteamClient gracefully shut down.");
