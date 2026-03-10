@@ -6,57 +6,22 @@ using Steamworks;
 /// </summary>
 public partial class MainMenu : Control
 {
-    private VBoxContainer _vbox;
-    private Button _hostButton;
-    private Button _leaveButton;
-    private Button _readyButton;
-    private Button _startGameButton;
-    private Label _lobbyLabel;
-    private ItemList _playerList;
+    [Export] public Button HostButton { get; set; }
+    [Export] public Button LeaveButton { get; set; }
+    [Export] public Button ReadyButton { get; set; }
+    [Export] public Button StartGameButton { get; set; }
+    [Export] public Label LobbyLabel { get; set; }
+    [Export] public ItemList PlayerList { get; set; }
+    
     private bool _isReady = false;
 
     public override void _Ready()
     {
-        // 1. Programmatically Generate UI (Saves having to manually edit a layout in code)
-        _vbox = new VBoxContainer();
-        _vbox.SetAnchorsAndOffsetsPreset(LayoutPreset.Center);
-        AddChild(_vbox);
-
-        var title = new Label();
-        title.Text = "STEAM MULTIPLAYER TEST";
-        title.HorizontalAlignment = HorizontalAlignment.Center;
-        _vbox.AddChild(title);
-
-        _hostButton = new Button();
-        _hostButton.Text = "Host Steam Game";
-        _hostButton.Pressed += OnHostPressed;
-        _vbox.AddChild(_hostButton);
-
-        _leaveButton = new Button();
-        _leaveButton.Text = "Leave Lobby";
-        _leaveButton.Pressed += OnLeavePressed;
-        _leaveButton.Disabled = true;
-        _vbox.AddChild(_leaveButton);
-
-        _readyButton = new Button();
-        _readyButton.Text = "Ready Up";
-        _readyButton.Pressed += OnReadyPressed;
-        _readyButton.Disabled = true;
-        _vbox.AddChild(_readyButton);
-
-        _startGameButton = new Button();
-        _startGameButton.Text = "Start Game";
-        _startGameButton.Pressed += OnStartGamePressed;
-        _startGameButton.Visible = false; // Only visible to host inside a lobby
-        _vbox.AddChild(_startGameButton);
-
-        _lobbyLabel = new Label();
-        _lobbyLabel.Text = "Status: Not in Lobby";
-        _vbox.AddChild(_lobbyLabel);
-
-        _playerList = new ItemList();
-        _playerList.CustomMinimumSize = new Vector2(300, 200);
-        _vbox.AddChild(_playerList);
+        // 1. Connect UI Signals
+        if (HostButton != null) HostButton.Pressed += OnHostPressed;
+        if (LeaveButton != null) LeaveButton.Pressed += OnLeavePressed;
+        if (ReadyButton != null) ReadyButton.Pressed += OnReadyPressed;
+        if (StartGameButton != null) StartGameButton.Pressed += OnStartGamePressed;
 
         // 2. Subscribe to SteamManager Callbacks
         SteamManager.OnLobbyCreatedEvent += OnLobbyCreated;
@@ -68,28 +33,28 @@ public partial class MainMenu : Control
 
     private void OnHostPressed()
     {
-        _hostButton.Disabled = true;
-        _lobbyLabel.Text = "Status: Creating Lobby...";
+        HostButton.Disabled = true;
+        LobbyLabel.Text = "Status: Creating Lobby...";
         SteamManager.Instance.HostLobby();
     }
 
     private void OnLeavePressed()
     {
         SteamManager.Instance.CurrentLobby?.Leave();
-        _hostButton.Disabled = false;
-        _leaveButton.Disabled = true;
-        _readyButton.Disabled = true;
-        _startGameButton.Visible = false;
-        _lobbyLabel.Text = "Status: Left Lobby.";
-        _playerList.Clear();
+        HostButton.Disabled = false;
+        LeaveButton.Disabled = true;
+        ReadyButton.Disabled = true;
+        StartGameButton.Visible = false;
+        LobbyLabel.Text = "Status: Left Lobby.";
+        PlayerList.Clear();
         _isReady = false;
-        _readyButton.Text = "Ready Up";
+        ReadyButton.Text = "Ready Up";
     }
 
     private void OnReadyPressed()
     {
         _isReady = !_isReady;
-        _readyButton.Text = _isReady ? "Unready" : "Ready Up";
+        ReadyButton.Text = _isReady ? "Unready" : "Ready Up";
         SteamManager.Instance.ToggleReady(_isReady);
     }
 
@@ -100,18 +65,18 @@ public partial class MainMenu : Control
 
     private void OnLobbyCreated(Steamworks.Data.Lobby lobby)
     {
-        _lobbyLabel.Text = $"Status: Hosting Lobby ({lobby.Id})";
-        _leaveButton.Disabled = false;
-        _readyButton.Disabled = false;
+        LobbyLabel.Text = $"Status: Hosting Lobby ({lobby.Id})";
+        LeaveButton.Disabled = false;
+        ReadyButton.Disabled = false;
         UpdatePlayerList();
     }
 
     private void OnLobbyJoined(Steamworks.Data.Lobby lobby)
     {
-        _hostButton.Disabled = true;
-        _leaveButton.Disabled = false;
-        _readyButton.Disabled = false;
-        _lobbyLabel.Text = $"Status: Joined '{lobby.Owner.Name}'s Lobby";
+        HostButton.Disabled = true;
+        LeaveButton.Disabled = false;
+        ReadyButton.Disabled = false;
+        LobbyLabel.Text = $"Status: Joined '{lobby.Owner.Name}'s Lobby";
         UpdatePlayerList();
     }
 
@@ -127,7 +92,7 @@ public partial class MainMenu : Control
 
     private void UpdatePlayerList()
     {
-        _playerList.Clear();
+        PlayerList.Clear();
         var lobby = SteamManager.Instance.CurrentLobby;
         
         if (lobby.HasValue)
@@ -142,17 +107,17 @@ public partial class MainMenu : Control
                 if (lobby.Value.GetMemberData(member, "ready") != "true") allReady = false;
 
                 // Add the player's Steam username to the Godot List UI
-                _playerList.AddItem(readyTag + prefix + member.Name);
+                PlayerList.AddItem(readyTag + prefix + member.Name);
             }
 
             if (lobby.Value.Owner.Id == SteamClient.SteamId)
             {
-                _startGameButton.Visible = true;
-                _startGameButton.Disabled = !allReady;
+                StartGameButton.Visible = true;
+                StartGameButton.Disabled = !allReady;
             }
             else
             {
-                _startGameButton.Visible = false;
+                StartGameButton.Visible = false;
             }
         }
     }
