@@ -128,6 +128,13 @@ public partial class BattleManager : Node
         {
             _isResolvingQueue = true;
 
+            // Before resolving, the Host allows the AI to inject their cards into the queue!
+            if (SteamManager.Instance == null || !SteamManager.Instance.CurrentLobby.HasValue || 
+                SteamManager.Instance.CurrentLobby.Value.Owner.Id == Steamworks.SteamClient.SteamId)
+            {
+                ProcessAIBattlePhase();
+            }
+
             if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
             {
                 SteamManager.Instance.BroadcastMessage("QUEUE_RESOLVE_START");
@@ -197,15 +204,26 @@ public partial class BattleManager : Node
                 var targetCell = new Vector2I(tX, tY);
                 var movingPlayer = _players.Find(p => p.SteamId == pId);
                 
-                if (movingPlayer != null)
+                Node3D movingEntity = movingPlayer;
+                
+                // If it wasn't a player, see if it was an enemy (Fake IDs start at 999000)
+                if (movingPlayer == null && pId >= 999000 && pId - 999000 < (ulong)_enemies.Count)
                 {
-                    Board.MoveUnit(movingPlayer, movingPlayer.GridPosition, targetCell);
-                    movingPlayer.GridPosition = targetCell;
+                    movingEntity = _enemies[(int)(pId - 999000)];
+                }
+
+                if (movingEntity != null)
+                {
+                    Vector2I currentPos = (movingEntity is PlayerCharacter pc) ? pc.GridPosition : ((EnemyCharacter)movingEntity).GridPosition;
+                    Board.MoveUnit(movingEntity, currentPos, targetCell);
+                    
+                    if (movingEntity is PlayerCharacter p) p.GridPosition = targetCell;
+                    if (movingEntity is EnemyCharacter e) e.GridPosition = targetCell;
                     
                     // If it was the local player and we were still in move phase unconfirmed, refresh updates
-                    if (movingPlayer == _players[0] && _currentPhase == BattlePhase.MovePhase && !_hasConfirmedMove)
+                    if (movingEntity == _players[0] && _currentPhase == BattlePhase.MovePhase && !_hasConfirmedMove)
                     {
-                        ShowValidMoves(movingPlayer);
+                        ShowValidMoves(_players[0]);
                     }
                 }
             }
@@ -252,6 +270,35 @@ public partial class BattleManager : Node
                         
                         player.Deck.Discard(targetCard);
                         if (player == _players[0]) HUD?.UpdateHand(player.Hand.Cards);
+                        HUD?.UpdateQueueDisplay(_activationQueue);
+                    }
+                }
+            }
+        }
+        else if (parts[0] == "QUEUE_ADD_AI")
+        {
+            // QUEUE_ADD_AI:EnemyName:CardId:TargetX:TargetY
+            if (parts.Length == 5 && int.TryParse(parts[3], out int tX) && int.TryParse(parts[4], out int tY))
+            {
+                string enemyName = parts[1];
+                string cardId = parts[2];
+                var enemy = _enemies.Find(e => e.Name == enemyName);
+
+                if (enemy != null)
+                {
+                    var targetCard = enemy.Hand.Cards.FirstOrDefault(c => c.Id == cardId) 
+                                     ?? enemy.Deck.DrawPile.FirstOrDefault(c => c.Id == cardId) 
+                                     ?? enemy.Deck.DiscardPile.FirstOrDefault(c => c.Id == cardId);
+
+                    if (targetCard != null)
+                    {
+                        enemy.Hand.PlayCard(targetCard);
+                        var targetCell = new Vector2I(tX, tY);
+                        _activationQueue.Add(new QueuedAction(enemy.Data, targetCard, targetCell, enemy.GridPosition));
+                        
+                        _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
+                        
+                        enemy.Deck.Discard(targetCard);
                         HUD?.UpdateQueueDisplay(_activationQueue);
                     }
                 }
@@ -617,6 +664,16 @@ public partial class BattleManager : Node
 
         if (_confirmedMoves.Count >= expectedPlayers)
         {
+            // Human players have confirmed. Host now calculates AI moves.
+            ulong aiFakeIdCounter = 999000;
+            foreach (var enemy in _enemies)
+            {
+                if (!enemy.IsAlive) continue;
+                Vector2I aiMove = enemy.DecideMoveTarget(Board, _players, _confirmedMoves);
+                _confirmedMoves[aiFakeIdCounter] = aiMove; 
+                aiFakeIdCounter++;
+            }
+
             _ = ResolveMovesAsync();
         }
     }
@@ -626,18 +683,49 @@ public partial class BattleManager : Node
         _isResolvingMoves = true;
         Board?.ClearHighlights();
         
-        var movers = _players.Where(p => _confirmedMoves.ContainsKey(p.SteamId)).ToList();
-        movers.Sort((a, b) => b.Data.BaseSpeed.CompareTo(a.Data.BaseSpeed));
+        // Combine Players and Enemies that have a move
+        var playerMovers = _players.Where(p => _confirmedMoves.ContainsKey(p.SteamId));
         
-        foreach (var p in movers)
+        // Map the fake IDs back to the enemies
+        var enemyMovers = new List<EnemyCharacter>();
+        ulong checkId = 999000;
+        foreach (var e in _enemies)
         {
-            var target = _confirmedMoves[p.SteamId];
-            
+            if (e.IsAlive && _confirmedMoves.ContainsKey(checkId))
+            {
+                enemyMovers.Add(e);
+            }
+            checkId++;
+        }
+
+        // Create a separate list for players, sorted by base speed
+        var playerMoversList = new List<(Node3D Unit, int Speed, ulong Id, Vector2I Target)>();
+        foreach (var p in playerMovers) playerMoversList.Add((p, p.Data.BaseSpeed, p.SteamId, _confirmedMoves[p.SteamId]));
+        playerMoversList.Sort((a, b) => b.Speed.CompareTo(a.Speed));
+        
+        // Create a separate list for enemies, sorted by base speed
+        var enemyMoversList = new List<(Node3D Unit, int Speed, ulong Id, Vector2I Target)>();
+        checkId = 999000;
+        foreach (var e in enemyMovers)
+        {
+            enemyMoversList.Add((e, e.Data.BaseSpeed, checkId, _confirmedMoves[checkId]));
+            checkId++;
+        }
+        enemyMoversList.Sort((a, b) => b.Speed.CompareTo(a.Speed));
+
+        // Combine them so players always move before enemies
+        var allMovers = new List<(Node3D Unit, int Speed, ulong Id, Vector2I Target)>();
+        allMovers.AddRange(playerMoversList);
+        allMovers.AddRange(enemyMoversList);
+        
+        foreach (var mover in allMovers)
+        {
             if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
             {
-                SteamManager.Instance.BroadcastMessage($"MOVE_CONFIRM:{p.SteamId}:{target.X}:{target.Y}");
+                // We broadcast all moves so clients see the enemies move too!
+                SteamManager.Instance.BroadcastMessage($"MOVE_CONFIRM:{mover.Id}:{mover.Target.X}:{mover.Target.Y}");
             }
-            OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"MOVE_CONFIRM:{p.SteamId}:{target.X}:{target.Y}");
+            OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"MOVE_CONFIRM:{mover.Id}:{mover.Target.X}:{mover.Target.Y}");
             
             await ToSignal(GetTree().CreateTimer(0.3f), SceneTreeTimer.SignalName.Timeout);
         }
@@ -764,6 +852,43 @@ public partial class BattleManager : Node
     {
         SteamManager.Instance.BroadcastMessage($"QUEUE_ADD:{sender.Value}:{cardId}:{targetCell.X}:{targetCell.Y}");
         OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"QUEUE_ADD:{sender.Value}:{cardId}:{targetCell.X}:{targetCell.Y}");
+    }
+
+    private void ProcessAIBattlePhase()
+    {
+        GD.Print("[BattleManager] Host is processing AI Battle Phase decisions...");
+        foreach (var enemy in _enemies)
+        {
+            if (!enemy.IsAlive) continue;
+
+            QueuedAction? actionResult = enemy.DecideCardPlay(Board, _players, _enemies);
+            
+            if (actionResult.HasValue)
+            {
+                var action = actionResult.Value;
+                
+                // Add to the local activation queue
+                _activationQueue.Add(action);
+                
+                // Tell clients what the AI queued
+                if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+                {
+                    SteamManager.Instance.BroadcastMessage($"QUEUE_ADD_AI:{enemy.Name}:{action.Card.Id}:{action.TargetCell.X}:{action.TargetCell.Y}");
+                }
+                
+                // Enemy physically discs the card (Host only visual, clients sync via network message handling)
+                enemy.Hand.PlayCard(action.Card);
+                enemy.Deck.Discard(action.Card);
+            }
+            else
+            {
+                GD.Print($"[BattleManager] AI {enemy.Data?.ClassName} decided to skip turn.");
+            }
+        }
+        
+        // Final resort to interleave player and enemy speeds!
+        _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
+        HUD?.UpdateQueueDisplay(_activationQueue);
     }
 
     private void OnCardHovered(int index)
