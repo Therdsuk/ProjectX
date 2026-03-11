@@ -42,10 +42,14 @@ public partial class BattleManager : Node
     private readonly int _testMoveRange = 3;
     private readonly List<Vector2I> _validMoves = new();
     
-    // M1 Turn Tracking
-    private bool _playerHasMoved = false;
-    private bool _isMovePending  = false;
+    // Movement Selection State
     private Vector2I _moveOrigin;
+    private Vector2I _selectedMoveTarget = new Vector2I(-999, -999);
+    private bool _hasConfirmedMove = false;
+    
+    // Host Movement Resolution
+    private readonly Dictionary<ulong, Vector2I> _confirmedMoves = new();
+    private bool _isResolvingMoves = false;
 
     // Targeting State
     private int _hoveredCardIndex = -1;
@@ -104,7 +108,7 @@ public partial class BattleManager : Node
     /// <summary>Advance to the next phase in the round sequence.</summary>
     public async void AdvancePhase()
     {
-        if (!_battleActive || _isResolvingQueue) return;
+        if (!_battleActive || _isResolvingQueue || _isResolvingMoves) return;
 
         // Only the Host is allowed to advance the phase!
         if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
@@ -177,13 +181,12 @@ public partial class BattleManager : Node
                 EnterPhase(_currentPhase);
             }
         }
-        else if (parts[0] == "MOVE")
+        else if (parts[0] == "MOVE_LOCK")
         {
-            // Host receives this request from a Client
+            // Host receives move lock from clients
             if (parts.Length == 3 && int.TryParse(parts[1], out int targetX) && int.TryParse(parts[2], out int targetY))
             {
-                // In a full game we would validate the range server-side here. Trusting client for now.
-                HostProcessMove(sender, new Vector2I(targetX, targetY));
+                HostProcessMoveLock(sender, new Vector2I(targetX, targetY));
             }
         }
         else if (parts[0] == "MOVE_CONFIRM")
@@ -199,8 +202,8 @@ public partial class BattleManager : Node
                     Board.MoveUnit(movingPlayer, movingPlayer.GridPosition, targetCell);
                     movingPlayer.GridPosition = targetCell;
                     
-                    // If it was the local player, refresh the visual highlight rings
-                    if (movingPlayer == _players[0] && _currentPhase == BattlePhase.MovePhase)
+                    // If it was the local player and we were still in move phase unconfirmed, refresh updates
+                    if (movingPlayer == _players[0] && _currentPhase == BattlePhase.MovePhase && !_hasConfirmedMove)
                     {
                         ShowValidMoves(movingPlayer);
                     }
@@ -300,9 +303,15 @@ public partial class BattleManager : Node
     {
         GD.Print("[BattleManager] Move Phase: players may move and play Move cards.");
         
+        _hasConfirmedMove = false;
+        _selectedMoveTarget = new Vector2I(-999, -999);
+        _confirmedMoves.Clear();
+        _isResolvingMoves = false;
+
         if (_players.Count > 0)
         {
             _moveOrigin = _players[0].GridPosition;
+            _selectedMoveTarget = _moveOrigin;
             ShowValidMoves(_players[0]);
         }
     }
@@ -393,6 +402,8 @@ public partial class BattleManager : Node
         if (_currentPhase == BattlePhase.MovePhase)
         {
             _moveOrigin = player.GridPosition;
+            _selectedMoveTarget = _moveOrigin;
+            _hasConfirmedMove = false;
             ShowValidMoves(player);
         }
 
@@ -438,9 +449,10 @@ public partial class BattleManager : Node
         Board.HighlightCell(_moveOrigin, new Color(0.2f, 0.4f, 0.8f));
         
         // Highlight Current Position distinctly (Yellow) if we moved away from origin
-        if (player.GridPosition != _moveOrigin)
+        // (For M1 logic, this will highlight the selected target if it's not the origin)
+        if (_selectedMoveTarget != new Vector2I(-999, -999) && _selectedMoveTarget != _moveOrigin)
         {
-            Board.HighlightCell(player.GridPosition, new Color(0.8f, 0.8f, 0.2f));
+            Board.HighlightCell(_selectedMoveTarget, new Color(0.2f, 0.8f, 0.8f)); // Cyan
         }
     }
 
@@ -449,7 +461,12 @@ public partial class BattleManager : Node
         // Spacebar to skip phases
         if (@event is InputEventKey key && key.Pressed && !key.Echo && key.Keycode == Key.Space)
         {
-            if (_isMovePending) CancelPendingMove();
+            if (_currentPhase == BattlePhase.MovePhase)
+            {
+                if (!_hasConfirmedMove) OnNextPhaseRequested();
+                return;
+            }
+
             _selectedCardIndex = -1;
             Board?.ClearHighlights(); 
             AdvancePhase();
@@ -570,22 +587,17 @@ public partial class BattleManager : Node
 
     private void TrySelectOrConfirmMove(Vector2I targetPos)
     {
+        if (_hasConfirmedMove) return;
+
         // Check if the clicked cell is valid (or the origin to cancel)
         if (_validMoves.Contains(targetPos) || targetPos == _moveOrigin)
         {
-            GD.Print($"[BattleManager] Requesting move to {targetPos}.");
+            _selectedMoveTarget = targetPos;
+            GD.Print($"[BattleManager] Selected move to {targetPos}. Waiting for confirmation.");
             
-            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+            if (_players.Count > 0)
             {
-                var hostId = SteamManager.Instance.CurrentLobby.Value.Owner.Id;
-                if (hostId == Steamworks.SteamClient.SteamId)
-                {
-                    HostProcessMove(Steamworks.SteamClient.SteamId, targetPos);
-                }
-                else
-                {
-                    SteamManager.Instance.SendMessageToHost($"MOVE:{targetPos.X}:{targetPos.Y}");
-                }
+                ShowValidMoves(_players[0]);
             }
         }
         else
@@ -594,21 +606,50 @@ public partial class BattleManager : Node
         }
     }
 
-    private void HostProcessMove(Steamworks.SteamId sender, Vector2I targetPos)
+    private void HostProcessMoveLock(Steamworks.SteamId sender, Vector2I targetPos)
     {
-        // Tell everyone else
-        SteamManager.Instance.BroadcastMessage($"MOVE_CONFIRM:{sender.Value}:{targetPos.X}:{targetPos.Y}");
-        // Process it locally for ourselves (since Broadcast doesn't send loopback)
-        OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"MOVE_CONFIRM:{sender.Value}:{targetPos.X}:{targetPos.Y}");
+        _confirmedMoves[sender.Value] = targetPos;
+        GD.Print($"[BattleManager] Player {sender.Value} locked move to {targetPos}. Confirmed: {_confirmedMoves.Count}/{_players.Count}");
+
+        int expectedPlayers = (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue) 
+            ? SteamManager.Instance.CurrentLobby.Value.MemberCount 
+            : _players.Count;
+
+        if (_confirmedMoves.Count >= expectedPlayers)
+        {
+            _ = ResolveMovesAsync();
+        }
+    }
+
+    private async System.Threading.Tasks.Task ResolveMovesAsync()
+    {
+        _isResolvingMoves = true;
+        Board?.ClearHighlights();
+        
+        var movers = _players.Where(p => _confirmedMoves.ContainsKey(p.SteamId)).ToList();
+        movers.Sort((a, b) => b.Data.BaseSpeed.CompareTo(a.Data.BaseSpeed));
+        
+        foreach (var p in movers)
+        {
+            var target = _confirmedMoves[p.SteamId];
+            
+            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+            {
+                SteamManager.Instance.BroadcastMessage($"MOVE_CONFIRM:{p.SteamId}:{target.X}:{target.Y}");
+            }
+            OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"MOVE_CONFIRM:{p.SteamId}:{target.X}:{target.Y}");
+            
+            await ToSignal(GetTree().CreateTimer(0.3f), SceneTreeTimer.SignalName.Timeout);
+        }
+        
+        _isResolvingMoves = false;
+        AdvancePhase();
     }
 
     private void CancelPendingMove()
     {
-        var player = _players[0];
-        if (player.GridPosition != _moveOrigin)
-        {
-            TrySelectOrConfirmMove(_moveOrigin);
-        }
+        if (_hasConfirmedMove) return;
+        TrySelectOrConfirmMove(_moveOrigin);
     }
     
     // -------------------------------------------------------------------------
@@ -635,7 +676,37 @@ public partial class BattleManager : Node
 
     private void OnNextPhaseRequested()
     {
-        AdvancePhase();
+        if (_currentPhase == BattlePhase.MovePhase)
+        {
+            if (_hasConfirmedMove) return;
+            
+            _hasConfirmedMove = true;
+            HUD?.SetNextPhaseButton("Waiting for others...", true);
+
+            var steamId = Steamworks.SteamClient.IsValid ? Steamworks.SteamClient.SteamId : 0;
+            
+            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+            {
+                var hostId = SteamManager.Instance.CurrentLobby.Value.Owner.Id;
+                if (hostId == Steamworks.SteamClient.SteamId)
+                {
+                    HostProcessMoveLock(steamId, _selectedMoveTarget);
+                }
+                else
+                {
+                    SteamManager.Instance.SendMessageToHost($"MOVE_LOCK:{_selectedMoveTarget.X}:{_selectedMoveTarget.Y}");
+                }
+            }
+            else
+            {
+                // Singleplayer fallback or before connection established
+                HostProcessMoveLock(steamId, _selectedMoveTarget);
+            }
+        }
+        else
+        {
+            AdvancePhase();
+        }
     }
 
     private void OnCardPlayedRequested(int index)

@@ -77,14 +77,31 @@ public partial class BattleHUD : CanvasLayer
 
     private void UpdatePhaseDisplay(BattlePhase phase)
     {
-        if (PhaseLabel == null) return;
-        PhaseLabel.Text = phase switch
+        if (PhaseLabel != null)
         {
-            BattlePhase.MovePhase   => "⚡ MOVE PHASE",
-            BattlePhase.BattlePhase => "⚔ BATTLE PHASE",
-            BattlePhase.SetupPhase  => "🔧 SETUP PHASE",
-            _                       => "—"
-        };
+            PhaseLabel.Text = phase switch
+            {
+                BattlePhase.MovePhase   => "⚡ MOVE PHASE",
+                BattlePhase.BattlePhase => "⚔ BATTLE PHASE",
+                BattlePhase.SetupPhase  => "🔧 SETUP PHASE",
+                _                       => "—"
+            };
+        }
+
+        if (NextPhaseBtn != null)
+        {
+            NextPhaseBtn.Text = phase == BattlePhase.MovePhase ? "Confirm Move" : "Next Phase";
+            NextPhaseBtn.Disabled = false;
+        }
+    }
+
+    public void SetNextPhaseButton(string text, bool disabled)
+    {
+        if (NextPhaseBtn != null)
+        {
+            NextPhaseBtn.Text = text;
+            NextPhaseBtn.Disabled = disabled;
+        }
     }
 
     public void UpdateRoundDisplay(int round)
