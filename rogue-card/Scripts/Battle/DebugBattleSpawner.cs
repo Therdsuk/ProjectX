@@ -100,18 +100,52 @@ public partial class DebugBattleSpawner : Node
             Manager.AddPlayer(remotePlayers[i], remoteStartPositions[i]);
         }
 
-        // Spawn one Test Enemy
-        var enemyData = new CharacterData { ClassName = "Debug Enemy", BaseHp = 50, BaseMana = 3, HandSize = 5 };
-        AddMockCardsToDeck(enemyData, false);
-        
-        var enemy = new EnemyCharacter { Name = "TestEnemy_Center" };
-        enemy.InitialiseFromData(enemyData);
-        var material = new StandardMaterial3D { AlbedoColor = new Color(1.0f, 0.0f, 0.0f) };
-        var enemyMesh = new MeshInstance3D { Mesh = new CapsuleMesh { Material = material }, Position = new Vector3(0, 1.0f, 0) };
-        enemy.AddChild(enemyMesh);
-        
-        Board.AddChild(enemy);
-        Manager.AddEnemy(enemy, new Vector2I(4, 4));
+        // Spawn enemies from the Inspector UnitsToSpawn list (entries where IsPlayer = false)
+        var enemySetups = new List<DebugUnitSetup>();
+        foreach (var setup in UnitsToSpawn)
+        {
+            if (!setup.IsPlayer) enemySetups.Add(setup);
+        }
+
+        // If no enemies configured in Inspector, fall back to one default enemy
+        if (enemySetups.Count == 0)
+        {
+            var enemyData = new CharacterData { ClassName = "Debug Enemy", BaseHp = 50, BaseMana = 3, HandSize = 5 };
+            AddMockCardsToDeck(enemyData, false);
+            var enemy = new EnemyCharacter { Name = "TestEnemy_Center" };
+            enemy.InitialiseFromData(enemyData);
+            var mat = new StandardMaterial3D { AlbedoColor = new Color(1.0f, 0.0f, 0.0f) };
+            var mesh = new MeshInstance3D { Mesh = new CapsuleMesh { Material = mat }, Position = new Vector3(0, 1.0f, 0) };
+            enemy.AddChild(mesh);
+            Board.AddChild(enemy);
+            Manager.AddEnemy(enemy, new Vector2I(4, 4));
+        }
+        else
+        {
+            foreach (var setup in enemySetups)
+            {
+                var enemyData = setup.OptionalDataOverride;
+                if (enemyData == null)
+                {
+                    enemyData = new CharacterData
+                    {
+                        ClassName = "Debug Enemy",
+                        BaseHp = setup.BaseHp,
+                        BaseMana = setup.BaseMana,
+                        HandSize = 5
+                    };
+                    AddMockCardsToDeck(enemyData, false);
+                }
+
+                var enemy = new EnemyCharacter { Name = $"TestEnemy_{setup.StartPos}" };
+                enemy.InitialiseFromData(enemyData);
+                var mat = new StandardMaterial3D { AlbedoColor = new Color(1.0f, 0.0f, 0.0f) };
+                var mesh = new MeshInstance3D { Mesh = new CapsuleMesh { Material = mat }, Position = new Vector3(0, 1.0f, 0) };
+                enemy.AddChild(mesh);
+                Board.AddChild(enemy);
+                Manager.AddEnemy(enemy, setup.StartPos);
+            }
+        }
 
         if (localPlayer != null)
         {

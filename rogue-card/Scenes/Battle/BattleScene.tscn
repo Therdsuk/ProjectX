@@ -8,12 +8,19 @@
 
 [sub_resource type="Resource" id="Resource_18ceg"]
 script = ExtResource("4_glr0r")
+IsPlayer = false
 StartPos = Vector2i(2, 2)
 
 [sub_resource type="Resource" id="Resource_kb2gb"]
 script = ExtResource("4_glr0r")
 IsPlayer = false
 StartPos = Vector2i(5, 2)
+
+[sub_resource type="Resource" id="Resource_glr0r"]
+script = ExtResource("4_glr0r")
+IsPlayer = false
+StartPos = Vector2i(5, 3)
+metadata/_custom_type_script = "uid://0kauqqcvxqou"
 
 [node name="BattleScene" type="Node3D" unique_id=1687087767]
 
@@ -39,7 +46,7 @@ MainCamera = NodePath("../Camera3D")
 script = ExtResource("4_debugspawner")
 Manager = NodePath("../BattleManager")
 Board = NodePath("../BattleBoard")
-UnitsToSpawn = Array[ExtResource("4_glr0r")]([SubResource("Resource_18ceg"), SubResource("Resource_kb2gb")])
+UnitsToSpawn = Array[ExtResource("4_glr0r")]([SubResource("Resource_18ceg"), SubResource("Resource_kb2gb"), SubResource("Resource_glr0r")])
 
 [node name="BattleHUD" type="CanvasLayer" parent="." unique_id=2095286352 node_paths=PackedStringArray("PhaseLabel", "RoundLabel", "NextPhaseBtn", "HandContainer")]
 script = ExtResource("3_battlehud")
