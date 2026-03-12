@@ -37,10 +37,18 @@ public partial class HealthBar3D : Node3D
         _sprite = new Sprite3D();
         _sprite.Billboard = BaseMaterial3D.BillboardModeEnum.Enabled;
         _sprite.Texture = _viewport.GetTexture();
+        _sprite.PixelSize = 0.01f;   // 150px * 0.01 = 1.5 world units wide
         
-        // Position it 2 meters above the origin of the attached node
+        // Position it above the unit — call SetYOffset() after adding to scene to customise
         _sprite.Position = new Vector3(0, 2.0f, 0); 
         AddChild(_sprite);
+    }
+
+    /// <summary>Move the health bar to a specific Y world position above the character origin.</summary>
+    public void SetYOffset(float y)
+    {
+        if (_sprite != null)
+            _sprite.Position = new Vector3(0, y, 1.0f);
     }
 
     /// <summary>

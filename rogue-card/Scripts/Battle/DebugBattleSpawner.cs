@@ -61,20 +61,13 @@ public partial class DebugBattleSpawner : Node
 
         foreach (var member in lobby.Members)
         {
-            var data = new CharacterData 
-            { 
-                ClassName = member.Name, 
-                BaseHp = 100, 
-                BaseMana = 3, 
-                HandSize = 5 
-            };
+            // Read the class the player selected in the Main Menu
+            string classId = lobby.GetMemberData(member, "class");
+            var data = ClassRegistry.Get(classId);  // Defaults to Warrior if empty
             AddMockCardsToDeck(data, true);
 
             var player = new PlayerCharacter { Name = $"Player_{member.Name}", SteamId = member.Id.Value };
             player.InitialiseFromData(data);
-            
-            var playerMesh = new MeshInstance3D { Mesh = new BoxMesh(), Position = new Vector3(0, 0.5f, 0) };
-            player.AddChild(playerMesh);
             
             Board.AddChild(player);
             
@@ -110,42 +103,37 @@ public partial class DebugBattleSpawner : Node
         // If no enemies configured in Inspector, fall back to one default enemy
         if (enemySetups.Count == 0)
         {
-            var enemyData = new CharacterData { ClassName = "Debug Enemy", BaseHp = 50, BaseMana = 3, HandSize = 5 };
+            var enemyData = ClassRegistry.Get(ClassRegistry.Warrior);
+            enemyData.ClassName = "Debug Enemy";
             AddMockCardsToDeck(enemyData, false);
             var enemy = new EnemyCharacter { Name = "TestEnemy_Center" };
             enemy.InitialiseFromData(enemyData);
-            var mat = new StandardMaterial3D { AlbedoColor = new Color(1.0f, 0.0f, 0.0f) };
-            var mesh = new MeshInstance3D { Mesh = new CapsuleMesh { Material = mat }, Position = new Vector3(0, 1.0f, 0) };
-            enemy.AddChild(mesh);
             Board.AddChild(enemy);
             Manager.AddEnemy(enemy, new Vector2I(4, 4));
         }
-        else
-        {
-            foreach (var setup in enemySetups)
+            else
             {
-                var enemyData = setup.OptionalDataOverride;
-                if (enemyData == null)
+                foreach (var setup in enemySetups)
                 {
-                    enemyData = new CharacterData
+                    var enemyData = setup.OptionalDataOverride;
+                    if (enemyData == null)
                     {
-                        ClassName = "Debug Enemy",
-                        BaseHp = setup.BaseHp,
-                        BaseMana = setup.BaseMana,
-                        HandSize = 5
-                    };
-                    AddMockCardsToDeck(enemyData, false);
-                }
+                        enemyData = new CharacterData
+                        {
+                            ClassName = "Debug Enemy",
+                            BaseHp = setup.BaseHp,
+                            BaseMana = setup.BaseMana,
+                            HandSize = 5
+                        };
+                        AddMockCardsToDeck(enemyData, false);
+                    }
 
-                var enemy = new EnemyCharacter { Name = $"TestEnemy_{setup.StartPos}" };
-                enemy.InitialiseFromData(enemyData);
-                var mat = new StandardMaterial3D { AlbedoColor = new Color(1.0f, 0.0f, 0.0f) };
-                var mesh = new MeshInstance3D { Mesh = new CapsuleMesh { Material = mat }, Position = new Vector3(0, 1.0f, 0) };
-                enemy.AddChild(mesh);
-                Board.AddChild(enemy);
-                Manager.AddEnemy(enemy, setup.StartPos);
+                    var enemy = new EnemyCharacter { Name = $"TestEnemy_{setup.StartPos}" };
+                    enemy.InitialiseFromData(enemyData);
+                    Board.AddChild(enemy);
+                    Manager.AddEnemy(enemy, setup.StartPos);
+                }
             }
-        }
 
         if (localPlayer != null)
         {
@@ -178,10 +166,6 @@ public partial class DebugBattleSpawner : Node
             {
                 var player = new PlayerCharacter { Name = $"TestPlayer_{setup.StartPos}" };
                 player.InitialiseFromData(data);
-                
-                var playerMesh = new MeshInstance3D { Mesh = new BoxMesh(), Position = new Vector3(0, 0.5f, 0) };
-                player.AddChild(playerMesh);
-                
                 Board.AddChild(player);
                 Manager.AddPlayer(player, setup.StartPos);
 
@@ -191,11 +175,6 @@ public partial class DebugBattleSpawner : Node
             {
                 var enemy = new EnemyCharacter { Name = $"TestEnemy_{setup.StartPos}" };
                 enemy.InitialiseFromData(data);
-                
-                var material = new StandardMaterial3D { AlbedoColor = new Color(1.0f, 0.0f, 0.0f) };
-                var enemyMesh = new MeshInstance3D { Mesh = new CapsuleMesh { Material = material }, Position = new Vector3(0, 1.0f, 0) };
-                enemy.AddChild(enemyMesh);
-                
                 Board.AddChild(enemy);
                 Manager.AddEnemy(enemy, setup.StartPos);
             }

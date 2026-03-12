@@ -20,6 +20,7 @@ public partial class EnemyCharacter : Node3D
     public CardHand Hand { get; } = new();
 
     private HealthBar3D _healthBar;
+    private Sprite3D _sprite;
 
     public bool IsAlive => CurrentHp > 0;
 
@@ -27,6 +28,23 @@ public partial class EnemyCharacter : Node3D
     {
         _healthBar = new HealthBar3D();
         AddChild(_healthBar);
+
+        // Sprite3D — red tint so enemies are visually distinct
+        _sprite = new Sprite3D
+        {
+            PixelSize     = 0.05f,
+            Centered      = true,
+            Billboard     = BaseMaterial3D.BillboardModeEnum.Enabled,
+            Position      = new Vector3(0, 1.5f, 0),
+            Modulate      = new Color(1.0f, 0.4f, 0.4f),
+            TextureFilter = BaseMaterial3D.TextureFilterEnum.Linear,
+        };
+        AddChild(_sprite);
+
+        if (Data?.Sprite != null)
+            _sprite.Texture = Data.Sprite;
+
+        _healthBar?.SetYOffset(0.05f);
 
         if (Data != null)
             InitialiseFromData(Data);
@@ -41,6 +59,11 @@ public partial class EnemyCharacter : Node3D
         CurrentMana = MaxMana;
         Hand.MaxHandSize = data.HandSize;
         Deck.InitialiseDeck(data.StartingDeck);
+
+        // Apply sprite texture if defined
+        if (_sprite != null && data.Sprite != null)
+            _sprite.Texture = data.Sprite;
+
         _healthBar?.UpdateHealth(CurrentHp, MaxHp, isEnemy: true);
         GD.Print($"[EnemyCharacter] Initialised: {data.ClassName} | HP:{MaxHp}");
     }

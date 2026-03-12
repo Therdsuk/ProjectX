@@ -37,6 +37,7 @@ public partial class PlayerCharacter : Node3D
     public CardHand Hand  { get; } = new();
 
     private HealthBar3D _healthBar;
+    private Sprite3D _sprite;
 
     public bool IsAlive => CurrentHp > 0;
 
@@ -46,8 +47,28 @@ public partial class PlayerCharacter : Node3D
 
     public override void _Ready()
     {
+        // Health bar
         _healthBar = new HealthBar3D();
         AddChild(_healthBar);
+
+        // Sprite3D — shows character art. Texture assigned below or on InitialiseFromData.
+        _sprite = new Sprite3D
+        {
+            PixelSize     = 0.1f,
+            Centered      = true,
+            Billboard     = BaseMaterial3D.BillboardModeEnum.Enabled,
+            Position      = new Vector3(0, 0.85f, 0),
+            TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
+        };
+        AddChild(_sprite);
+
+        // If InitialiseFromData was already called before _Ready() (spawner case),
+        // Data is already set but _sprite wasn't ready yet — apply texture now.
+        if (Data?.Sprite != null)
+            _sprite.Texture = Data.Sprite;
+
+        // Health bar flat at ground level - avoids perspective floating issues
+        _healthBar?.SetYOffset(0.05f);
 
         if (Data != null)
             InitialiseFromData(Data);
@@ -71,6 +92,10 @@ public partial class PlayerCharacter : Node3D
 
         // Initialise deck from the class starting deck
         Deck.InitialiseDeck(data.StartingDeck);
+
+        // Apply sprite texture if one is defined for this class
+        if (_sprite != null && data.Sprite != null)
+            _sprite.Texture = data.Sprite;
 
         _healthBar?.UpdateHealth(CurrentHp, MaxHp, isEnemy: false);
 

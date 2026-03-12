@@ -12,6 +12,10 @@ public partial class CharacterData : Resource
 {
     [Export] public string Id          { get; set; } = "";
     [Export] public string ClassName   { get; set; } = "Unknown";
+    [Export] public string ClassDescription { get; set; } = "";
+    
+    /// <summary>Sprite shown in the battle board (Sprite3D) and class select UI. Set this in the Inspector or ClassRegistry.</summary>
+    [Export] public Texture2D Sprite   { get; set; }
 
     // -------------------------------------------------------------------------
     // Base Stats
