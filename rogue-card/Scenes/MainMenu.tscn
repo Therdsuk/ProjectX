@@ -2,7 +2,17 @@
 
 [ext_resource type="Script" path="res://Scripts/UI/MainMenu.cs" id="1_mnm"]
 
-[node name="MainMenu" type="Control" node_paths=PackedStringArray("HostButton", "LeaveButton", "ReadyButton", "StartGameButton", "LobbyLabel", "PlayerList", "LobbyPanel", "ClassSelectPanel", "ClassDescriptionLabel", "WarriorButton", "ArcherButton", "WizardButton", "HealerButton")]
+; ──────────────────────────────────────────────────────────────────────────────
+; Root
+; ──────────────────────────────────────────────────────────────────────────────
+[node name="MainMenu" type="Control" node_paths=PackedStringArray(
+    "MainPanel","CharacterCreatePanel","CharacterSelectPanel","LobbyPanel",
+    "HostButton","LeaveButton","ReadyButton","StartGameButton","LobbyLabel","PlayerList",
+    "CreateNameField",
+    "CreateWarriorBtn","CreateArcherBtn","CreateWizardBtn","CreateHealerBtn",
+    "CreateClassDescLabel","CreateSaveBtn",
+    "SelectCharacterList","SelectDescLabel","SelectHostBtn","SelectJoinNoticeLabel",
+    "DeleteCharacterBtn")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,21 +20,33 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_mnm")
-HostButton = NodePath("LobbyPanel/VBoxContainer/HostButton")
-LeaveButton = NodePath("LobbyPanel/VBoxContainer/LeaveButton")
-ReadyButton = NodePath("LobbyPanel/VBoxContainer/ReadyButton")
-StartGameButton = NodePath("LobbyPanel/VBoxContainer/StartGameButton")
-LobbyLabel = NodePath("LobbyPanel/VBoxContainer/LobbyLabel")
-PlayerList = NodePath("LobbyPanel/VBoxContainer/PlayerList")
-LobbyPanel = NodePath("LobbyPanel")
-ClassSelectPanel = NodePath("ClassSelectPanel")
-ClassDescriptionLabel = NodePath("ClassSelectPanel/VBoxContainer/ClassDescriptionLabel")
-WarriorButton = NodePath("ClassSelectPanel/VBoxContainer/ClassButtons/WarriorButton")
-ArcherButton = NodePath("ClassSelectPanel/VBoxContainer/ClassButtons/ArcherButton")
-WizardButton = NodePath("ClassSelectPanel/VBoxContainer/ClassButtons/WizardButton")
-HealerButton = NodePath("ClassSelectPanel/VBoxContainer/ClassButtons/HealerButton")
+MainPanel             = NodePath("MainPanel")
+CharacterCreatePanel  = NodePath("CharacterCreatePanel")
+CharacterSelectPanel  = NodePath("CharacterSelectPanel")
+LobbyPanel            = NodePath("LobbyPanel")
+HostButton            = NodePath("LobbyPanel/VBox/HostButton")
+LeaveButton           = NodePath("LobbyPanel/VBox/LeaveButton")
+ReadyButton           = NodePath("LobbyPanel/VBox/ReadyButton")
+StartGameButton       = NodePath("LobbyPanel/VBox/StartGameButton")
+LobbyLabel            = NodePath("LobbyPanel/VBox/LobbyLabel")
+PlayerList            = NodePath("LobbyPanel/VBox/PlayerList")
+CreateNameField       = NodePath("CharacterCreatePanel/VBox/NameField")
+CreateWarriorBtn      = NodePath("CharacterCreatePanel/VBox/ClassRow/WarriorBtn")
+CreateArcherBtn       = NodePath("CharacterCreatePanel/VBox/ClassRow/ArcherBtn")
+CreateWizardBtn       = NodePath("CharacterCreatePanel/VBox/ClassRow/WizardBtn")
+CreateHealerBtn       = NodePath("CharacterCreatePanel/VBox/ClassRow/HealerBtn")
+CreateClassDescLabel  = NodePath("CharacterCreatePanel/VBox/ClassDescLabel")
+CreateSaveBtn         = NodePath("CharacterCreatePanel/VBox/SaveBtn")
+SelectCharacterList   = NodePath("CharacterSelectPanel/VBox/CharacterList")
+SelectDescLabel       = NodePath("CharacterSelectPanel/VBox/DescLabel")
+SelectHostBtn         = NodePath("CharacterSelectPanel/VBox/BtnRow/HostBtn")
+SelectJoinNoticeLabel = NodePath("CharacterSelectPanel/VBox/JoinNoticeLabel")
+DeleteCharacterBtn    = NodePath("CharacterSelectPanel/VBox/BtnRow/DeleteBtn")
 
-[node name="LobbyPanel" type="Control" parent="."]
+; ──────────────────────────────────────────────────────────────────────────────
+; Main Panel (landing screen)
+; ──────────────────────────────────────────────────────────────────────────────
+[node name="MainPanel" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,7 +54,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="LobbyPanel"]
+[node name="VBox" type="VBoxContainer" parent="MainPanel"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -40,45 +62,29 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -150.0
-offset_top = -220.0
+offset_top = -80.0
 offset_right = 150.0
-offset_bottom = 220.0
+offset_bottom = 80.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Title" type="Label" parent="LobbyPanel/VBoxContainer"]
+[node name="Title" type="Label" parent="MainPanel/VBox"]
 layout_mode = 2
 text = "ROGUE CARD"
 horizontal_alignment = 1
 
-[node name="HostButton" type="Button" parent="LobbyPanel/VBoxContainer"]
+[node name="CreateCharBtn" type="Button" parent="MainPanel/VBox"]
 layout_mode = 2
-text = "Host Game"
+text = "Create Character"
 
-[node name="LeaveButton" type="Button" parent="LobbyPanel/VBoxContainer"]
+[node name="PlayBtn" type="Button" parent="MainPanel/VBox"]
 layout_mode = 2
-disabled = true
-text = "Leave Lobby"
+text = "Play (Select Character)"
 
-[node name="ReadyButton" type="Button" parent="LobbyPanel/VBoxContainer"]
-layout_mode = 2
-disabled = true
-text = "Ready Up"
-
-[node name="StartGameButton" type="Button" parent="LobbyPanel/VBoxContainer"]
-visible = false
-layout_mode = 2
-text = "Start Game"
-
-[node name="LobbyLabel" type="Label" parent="LobbyPanel/VBoxContainer"]
-layout_mode = 2
-text = "Status: Not in Lobby"
-
-[node name="PlayerList" type="ItemList" parent="LobbyPanel/VBoxContainer"]
-custom_minimum_size = Vector2(300, 200)
-layout_mode = 2
-
-[node name="ClassSelectPanel" type="Control" parent="."]
+; ──────────────────────────────────────────────────────────────────────────────
+; Character Create Panel
+; ──────────────────────────────────────────────────────────────────────────────
+[node name="CharacterCreatePanel" type="Control" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -87,7 +93,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ClassSelectPanel"]
+[node name="VBox" type="VBoxContainer" parent="CharacterCreatePanel"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -101,37 +107,166 @@ offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SelectTitle" type="Label" parent="ClassSelectPanel/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="CharacterCreatePanel/VBox"]
 layout_mode = 2
-text = "Choose Your Class"
+text = "Create Character"
 horizontal_alignment = 1
 
-[node name="ClassButtons" type="HBoxContainer" parent="ClassSelectPanel/VBoxContainer"]
+[node name="NameField" type="LineEdit" parent="CharacterCreatePanel/VBox"]
+layout_mode = 2
+placeholder_text = "Enter character name..."
+
+[node name="ClassRow" type="HBoxContainer" parent="CharacterCreatePanel/VBox"]
 layout_mode = 2
 alignment = 1
 
-[node name="WarriorButton" type="Button" parent="ClassSelectPanel/VBoxContainer/ClassButtons"]
+[node name="WarriorBtn" type="Button" parent="CharacterCreatePanel/VBox/ClassRow"]
 layout_mode = 2
 text = "Warrior"
 
-[node name="ArcherButton" type="Button" parent="ClassSelectPanel/VBoxContainer/ClassButtons"]
+[node name="ArcherBtn" type="Button" parent="CharacterCreatePanel/VBox/ClassRow"]
 layout_mode = 2
 text = "Archer"
 
-[node name="WizardButton" type="Button" parent="ClassSelectPanel/VBoxContainer/ClassButtons"]
+[node name="WizardBtn" type="Button" parent="CharacterCreatePanel/VBox/ClassRow"]
 layout_mode = 2
 text = "Wizard"
 
-[node name="HealerButton" type="Button" parent="ClassSelectPanel/VBoxContainer/ClassButtons"]
+[node name="HealerBtn" type="Button" parent="CharacterCreatePanel/VBox/ClassRow"]
 layout_mode = 2
 text = "Healer"
 
-[node name="ClassDescriptionLabel" type="Label" parent="ClassSelectPanel/VBoxContainer"]
+[node name="ClassDescLabel" type="Label" parent="CharacterCreatePanel/VBox"]
 layout_mode = 2
-text = "Select a class above to see its description."
+text = "Select a class above."
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="ConfirmButton" type="Button" parent="ClassSelectPanel/VBoxContainer"]
+[node name="SaveBtn" type="Button" parent="CharacterCreatePanel/VBox"]
 layout_mode = 2
-text = "Confirm & Enter Lobby"
+text = "Save Character"
+
+[node name="BackBtn" type="Button" parent="CharacterCreatePanel/VBox"]
+layout_mode = 2
+text = "Back"
+
+; ──────────────────────────────────────────────────────────────────────────────
+; Character Select Panel
+; ──────────────────────────────────────────────────────────────────────────────
+[node name="CharacterSelectPanel" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="CharacterSelectPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -180.0
+offset_right = 180.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="Label" parent="CharacterSelectPanel/VBox"]
+layout_mode = 2
+text = "Select Your Character"
+horizontal_alignment = 1
+
+[node name="CharacterList" type="ItemList" parent="CharacterSelectPanel/VBox"]
+custom_minimum_size = Vector2(300, 160)
+layout_mode = 2
+
+[node name="DescLabel" type="Label" parent="CharacterSelectPanel/VBox"]
+layout_mode = 2
+text = "Pick a character to see their stats."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="JoinNoticeLabel" type="Label" parent="CharacterSelectPanel/VBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="BtnRow" type="HBoxContainer" parent="CharacterSelectPanel/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="HostBtn" type="Button" parent="CharacterSelectPanel/VBox/BtnRow"]
+layout_mode = 2
+text = "Host with this Character"
+
+[node name="DeleteBtn" type="Button" parent="CharacterSelectPanel/VBox/BtnRow"]
+layout_mode = 2
+text = "Delete"
+
+[node name="BackBtn2" type="Button" parent="CharacterSelectPanel/VBox"]
+layout_mode = 2
+text = "Back"
+
+; ──────────────────────────────────────────────────────────────────────────────
+; Lobby Panel
+; ──────────────────────────────────────────────────────────────────────────────
+[node name="LobbyPanel" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="LobbyPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -200.0
+offset_right = 150.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LobbyTitleLabel" type="Label" parent="LobbyPanel/VBox"]
+layout_mode = 2
+text = "Lobby"
+horizontal_alignment = 1
+
+[node name="HostButton" type="Button" parent="LobbyPanel/VBox"]
+visible = false
+layout_mode = 2
+text = "Host Game"
+
+[node name="LeaveButton" type="Button" parent="LobbyPanel/VBox"]
+layout_mode = 2
+disabled = true
+text = "Leave Lobby"
+
+[node name="ReadyButton" type="Button" parent="LobbyPanel/VBox"]
+layout_mode = 2
+disabled = true
+text = "Ready Up"
+
+[node name="StartGameButton" type="Button" parent="LobbyPanel/VBox"]
+visible = false
+layout_mode = 2
+text = "Start Game"
+
+[node name="LobbyLabel" type="Label" parent="LobbyPanel/VBox"]
+layout_mode = 2
+text = "Status: Not in Lobby"
+
+[node name="PlayerList" type="ItemList" parent="LobbyPanel/VBox"]
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 2
