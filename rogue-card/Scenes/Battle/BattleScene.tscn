@@ -5,21 +5,38 @@
 [ext_resource type="Script" uid="uid://hioo46j0yc3n" path="res://Scripts/Battle/BattleHUD.cs" id="3_battlehud"]
 [ext_resource type="Script" uid="uid://3p3prfqh4d55" path="res://Scripts/Battle/DebugBattleSpawner.cs" id="4_debugspawner"]
 [ext_resource type="Script" uid="uid://0kauqqcvxqou" path="res://Scripts/Battle/DebugUnitSetup.cs" id="4_glr0r"]
+[ext_resource type="Texture2D" uid="uid://bptevcdsjei8x" path="res://Assets/Art/Enemies/enemy.png" id="5_owtnx"]
+[ext_resource type="Script" uid="uid://cwo4ll8ki1xtn" path="res://Scripts/Cards/CardData.cs" id="6_slsav"]
+[ext_resource type="Script" uid="uid://7x012wtx2lrn" path="res://Scripts/Characters/CharacterData.cs" id="7_scfjq"]
+
+[sub_resource type="Resource" id="Resource_owtnx"]
+script = ExtResource("6_slsav")
+BaseDamage = 20
+metadata/_custom_type_script = "uid://cwo4ll8ki1xtn"
+
+[sub_resource type="Resource" id="Resource_wmpf3"]
+script = ExtResource("7_scfjq")
+Sprite = ExtResource("5_owtnx")
+StartingDeck = Array[ExtResource("6_slsav")]([SubResource("Resource_owtnx")])
+metadata/_custom_type_script = "uid://7x012wtx2lrn"
 
 [sub_resource type="Resource" id="Resource_18ceg"]
 script = ExtResource("4_glr0r")
 IsPlayer = false
 StartPos = Vector2i(2, 2)
+OptionalDataOverride = SubResource("Resource_wmpf3")
 
 [sub_resource type="Resource" id="Resource_kb2gb"]
 script = ExtResource("4_glr0r")
 IsPlayer = false
 StartPos = Vector2i(5, 2)
+OptionalDataOverride = SubResource("Resource_wmpf3")
 
 [sub_resource type="Resource" id="Resource_glr0r"]
 script = ExtResource("4_glr0r")
 IsPlayer = false
 StartPos = Vector2i(5, 3)
+OptionalDataOverride = SubResource("Resource_wmpf3")
 metadata/_custom_type_script = "uid://0kauqqcvxqou"
 
 [node name="BattleScene" type="Node3D" unique_id=1687087767]

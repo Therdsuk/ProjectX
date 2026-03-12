@@ -103,8 +103,8 @@ public partial class DebugBattleSpawner : Node
         // If no enemies configured in Inspector, fall back to one default enemy
         if (enemySetups.Count == 0)
         {
-            var enemyData = ClassRegistry.Get(ClassRegistry.Warrior);
-            enemyData.ClassName = "Debug Enemy";
+            // Default to a Goblin if no enemies configured
+            var enemyData = EnemyRegistry.Get(EnemyRegistry.Goblin);
             AddMockCardsToDeck(enemyData, false);
             var enemy = new EnemyCharacter { Name = "TestEnemy_Center" };
             enemy.InitialiseFromData(enemyData);

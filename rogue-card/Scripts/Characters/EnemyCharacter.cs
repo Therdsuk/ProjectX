@@ -32,12 +32,12 @@ public partial class EnemyCharacter : Node3D
         // Sprite3D — red tint so enemies are visually distinct
         _sprite = new Sprite3D
         {
-            PixelSize     = 0.05f,
+            PixelSize     = 0.1f,
             Centered      = true,
             Billboard     = BaseMaterial3D.BillboardModeEnum.Enabled,
-            Position      = new Vector3(0, 1.5f, 0),
-            Modulate      = new Color(1.0f, 0.4f, 0.4f),
-            TextureFilter = BaseMaterial3D.TextureFilterEnum.Linear,
+            Position      = new Vector3(0, 0.85f, 0),
+            Modulate      = new Color(1.0f, 1.0f, 1.0f),
+            TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
         };
         AddChild(_sprite);
 

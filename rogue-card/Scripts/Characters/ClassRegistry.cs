@@ -26,7 +26,7 @@ public static class ClassRegistry
             Archer  => MakeArcher(),
             Wizard  => MakeWizard(),
             Healer  => MakeHealer(),
-            _       => MakeWarrior(),   // "warrior" or anything unknown
+            _       => MakeWarrior(),
         };
     }
 
