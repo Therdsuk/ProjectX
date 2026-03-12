@@ -454,9 +454,8 @@ public partial class BattleManager : Node
             ShowValidMoves(player);
         }
 
-        // Draw the initial cards and update the visual hand HUD immediately
-        player.DrawToHandLimit();
-        HUD?.UpdateHand(player.Hand.Cards);
+        // Draw the initial cards for all units and update HUD
+        RefillAllHands();
     }
 
     // -------------------------------------------------------------------------
@@ -749,6 +748,13 @@ public partial class BattleManager : Node
         foreach (var player in _players)
         {
             player.DrawToHandLimit();
+        }
+        foreach (var enemy in _enemies)
+        {
+            if (enemy.IsAlive)
+            {
+                enemy.DrawToHandLimit();
+            }
         }
         
         // M1: Since we only have one test player visibly bound to the HUD right now

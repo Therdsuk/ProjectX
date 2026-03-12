@@ -102,6 +102,8 @@ public partial class DebugBattleSpawner : Node
 
         // Spawn one Test Enemy
         var enemyData = new CharacterData { ClassName = "Debug Enemy", BaseHp = 50, BaseMana = 3, HandSize = 5 };
+        AddMockCardsToDeck(enemyData, false);
+        
         var enemy = new EnemyCharacter { Name = "TestEnemy_Center" };
         enemy.InitialiseFromData(enemyData);
         var material = new StandardMaterial3D { AlbedoColor = new Color(1.0f, 0.0f, 0.0f) };

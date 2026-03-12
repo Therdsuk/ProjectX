@@ -53,6 +53,17 @@ public partial class EnemyCharacter : Node3D
             GD.Print($"[EnemyCharacter] {Data?.ClassName} defeated.");
     }
 
+    /// <summary>Draw cards up to hand limit.</summary>
+    public void DrawToHandLimit()
+    {
+        while (Hand.FreeSlotsCount > 0)
+        {
+            var card = Deck.Draw();
+            if (card == null) break;
+            Hand.AddCard(card);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Utility AI Decisions (M4)
     // -------------------------------------------------------------------------
@@ -88,15 +99,28 @@ public partial class EnemyCharacter : Node3D
         
         if (targetPlayer == null) return GridPosition; // All dead
 
-        int range = Data.MoveRange;
+        // Find optimal range based on hand cards
+        int optimalRange = 1; // Default to melee pursuit if no cards
+        int highestDamage = -1;
+
+        foreach (var card in Hand.Cards)
+        {
+            if (card.CardType == CardType.Battle && card.BaseDamage > highestDamage)
+            {
+                highestDamage = card.BaseDamage;
+                optimalRange = card.Range;
+            }
+        }
+
+        int moveRange = Data.MoveRange;
         var validMoves = new List<Vector2I>();
 
         // 1. Gather all valid tiles in MoveRange
-        for (int q = -range; q <= range; q++)
+        for (int q = -moveRange; q <= moveRange; q++)
         {
-            for (int r = -range; r <= range; r++)
+            for (int r = -moveRange; r <= moveRange; r++)
             {
-                if (Mathf.Abs(q) + Mathf.Abs(r) <= range)
+                if (Mathf.Abs(q) + Mathf.Abs(r) <= moveRange)
                 {
                     Vector2I checkPos = GridPosition + new Vector2I(q, r);
 
@@ -122,11 +146,11 @@ public partial class EnemyCharacter : Node3D
         var bestMoves = new List<Vector2I>();
         foreach (var move in validMoves)
         {
-            // Closer is better
             float distToTarget = MetricManhattan(move, targetPlayerFuturePos);
-            float score = -distToTarget; 
             
-            // Can add more heuristics here later (e.g. keeping distance if ranged)
+            // The score is negatively impacted by how far away it is from the optimal range.
+            // i.e., distance to sweet spot. If distToTarget == optimalRange, penalty is 0.
+            float score = -Mathf.Abs(distToTarget - optimalRange);
             
             if (score > bestScore)
             {
