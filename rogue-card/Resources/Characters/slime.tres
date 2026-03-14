@@ -17,5 +17,6 @@ Id = "01"
 ClassName = "Blue Slime"
 Sprite = ExtResource("1_dh38v")
 BaseHp = 60
+MoveRange = 1
 StartingDeck = Array[ExtResource("2_kmmfm")]([SubResource("Resource_vb5ym")])
 metadata/_custom_type_script = "uid://7x012wtx2lrn"

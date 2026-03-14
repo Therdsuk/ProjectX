@@ -18,5 +18,6 @@ ClassName = "Green Goblin"
 Sprite = ExtResource("1_lj5h7")
 BaseHp = 80
 BaseAttack = 20
+MoveRange = 2
 StartingDeck = Array[ExtResource("1_hjht6")]([SubResource("Resource_k18vb")])
 metadata/_custom_type_script = "uid://7x012wtx2lrn"

@@ -90,7 +90,13 @@ public partial class BattleHUD : CanvasLayer
 
         if (NextPhaseBtn != null)
         {
-            NextPhaseBtn.Text = phase == BattlePhase.MovePhase ? "Confirm Move" : "Next Phase";
+            NextPhaseBtn.Text = phase switch
+            {
+                BattlePhase.MovePhase   => "Confirm Move",
+                BattlePhase.BattlePhase => "Confirm Battle",
+                BattlePhase.SetupPhase  => "Confirm Setup",
+                _                       => "Confirm"
+            };
             NextPhaseBtn.Disabled = false;
         }
     }

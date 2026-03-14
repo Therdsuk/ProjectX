@@ -47,9 +47,11 @@ public partial class BattleManager : Node
     private Vector2I _selectedMoveTarget = new Vector2I(-999, -999);
     private bool _hasConfirmedMove = false;
     
-    // Host Movement Resolution
     private readonly Dictionary<ulong, Vector2I> _confirmedMoves = new();
     private bool _isResolvingMoves = false;
+    
+    // Phase Confirmation State
+    private readonly HashSet<ulong> _readyPlayers = new();
 
     // Targeting State
     private int _hoveredCardIndex = -1;
@@ -170,6 +172,22 @@ public partial class BattleManager : Node
         EnterPhase(_currentPhase);
     }
 
+    private void HostProcessPhaseReady(ulong steamId)
+    {
+        _readyPlayers.Add(steamId);
+        
+        int expectedPlayers = (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue) 
+            ? SteamManager.Instance.CurrentLobby.Value.MemberCount 
+            : _players.Count;
+
+        GD.Print($"[BattleManager] Player {steamId} is ready for next phase. Ready: {_readyPlayers.Count}/{expectedPlayers}");
+
+        if (_readyPlayers.Count >= expectedPlayers)
+        {
+            AdvancePhase();
+        }
+    }
+
     private void OnSteamNetworkMessage(Steamworks.SteamId sender, string message)
     {
         GD.Print($"[BattleManager] Received Network Msg from {sender.Value}: {message}");
@@ -187,6 +205,11 @@ public partial class BattleManager : Node
                 // Note: The host should technically send all the exact battle queue events, but for now we sync phases
                 EnterPhase(_currentPhase);
             }
+        }
+        else if (parts[0] == "PHASE_READY")
+        {
+            // Host receives readiness from clients
+            HostProcessPhaseReady(sender);
         }
         else if (parts[0] == "MOVE_LOCK")
         {
@@ -321,6 +344,8 @@ public partial class BattleManager : Node
         _selectedCardIndex = -1;
         _hoveredCardIndex = -1;
         _lastHoveredCell = new Vector2I(-999, -999);
+        _readyPlayers.Clear();
+        _hasConfirmedMove = false;
         Board?.ClearHighlights();
 
         // Notify the event bus (HUD listens to update its label and internal phase)
@@ -799,7 +824,28 @@ public partial class BattleManager : Node
         }
         else
         {
-            AdvancePhase();
+            // General phase confirmation
+            HUD?.SetNextPhaseButton("Waiting for others...", true);
+
+            var steamId = Steamworks.SteamClient.IsValid ? Steamworks.SteamClient.SteamId : 0;
+            
+            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+            {
+                var hostId = SteamManager.Instance.CurrentLobby.Value.Owner.Id;
+                if (hostId == Steamworks.SteamClient.SteamId)
+                {
+                    HostProcessPhaseReady(steamId);
+                }
+                else
+                {
+                    SteamManager.Instance.SendMessageToHost("PHASE_READY");
+                }
+            }
+            else
+            {
+                // Singleplayer fallback
+                HostProcessPhaseReady(steamId);
+            }
         }
     }
 
