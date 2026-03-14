@@ -1,99 +1,56 @@
 using Godot;
 
 /// <summary>
-/// Registry of all enemy types. Mirrors the design of ClassRegistry but
-/// for enemy characters. Each entry defines stats and points to a sprite
-/// in Assets/Art/Enemies/.
+/// Registry of all enemy types.
+/// Each enemy is defined as a CharacterData .tres file under Resources/Enemies/.
+/// The file name must match the enum name exactly, e.g. Goblin → Resources/Enemies/Goblin.tres
 ///
-/// Add new enemy types here as the game grows.
+/// To add a new enemy:
+///   1. Add its name to the EnemyType enum below
+///   2. Create Resources/Enemies/YourEnemy.tres in the Godot Editor
+///   3. Fill in stats and StartingDeck in the Inspector — no code changes needed
 /// </summary>
 public static class EnemyRegistry
 {
     // -------------------------------------------------------------------------
-    // Enemy type constants
+    // Enemy type enum — shown as a dropdown in Inspector for all [Export] fields
     // -------------------------------------------------------------------------
-    public const string Goblin  = "goblin";
-    public const string Slime   = "slime";
-    public const string Orc     = "orc";
+    public enum EnemyType { Goblin, Slime, Orc }
 
     // -------------------------------------------------------------------------
     // Public API
     // -------------------------------------------------------------------------
 
-    /// <summary>Returns a fresh CharacterData for the given enemy type Id.
-    /// Falls back to Goblin if the Id is unknown.</summary>
-    public static CharacterData Get(string typeId)
+    /// <summary>
+    /// Loads and returns a fresh duplicate of the CharacterData for the given enemy type.
+    /// Each call returns an independent copy so runtime stat changes don't bleed between enemies.
+    /// </summary>
+    public static CharacterData Get(EnemyType type)
     {
-        return typeId switch
+        string path = $"res://Resources/Enemies/{type}.tres";
+
+        if (!Godot.ResourceLoader.Exists(path))
         {
-            Slime  => MakeSlime(),
-            Orc    => MakeOrc(),
-            _      => MakeGoblin(),   // "goblin" or anything unknown
-        };
+            GD.PushWarning($"[EnemyRegistry] Missing .tres for '{type}' at {path}. Using blank stub — create the file in the Godot Editor.");
+            return MakeStub(type.ToString());
+        }
+
+        var data = Godot.ResourceLoader.Load<CharacterData>(path, cacheMode: ResourceLoader.CacheMode.Reuse);
+        return (CharacterData)data.Duplicate(true); // Deep duplicate ensures unique sub-resources (cards) are copied too
     }
 
     // -------------------------------------------------------------------------
-    // Enemy Definitions
+    // Fallback stub — used only when the .tres file doesn't exist yet
     // -------------------------------------------------------------------------
 
-    private static CharacterData MakeGoblin() => new CharacterData
+    private static CharacterData MakeStub(string name) => new CharacterData
     {
-        Id               = Goblin,
-        ClassName        = "Goblin",
-        ClassDescription = "A weak but fast enemy. Watch out for swarms.",
-        Sprite           = LoadSprite("goblin.png"),
+        Id               = name,
+        ClassName        = name,
+        ClassDescription = $"[STUB] Create Resources/Enemies/{name}.tres in the editor.",
         BaseHp           = 50,
         BaseMana         = 1,
-        BaseEnergy       = 20,
-        BaseSpeed        = 6,
-        BaseAttack       = 8,
-        BaseDefense      = 3,
-        MoveRange        = 3,
-        HandSize         = 4,
-    };
-
-    private static CharacterData MakeSlime() => new CharacterData
-    {
-        Id               = Slime,
-        ClassName        = "Slime",
-        ClassDescription = "Slow and tanky. Hard to kill.",
-        Sprite           = LoadSprite("slime.png"),
-        BaseHp           = 100,
-        BaseMana         = 1,
-        BaseEnergy       = 10,
-        BaseSpeed        = 2,
-        BaseAttack       = 5,
-        BaseDefense      = 8,
-        MoveRange        = 1,
+        MoveRange        = 2,
         HandSize         = 3,
     };
-
-    private static CharacterData MakeOrc() => new CharacterData
-    {
-        Id               = Orc,
-        ClassName        = "Orc",
-        ClassDescription = "A heavy melee brute with high attack.",
-        Sprite           = LoadSprite("orc.png"),
-        BaseHp           = 120,
-        BaseMana         = 2,
-        BaseEnergy       = 25,
-        BaseSpeed        = 3,
-        BaseAttack       = 18,
-        BaseDefense      = 6,
-        MoveRange        = 2,
-        HandSize         = 4,
-    };
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    /// <summary>Loads a sprite from Assets/Art/Enemies/. Returns null if file doesn't exist yet.</summary>
-    private static Texture2D LoadSprite(string filename)
-    {
-        string path = $"res://Assets/Art/Enemies/{filename}";
-        if (Godot.ResourceLoader.Exists(path))
-            return Godot.ResourceLoader.Load<Texture2D>(path);
-        return null;
-    }
 }

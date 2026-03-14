@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://bfsj6baa48ytj"]
+
+[ext_resource type="Script" uid="uid://cwo4ll8ki1xtn" path="res://Scripts/Cards/CardData.cs" id="1_6n0hf"]
+
+[resource]
+script = ExtResource("1_6n0hf")
+Name = "Slime Bounce!!"
+Description = "hit you"
+BaseDamage = 10
+metadata/_custom_type_script = "uid://cwo4ll8ki1xtn"

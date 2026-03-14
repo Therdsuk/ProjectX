@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://bqnupaa0mnufu"]
+
+[ext_resource type="Script" uid="uid://cwo4ll8ki1xtn" path="res://Scripts/Cards/CardData.cs" id="1_hjht6"]
+[ext_resource type="Texture2D" uid="uid://dfjwwi8ly3csd" path="res://Assets/Art/Enemies/goblin.png" id="1_lj5h7"]
+[ext_resource type="Script" uid="uid://7x012wtx2lrn" path="res://Scripts/Characters/CharacterData.cs" id="2_k18vb"]
+
+[sub_resource type="Resource" id="Resource_k18vb"]
+script = ExtResource("1_hjht6")
+Name = "Goblin Strike!!"
+Description = "hit you"
+BaseDamage = 10
+metadata/_custom_type_script = "uid://cwo4ll8ki1xtn"
+
+[resource]
+script = ExtResource("2_k18vb")
+Id = "00"
+ClassName = "Green Goblin"
+Sprite = ExtResource("1_lj5h7")
+BaseHp = 80
+BaseAttack = 20
+StartingDeck = Array[ExtResource("1_hjht6")]([SubResource("Resource_k18vb")])
+metadata/_custom_type_script = "uid://7x012wtx2lrn"

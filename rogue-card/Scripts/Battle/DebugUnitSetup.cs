@@ -13,8 +13,15 @@ public partial class DebugUnitSetup : Resource
     [Export] public Vector2I StartPos { get; set; } = Vector2I.Zero;
 
     /// <summary>
-    /// If assigned, the Spawner will use this CharacterData resource directly 
+    /// For enemies: pick a type from the dropdown to pull from EnemyRegistry.
+    /// Only used when IsPlayer = false and OptionalDataOverride is empty.
+    /// </summary>
+    [Export] public EnemyRegistry.EnemyType EnemyType { get; set; } = EnemyRegistry.EnemyType.Goblin;
+
+    /// <summary>
+    /// If assigned, the Spawner will use this CharacterData resource directly
     /// instead of building a purely generic test mock with BaseHp/BaseMana.
+    /// Takes priority over EnemyTypeId.
     /// </summary>
     [Export] public CharacterData OptionalDataOverride { get; set; }
 }

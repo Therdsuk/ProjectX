@@ -104,36 +104,17 @@ public partial class DebugBattleSpawner : Node
         if (enemySetups.Count == 0)
         {
             // Default to a Goblin if no enemies configured
-            var enemyData = EnemyRegistry.Get(EnemyRegistry.Goblin);
-            AddMockCardsToDeck(enemyData, false);
-            var enemy = new EnemyCharacter { Name = "TestEnemy_Center" };
-            enemy.InitialiseFromData(enemyData);
-            Board.AddChild(enemy);
-            Manager.AddEnemy(enemy, new Vector2I(4, 4));
+            var enemyData = EnemyRegistry.Get(EnemyRegistry.EnemyType.Goblin);
+            SafeSpawnEnemy("Goblin", enemyData, new Vector2I(4, 4));
         }
-            else
+        else
+        {
+            foreach (var setup in enemySetups)
             {
-                foreach (var setup in enemySetups)
-                {
-                    var enemyData = setup.OptionalDataOverride;
-                    if (enemyData == null)
-                    {
-                        enemyData = new CharacterData
-                        {
-                            ClassName = "Debug Enemy",
-                            BaseHp = setup.BaseHp,
-                            BaseMana = setup.BaseMana,
-                            HandSize = 5
-                        };
-                        AddMockCardsToDeck(enemyData, false);
-                    }
-
-                    var enemy = new EnemyCharacter { Name = $"TestEnemy_{setup.StartPos}" };
-                    enemy.InitialiseFromData(enemyData);
-                    Board.AddChild(enemy);
-                    Manager.AddEnemy(enemy, setup.StartPos);
-                }
+                var enemyData = ResolveEnemyData(setup);
+                SafeSpawnEnemy(setup.EnemyType.ToString(), enemyData, setup.StartPos);
             }
+        }
 
         if (localPlayer != null)
         {
@@ -147,23 +128,16 @@ public partial class DebugBattleSpawner : Node
 
         foreach (var setup in UnitsToSpawn)
         {
-            var data = setup.OptionalDataOverride;
-            
-            // If no data resource was provided in inspector, stub one out
-            if (data == null)
-            {
-                data = new CharacterData 
-                { 
-                    ClassName = setup.IsPlayer ? "Debug Player" : "Debug Enemy", 
-                    BaseHp = setup.BaseHp, 
-                    BaseMana = setup.BaseMana, 
-                    HandSize = 5 
-                };
-                AddMockCardsToDeck(data, setup.IsPlayer);
-            }
-
             if (setup.IsPlayer)
             {
+                // Players: use OptionalDataOverride or a generic stub
+                var data = setup.OptionalDataOverride;
+                if (data == null)
+                {
+                    data = new CharacterData { ClassName = "Debug Player", BaseHp = setup.BaseHp, BaseMana = setup.BaseMana, HandSize = 5 };
+                    AddMockCardsToDeck(data, true);
+                }
+
                 var player = new PlayerCharacter { Name = $"TestPlayer_{setup.StartPos}" };
                 player.InitialiseFromData(data);
                 Board.AddChild(player);
@@ -173,10 +147,9 @@ public partial class DebugBattleSpawner : Node
             }
             else
             {
-                var enemy = new EnemyCharacter { Name = $"TestEnemy_{setup.StartPos}" };
-                enemy.InitialiseFromData(data);
-                Board.AddChild(enemy);
-                Manager.AddEnemy(enemy, setup.StartPos);
+                // Enemies: resolve from EnemyTypeId > OptionalDataOverride > generic stub
+                var enemyData = ResolveEnemyData(setup);
+                SafeSpawnEnemy(setup.EnemyType.ToString(), enemyData, setup.StartPos);
             }
         }
 
@@ -185,6 +158,64 @@ public partial class DebugBattleSpawner : Node
         {
             Manager.DebugInitializePlayerTurn(firstPlayer);
         }
+    }
+
+    /// <summary>
+    /// Spawns an enemy at the requested cell. If that cell is already occupied,
+    /// searches outward for the nearest free cell so multiple enemies with the
+    /// same default StartPos (0,0) never silently fail.
+    /// </summary>
+    private void SafeSpawnEnemy(string label, CharacterData data, Vector2I preferredPos)
+    {
+        Vector2I spawnPos = preferredPos;
+
+        if (Board.IsOccupied(spawnPos))
+        {
+            bool found = false;
+            for (int dist = 1; dist <= 10 && !found; dist++)
+            {
+                for (int q = -dist; q <= dist && !found; q++)
+                {
+                    for (int r = -dist; r <= dist && !found; r++)
+                    {
+                        if (Mathf.Abs(q) + Mathf.Abs(r) != dist) continue;
+                        var candidate = preferredPos + new Vector2I(q, r);
+                        if (Board.IsInBounds(candidate) && !Board.IsOccupied(candidate))
+                        {
+                            spawnPos = candidate;
+                            found = true;
+                        }
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                GD.PrintErr($"[DebugBattleSpawner] No free cell found for '{label}' near {preferredPos} — skipped.");
+                return;
+            }
+
+            GD.PushWarning($"[DebugBattleSpawner] '{label}': {preferredPos} was occupied → spawned at {spawnPos} instead. Set unique StartPos in the Inspector.");
+        }
+
+        var enemy = new EnemyCharacter { Name = $"{label}_{spawnPos}", Data = data };
+        Board.AddChild(enemy);   // _Ready fires here → calls InitialiseFromData exactly once
+        Manager.AddEnemy(enemy, spawnPos);
+    }
+
+    /// <summary>
+    /// Resolves CharacterData for an enemy setup entry.
+    /// Priority: OptionalDataOverride > EnemyType (registry lookup) > anonymous stub.
+    /// </summary>
+    private CharacterData ResolveEnemyData(DebugUnitSetup setup)
+    {
+        if (setup.OptionalDataOverride != null)
+            return setup.OptionalDataOverride;
+
+        // Use the enum — always valid, no string parsing needed
+        var data = EnemyRegistry.Get(setup.EnemyType);
+        GD.Print($"[DebugBattleSpawner] Loaded enemy from registry: '{setup.EnemyType}'");
+        return data;
     }
 
     private void AddMockCardsToDeck(CharacterData data, bool isPlayer)
