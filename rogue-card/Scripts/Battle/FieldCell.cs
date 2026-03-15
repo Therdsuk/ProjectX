@@ -16,8 +16,8 @@ public class FieldCell
     /// <summary>The terrain/field type of this cell.</summary>
     public FieldType FieldType { get; set; }
 
-    /// <summary>Vertical level of the cell (0 = base, 1 = high, etc).</summary>
-    public int Elevation { get; set; } = 0;
+    /// <summary>Vertical level of the cell (0 = base, 1.5 = high, etc).</summary>
+    public float Elevation { get; set; } = 0f;
 
     /// <summary>Is this cell an incline (slope)?</summary>
     public bool IsRamp { get; set; } = false;

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 ///
 /// Attach to a Node2D in BattleScene.tscn called "BattleBoard".
 /// </summary>
+[Tool]
 public partial class BattleBoard : Node3D
 {
     // -------------------------------------------------------------------------
@@ -38,6 +39,20 @@ public partial class BattleBoard : Node3D
     [Export] public float ElevationStep { get; set; } = 0.5f;
     [Export] public float HighGroundDensity { get; set; } = 0.1f;
 
+    [ExportGroup("Editor Tools")]
+    [Export]
+    public bool RegenerateBoard
+    {
+        get => false;
+        set
+        {
+            if (value && Engine.IsEditorHint())
+            {
+                GenerateBoard();
+            }
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Internal State
     // -------------------------------------------------------------------------
@@ -60,6 +75,16 @@ public partial class BattleBoard : Node3D
 
     public override void _Ready()
     {
+        if (Engine.IsEditorHint())
+        {
+            // Only generate automatically if the board is empty in the editor
+            if (GetChildCount() == 0)
+            {
+                GenerateBoard();
+            }
+            return;
+        }
+
         GenerateBoard();
     }
 
@@ -70,10 +95,15 @@ public partial class BattleBoard : Node3D
     /// <summary>Creates a procedurally generated board.</summary>
     public void GenerateBoard()
     {
-        // Clear existing visuals
-        foreach (var child in GetChildren())
+        // Clear existing visuals safely (works for both runtime and editor)
+        var children = GetChildren();
+        foreach (var child in children)
         {
-            if (child is MeshInstance3D || child is Sprite3D) child.QueueFree();
+            if (child is MeshInstance3D || child is Sprite3D || child is StaticBody3D || child is Node3D)
+            {
+                RemoveChild(child);
+                child.QueueFree();
+            }
         }
 
         _cells = new FieldCell[Columns, Rows];
@@ -103,19 +133,28 @@ public partial class BattleBoard : Node3D
                 float val = noise.GetNoise2D(col, row);
                 
                 FieldType type = FieldType.Normal;
-                int elevation = 0;
+                float elevation = 0f;
 
-                // Thresholds for biomes (multi-level steps)
+                // Thresholds for biomes (smooth continuous elevation)
                 if (val < -0.25f) 
                 {
                     type = FieldType.Water;
+                    
+                    // The lower the noise, the deeper the water. 
+                    // To prevent awkward shorelines poking through the Shader surface (at -0.15f), 
+                    // we immediately sink all water to a minimum of -0.5f flat.
+                    // From there, it slopes down dynamically to -1.0f based on the noise intensity.
+                    float depthPercent = Mathf.Clamp(Mathf.Abs(val + 0.25f) / 0.75f, 0f, 1f);
+                    elevation = -0.5f - (0.5f * depthPercent);
                 }
-                else if (val > 0.6f)  elevation = 3; 
-                else if (val > 0.45f) elevation = 2;
-                else if (val > 0.25f) elevation = 1;
+                else if (val > 0.1f) 
+                {
+                    // Map positive noise dynamically to elevation (val is roughly 0.1 to 0.8)
+                    elevation = (val - 0.1f) * 5.0f;
+                }
 
-                // Obstacle pass (Forest/Rock) - only on lower levels
-                if (type == FieldType.Normal && elevation < 2)
+                // Obstacle pass (Forest/Rock) - only on relatively flat ground
+                if (type == FieldType.Normal && elevation < 0.5f)
                 {
                     float obsVal = obstacleNoise.GetNoise2D(col, row);
                     if (obsVal > 0.5f) type = FieldType.Forest;
@@ -131,18 +170,7 @@ public partial class BattleBoard : Node3D
         }
 
         // --- Pass 2: Smoothing (Fill Holes) ---
-        for (int col = 1; col < Columns - 1; col++)
-        {
-            for (int row = 1; row < Rows - 1; row++)
-            {
-                var cell = _cells[col, row];
-                if (cell.Elevation >= 1) continue;
-                int highCount = 0;
-                Vector2I[] neighbors = { new(col + 1, row), new(col - 1, row), new(col, row + 1), new(col, row - 1) };
-                foreach (var n in neighbors) if (_cells[n.X, n.Y].Elevation >= 1) highCount++;
-                if (highCount >= 3) cell.Elevation = 1;
-            }
-        }
+        // Removed: Continuous float noise is inherently smooth, no need to fill discrete holes.
 
         GD.Print($"[BattleBoard] Generated {Columns}×{Rows} seamless procedural board.");
         DrawBoardVisuals();
@@ -190,8 +218,14 @@ public partial class BattleBoard : Node3D
     {
         if (!IsInBounds(grid)) return true;
         
+        var cell = _cells[grid.X, grid.Y];
+        
         // Block rocks
-        if (_cells[grid.X, grid.Y].FieldType == FieldType.Rock) return true;
+        if (cell.FieldType == FieldType.Rock) return true;
+        
+        // Block Deep Water, allow Shallow Water
+        // Shallow water is anything >= -0.6f (since the new min water depth is -0.5f)
+        if (cell.FieldType == FieldType.Water && cell.Elevation < -0.6f) return true;
 
         return _occupants[grid] != null;
     }
@@ -247,7 +281,11 @@ public partial class BattleBoard : Node3D
                 var center = CellCentre(new Vector2I(col, row));
                 var material = new StandardMaterial3D();
                 
-                Texture2D tex = GetTextureForType(cell.FieldType);
+                // If it's water, the global shader handles the surface.
+                // The actual terrain cell should look like a sandy shore sloping into it!
+                var visualType = cell.FieldType == FieldType.Water ? FieldType.Sand : cell.FieldType;
+                
+                Texture2D tex = GetTextureForType(visualType);
                 if (tex != null)
                 {
                     material.AlbedoTexture = tex;
@@ -255,7 +293,7 @@ public partial class BattleBoard : Node3D
                 }
                 else
                 {
-                    material.AlbedoColor = GetColorForType(cell.FieldType);
+                    material.AlbedoColor = GetColorForType(visualType);
                 }
 
                 // 1. Get Corner Heights
@@ -267,7 +305,7 @@ public partial class BattleBoard : Node3D
                 // 2. Build Seamless Mesh
                 var mi = new MeshInstance3D
                 {
-                    Mesh = BuildSeamlessCellMesh(h00, h10, h01, h11),
+                    Mesh = BuildSeamlessCellMesh(h00, h10, h01, h11, col, row),
                     MaterialOverride = material,
                     Position = new Vector3(col * CellSize, 0, row * CellSize),
                     Name = $"Cell_{col}_{row}"
@@ -275,10 +313,11 @@ public partial class BattleBoard : Node3D
                 AddChild(mi);
                 _cellMeshes[col, row] = mi;
 
-                // 2b. Add Collision for Raycasts
-                mi.CreateTrimeshCollision();
-                // CreateTrimeshCollision automatically creates a StaticBody3D as a child
-                // We need to move it to the correct layer if necessary, but default layer 1 is fine for now.
+                // 2b. Add Collision for Raycasts (Runtime only, skip in Editor to avoid clutter)
+                if (!Engine.IsEditorHint())
+                {
+                    mi.CreateTrimeshCollision();
+                }
 
                 // 3. Highlight Layer
                 var highlightMat = new StandardMaterial3D
@@ -304,12 +343,47 @@ public partial class BattleBoard : Node3D
                 SpawnDecoration(cell, center);
             }
         }
+        
+        // 5. Global Water Plane
+        var waterPlane = new MeshInstance3D
+        {
+            Mesh = new PlaneMesh { Size = new Vector2(Columns * CellSize, Rows * CellSize) },
+            Position = new Vector3((Columns * CellSize) / 2f, -0.15f, (Rows * CellSize) / 2f),
+            Name = "GlobalWaterPlane"
+        };
+        var waterShader = GD.Load<Shader>("res://Scripts/Battle/Water.gdshader");
+        if (waterShader != null)
+        {
+            waterPlane.MaterialOverride = new ShaderMaterial { Shader = waterShader };
+        }
+        else
+        {
+            GD.PrintErr("[BattleBoard] Could not load Water.gdshader!");
+        }
+        
+        // Disable raycast collision against the water surface so clicks hit the ground underneath it
+        // MeshInstance3D doesn't have collision natively so we are completely fine.
+        AddChild(waterPlane);
+
+        // Ensure the editor redraws the children
+        if (Engine.IsEditorHint())
+        {
+            foreach (var child in GetChildren())
+            {
+                if (child is Node3D node)
+                {
+                    node.Owner = GetTree().EditedSceneRoot;
+                }
+            }
+        }
     }
 
     /// <summary>Calculates elevation at a grid corner by picking the max height of its 4 neighbor cells.</summary>
     private float GetVertexHeight(int x, int z)
     {
-        int maxElev = 0;
+        float maxElev = -999f;
+        bool hasNeighbor = false;
+        
         for (int dx = -1; dx <= 0; dx++)
         {
             for (int dz = -1; dz <= 0; dz++)
@@ -317,14 +391,19 @@ public partial class BattleBoard : Node3D
                 int nx = x + dx;
                 int nz = z + dz;
                 if (IsInBounds(new Vector2I(nx, nz)))
+                {
                     maxElev = Mathf.Max(maxElev, _cells[nx, nz].Elevation);
+                    hasNeighbor = true;
+                }
             }
         }
+        
+        if (!hasNeighbor) return 0f;
         return maxElev * ElevationStep;
     }
 
     /// <summary>Creates a procedural block mesh where the top vertices follow the given corner heights.</summary>
-    private Mesh BuildSeamlessCellMesh(float h00, float h10, float h01, float h11)
+    private Mesh BuildSeamlessCellMesh(float h00, float h10, float h01, float h11, int col, int row)
     {
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
@@ -360,25 +439,41 @@ public partial class BattleBoard : Node3D
         st.SetUV(new Vector2(0, 1)); st.AddVertex(v01);
 
         // --- SIDE WALLS ---
-        // North face (z=0)
-        st.SetNormal(new Vector3(0, 0, -1));
-        st.AddVertex(v10); st.AddVertex(v00); st.AddVertex(b00);
-        st.AddVertex(v10); st.AddVertex(b00); st.AddVertex(b10);
+        // Only draw side walls if they are on the absolute boundary of the entire board.
+        // This prevents internal walls from rendering, which would otherwise Z-fight or be
+        // visible through translucent materials (like water surfaces).
 
-        // South face (z=CellSize)
-        st.SetNormal(new Vector3(0, 0, 1));
-        st.AddVertex(v01); st.AddVertex(v11); st.AddVertex(b11);
-        st.AddVertex(v01); st.AddVertex(b11); st.AddVertex(b01);
+        // North face (z=0) -> Top edge of board
+        if (row == 0)
+        {
+            st.SetNormal(new Vector3(0, 0, -1));
+            st.AddVertex(v10); st.AddVertex(v00); st.AddVertex(b00);
+            st.AddVertex(v10); st.AddVertex(b00); st.AddVertex(b10);
+        }
 
-        // East face (x=CellSize)
-        st.SetNormal(new Vector3(1, 0, 0));
-        st.AddVertex(v11); st.AddVertex(v10); st.AddVertex(b10);
-        st.AddVertex(v11); st.AddVertex(b10); st.AddVertex(b11);
+        // South face (z=CellSize) -> Bottom edge of board
+        if (row == Rows - 1)
+        {
+            st.SetNormal(new Vector3(0, 0, 1));
+            st.AddVertex(v01); st.AddVertex(v11); st.AddVertex(b11);
+            st.AddVertex(v01); st.AddVertex(b11); st.AddVertex(b01);
+        }
 
-        // West face (x=0)
-        st.SetNormal(new Vector3(-1, 0, 0));
-        st.AddVertex(v00); st.AddVertex(v01); st.AddVertex(b01);
-        st.AddVertex(v00); st.AddVertex(b01); st.AddVertex(b00);
+        // East face (x=CellSize) -> Right edge of board
+        if (col == Columns - 1)
+        {
+            st.SetNormal(new Vector3(1, 0, 0));
+            st.AddVertex(v11); st.AddVertex(v10); st.AddVertex(b10);
+            st.AddVertex(v11); st.AddVertex(b10); st.AddVertex(b11);
+        }
+
+        // West face (x=0) -> Left edge of board
+        if (col == 0)
+        {
+            st.SetNormal(new Vector3(-1, 0, 0));
+            st.AddVertex(v00); st.AddVertex(v01); st.AddVertex(b01);
+            st.AddVertex(v00); st.AddVertex(b01); st.AddVertex(b00);
+        }
 
         // Note: Don't call st.GenerateNormals() as we set them manually for flat shading
         st.GenerateTangents(); 

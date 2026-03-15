@@ -57,7 +57,7 @@ public partial class PlayerCharacter : Node3D
             PixelSize     = 0.1f,
             Centered      = true,
             Billboard     = BaseMaterial3D.BillboardModeEnum.Enabled,
-            Position      = new Vector3(0, 0.85f, 0),
+            Position      = new Vector3(0, 1.2f, 0),
             TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
         };
         AddChild(_sprite);

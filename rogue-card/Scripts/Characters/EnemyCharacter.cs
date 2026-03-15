@@ -35,7 +35,7 @@ public partial class EnemyCharacter : Node3D
             PixelSize     = 0.1f,
             Centered      = true,
             Billboard     = BaseMaterial3D.BillboardModeEnum.Enabled,
-            Position      = new Vector3(0, 0.85f, 0),
+            Position      = new Vector3(0, 1.2f, 0),
             Modulate      = new Color(1.0f, 1.0f, 1.0f),
             TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
         };
