@@ -48,7 +48,7 @@ public partial class HealthBar3D : Node3D
     public void SetYOffset(float y)
     {
         if (_sprite != null)
-            _sprite.Position = new Vector3(0, y, 1.0f);
+            _sprite.Position = new Vector3(0, y, 0);
     }
 
     /// <summary>

@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://xmnbw1wbo2js" path="res://Scripts/Battle/BattleBoard.cs" id="2_battleboard"]
 [ext_resource type="Script" uid="uid://budvwt11o82u2" path="res://Scripts/Battle/BattleManager.cs" id="2_k6flv"]
 [ext_resource type="PackedScene" uid="uid://bkbd8bsagxajq" path="res://Assets/Art/Tiles/tree.tscn" id="2_owtnx"]
+[ext_resource type="Texture2D" uid="uid://lchxfrj45bi4" path="res://Assets/Art/Tiles/tile.png" id="2_slsav"]
 [ext_resource type="Script" uid="uid://hioo46j0yc3n" path="res://Scripts/Battle/BattleHUD.cs" id="3_battlehud"]
 [ext_resource type="Script" uid="uid://3p3prfqh4d55" path="res://Scripts/Battle/DebugBattleSpawner.cs" id="4_debugspawner"]
 [ext_resource type="Script" uid="uid://0kauqqcvxqou" path="res://Scripts/Battle/DebugUnitSetup.cs" id="4_glr0r"]
@@ -15,13 +16,6 @@ colors = PackedColorArray(0, 0.4392157, 0.6392157, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_owtnx"]
 gradient = SubResource("Gradient_kb2gb")
-
-[sub_resource type="Gradient" id="Gradient_owtnx"]
-offsets = PackedFloat32Array(0)
-colors = PackedColorArray(0.27941364, 0.59827423, 0.3255872, 1)
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_scfjq"]
-gradient = SubResource("Gradient_owtnx")
 
 [sub_resource type="Gradient" id="Gradient_wmpf3"]
 offsets = PackedFloat32Array(0)
@@ -50,19 +44,28 @@ metadata/_custom_type_script = "uid://0kauqqcvxqou"
 transform = Transform3D(1, 0, 0, 0, 0.707106, 0.707106, 0, -0.707106, 0.707106, 8, 10, 16)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=523438424]
-transform = Transform3D(0.866025, 0.433013, -0.25, 0, 0.5, 0.866025, 0.5, -0.75, 0.433013, 0, 10, 0)
+transform = Transform3D(-0.9211851, 0.28872052, -0.2608789, 0, 0.67042667, 0.7419756, 0.3891237, 0.6834974, -0.61758703, 0, 10, 0)
+light_color = Color(1, 0.8311784, 0.6553184, 1)
+light_energy = 2.0
+light_indirect_energy = 0.0
+light_bake_mode = 1
 shadow_enabled = true
+shadow_bias = 0.152
+shadow_normal_bias = 0.0
+directional_shadow_mode = 0
+directional_shadow_fade_start = 0.0
 
 [node name="BattleBoard" type="Node3D" parent="." unique_id=764612228]
 script = ExtResource("2_battleboard")
 Columns = 20
 Rows = 20
+MapSeed = 1
 WaterTexture = SubResource("GradientTexture1D_owtnx")
-GrassTexture = SubResource("GradientTexture1D_scfjq")
+GrassTexture = ExtResource("2_slsav")
 RockTexture = SubResource("GradientTexture1D_e5xk7")
 TreeScene = ExtResource("2_owtnx")
 GroundThickness = 0.1
-ElevationStep = 1.0
+ElevationStep = 1.5
 
 [node name="BattleManager" type="Node" parent="." unique_id=1046962995 node_paths=PackedStringArray("Board", "HUD", "MainCamera")]
 script = ExtResource("2_k6flv")

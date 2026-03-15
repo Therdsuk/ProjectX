@@ -44,7 +44,7 @@ public partial class EnemyCharacter : Node3D
         if (Data?.Sprite != null)
             _sprite.Texture = Data.Sprite;
 
-        _healthBar?.SetYOffset(0.05f);
+        _healthBar?.SetYOffset(1.8f);
 
         if (Data != null)
             InitialiseFromData(Data);

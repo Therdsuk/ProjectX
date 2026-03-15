@@ -68,7 +68,7 @@ public partial class PlayerCharacter : Node3D
             _sprite.Texture = Data.Sprite;
 
         // Health bar flat at ground level - avoids perspective floating issues
-        _healthBar?.SetYOffset(0.05f);
+        _healthBar?.SetYOffset(1.8f);
 
         if (Data != null)
             InitialiseFromData(Data);

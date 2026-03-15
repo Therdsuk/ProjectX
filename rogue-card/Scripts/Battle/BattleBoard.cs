@@ -22,6 +22,7 @@ public partial class BattleBoard : Node3D
     [Export] public float CellSize { get; set; } = 2.0f;  // meters in 3D
 
     [ExportGroup("Generation Settings")]
+    [Export] public int MapSeed { get; set; } = -1; // -1 means random seed
     [Export] public float ObstacleDensity { get; set; } = 0.15f; // Chance for Rock/Forest
     [Export] public float WaterDensity    { get; set; } = 0.05f;
 
@@ -80,14 +81,17 @@ public partial class BattleBoard : Node3D
         _highlightMeshes = new MeshInstance3D[Columns, Rows];
         _occupants.Clear();
 
+        // Use custom seed if provided, else generate random
+        int effectiveSeed = MapSeed == -1 ? (int)GD.Randi() : MapSeed;
+
         // 1. Noise Setup
         var noise = new FastNoiseLite();
-        noise.Seed = (int)GD.Randi();
+        noise.Seed = effectiveSeed;
         noise.NoiseType = FastNoiseLite.NoiseTypeEnum.Perlin;
         noise.Frequency = 0.15f; // Scale of hills/lakes
 
         var obstacleNoise = new FastNoiseLite();
-        obstacleNoise.Seed = (int)GD.Randi();
+        obstacleNoise.Seed = effectiveSeed + 1; // Offset slightly for different pattern
         obstacleNoise.Frequency = 0.25f; // More granular for trees/rocks
 
         // 2. Base Terrain & Elevation Pass
@@ -281,17 +285,19 @@ public partial class BattleBoard : Node3D
                 {
                     Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
                     AlbedoColor = new Color(1, 1, 1, 0.4f),
+                    // Disable depth writing so overlapping highlights don't cut each other out (optional, but good for glassy looks)
+                    NoDepthTest = false,
                 };
-                float avgY = (h00 + h10 + h01 + h11) / 4f;
+                
                 var highlightMi = new MeshInstance3D
                 {
-                    Mesh = new BoxMesh { Size = new Vector3(CellSize * 0.9f, 0.05f, CellSize * 0.9f) },
+                    Mesh = BuildHighlightMesh(h00, h10, h01, h11),
                     MaterialOverride = highlightMat,
-                    Position = new Vector3(CellSize / 2f, avgY + 0.02f, CellSize / 2f),
+                    Position = new Vector3(col * CellSize, 0, row * CellSize), // Position at cell origin now
                     Visible = false,
                     Name = $"Highlight_{col}_{row}"
                 };
-                mi.AddChild(highlightMi);
+                AddChild(highlightMi); // Parent to board directly to keep scaling simple
                 _highlightMeshes[col, row] = highlightMi;
 
                 // 4. Decoration (Tree/Rock)
@@ -375,6 +381,69 @@ public partial class BattleBoard : Node3D
         st.AddVertex(v00); st.AddVertex(b01); st.AddVertex(b00);
 
         // Note: Don't call st.GenerateNormals() as we set them manually for flat shading
+        st.GenerateTangents(); 
+        return st.Commit();
+    }
+
+    /// <summary>Creates a terrain-conforming highlight mesh (just the top face, slightly inset and floating).</summary>
+    private Mesh BuildHighlightMesh(float h00, float h10, float h01, float h11)
+    {
+        var st = new SurfaceTool();
+        st.Begin(Mesh.PrimitiveType.Triangles);
+
+        // Gap/Margin logic: we shrink the highlight by 5% on all sides
+        float margin = CellSize * 0.05f;
+        float innerSize = CellSize - margin;
+        
+        // Z-fighting pad: float slightly above ground
+        float yPad = 0.05f;
+
+        // Calculate heights for the inset corners using bilinear interpolation
+        // Standard formula: h(x,z) ≈ h00*(1-x)*(1-z) + h10*x*(1-z) + h01*(1-x)*z + h11*x*z  (where x,z are 0.0 to 1.0)
+        float pctMin = margin / CellSize;
+        float pctMax = innerSize / CellSize;
+
+        float GetInterpolatedY(float xPct, float zPct)
+        {
+            // The underlying mesh is NOT a smooth bilinear surface; it's two flat triangles.
+            // Triangle 1: (0,0), (1,0), (1,1)
+            // Triangle 2: (0,0), (1,1), (0,1)
+            // To prevent clipping (especially on "saddle" shapes), we must calculate the exact 
+            // height on the specific flat triangle the point belongs to.
+            
+            if (xPct >= zPct)
+            {
+                // Triangle 1 (Bottom Right side of diagonal)
+                // Weights based on barycentric coordinates for this specific triangle split
+                return h00 * (1 - xPct) + h10 * (xPct - zPct) + h11 * zPct;
+            }
+            else
+            {
+                // Triangle 2 (Top Left side of diagonal)
+                return h00 * (1 - zPct) + h01 * (zPct - xPct) + h11 * xPct;
+            }
+        }
+
+        Vector3 v00 = new Vector3(margin,    GetInterpolatedY(pctMin, pctMin) + yPad, margin);
+        Vector3 v10 = new Vector3(innerSize, GetInterpolatedY(pctMax, pctMin) + yPad, margin);
+        Vector3 v01 = new Vector3(margin,    GetInterpolatedY(pctMin, pctMax) + yPad, innerSize);
+        Vector3 v11 = new Vector3(innerSize, GetInterpolatedY(pctMax, pctMax) + yPad, innerSize);
+
+        // Top face normal
+        Vector3 nTop1 = (v11 - v00).Cross(v10 - v00).Normalized();
+        Vector3 nTop2 = (v01 - v00).Cross(v11 - v00).Normalized();
+        Vector3 nTop = (nTop1 + nTop2).Normalized();
+
+        st.SetNormal(nTop);
+        st.SetUV(new Vector2(0, 0)); st.AddVertex(v00);
+        st.SetUV(new Vector2(1, 0)); st.AddVertex(v10);
+        st.SetUV(new Vector2(1, 1)); st.AddVertex(v11);
+
+        st.SetNormal(nTop);
+        st.SetUV(new Vector2(0, 0)); st.AddVertex(v00);
+        st.SetUV(new Vector2(1, 1)); st.AddVertex(v11);
+        st.SetUV(new Vector2(0, 1)); st.AddVertex(v01);
+
         st.GenerateTangents(); 
         return st.Commit();
     }
