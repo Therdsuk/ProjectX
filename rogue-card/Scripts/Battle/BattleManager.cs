@@ -73,6 +73,35 @@ public partial class BattleManager : Node
         if (Board == null)   Board      = GetNodeOrNull<BattleBoard>("../BattleBoard");
         if (MainCamera == null) MainCamera = GetNodeOrNull<Camera3D>("../Camera3D");
 
+        // Swap static Camera3D with our smooth CameraController safely on the next frame
+        if (MainCamera != null && !(MainCamera is CameraController))
+        {
+            CallDeferred(MethodName.SetupCameraController);
+        }
+    }
+
+    private void SetupCameraController()
+    {
+        if (MainCamera == null || MainCamera is CameraController) return;
+
+        var camController = new CameraController();
+        camController.Name = "CameraController";
+        
+        // Default isometric offset if none was set
+        camController.Offset = new Vector3(0, 10, 10);
+        camController.RotationDegrees = new Vector3(-45, 0, 0);
+        
+        MainCamera.GetParent().AddChild(camController);
+        MainCamera.QueueFree();
+        MainCamera = camController;
+        camController.MakeCurrent();
+
+        // If a player was spawned while we were deferred, attach camera to them
+        if (_players.Count > 0)
+        {
+            camController.Target = _players[0];
+        }
+
         // Connect HUD next-phase button
         if (HUD != null)
         {
@@ -457,6 +486,11 @@ public partial class BattleManager : Node
         _players.Add(player);
         Board?.PlaceUnit(player, startCell);
         player.GridPosition = startCell;
+
+        if (_players.Count == 1 && MainCamera is CameraController cam)
+        {
+            cam.Target = player; // Local player is added first
+        }
     }
 
     /// <summary>Spawn an enemy onto the board.</summary>
@@ -509,21 +543,20 @@ public partial class BattleManager : Node
                         if (!blocked || checkPos == _moveOrigin)
                         {
                             _validMoves.Add(checkPos);
-                            Board.HighlightCell(checkPos, new Color(0.1f, 0.7f, 0.2f)); 
+                            Board.HighlightCell(checkPos, new Color(0.1f, 0.9f, 0.2f)); // Vibrant Green
                         }
                     }
                 }
             }
         }
         
-        // Highlight Origin in Blue
-        Board.HighlightCell(_moveOrigin, new Color(0.2f, 0.4f, 0.8f));
+        // Highlight Origin in Vibrant Blue
+        Board.HighlightCell(_moveOrigin, new Color(0.2f, 0.6f, 1.0f));
         
-        // Highlight Current Position distinctly (Yellow) if we moved away from origin
-        // (For M1 logic, this will highlight the selected target if it's not the origin)
+        // Highlight Current Position distinctly (Vibrant Cyan) if we moved away from origin
         if (_selectedMoveTarget != new Vector2I(-999, -999) && _selectedMoveTarget != _moveOrigin)
         {
-            Board.HighlightCell(_selectedMoveTarget, new Color(0.2f, 0.8f, 0.8f)); // Cyan
+            Board.HighlightCell(_selectedMoveTarget, new Color(0.2f, 1.0f, 1.0f));
         }
     }
 

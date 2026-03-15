@@ -19,5 +19,8 @@ public enum FieldType
     Ice    = 4,
 
     /// <summary>Reduces Speed; no special damage interaction.</summary>
-    Sand   = 5
+    Sand   = 5,
+
+    /// <summary>Static obstacle that blocks movement.</summary>
+    Rock   = 6
 }

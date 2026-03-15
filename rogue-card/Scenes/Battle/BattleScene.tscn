@@ -2,11 +2,33 @@
 
 [ext_resource type="Script" uid="uid://xmnbw1wbo2js" path="res://Scripts/Battle/BattleBoard.cs" id="2_battleboard"]
 [ext_resource type="Script" uid="uid://budvwt11o82u2" path="res://Scripts/Battle/BattleManager.cs" id="2_k6flv"]
+[ext_resource type="PackedScene" uid="uid://bkbd8bsagxajq" path="res://Assets/Art/Tiles/tree.tscn" id="2_owtnx"]
 [ext_resource type="Script" uid="uid://hioo46j0yc3n" path="res://Scripts/Battle/BattleHUD.cs" id="3_battlehud"]
 [ext_resource type="Script" uid="uid://3p3prfqh4d55" path="res://Scripts/Battle/DebugBattleSpawner.cs" id="4_debugspawner"]
 [ext_resource type="Script" uid="uid://0kauqqcvxqou" path="res://Scripts/Battle/DebugUnitSetup.cs" id="4_glr0r"]
 [ext_resource type="Resource" uid="uid://bqnupaa0mnufu" path="res://Resources/Characters/goblin.tres" id="5_18ceg"]
 [ext_resource type="Resource" uid="uid://cjm0xwy30d326" path="res://Resources/Characters/slime.tres" id="6_kb2gb"]
+
+[sub_resource type="Gradient" id="Gradient_kb2gb"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0, 0.4392157, 0.6392157, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_owtnx"]
+gradient = SubResource("Gradient_kb2gb")
+
+[sub_resource type="Gradient" id="Gradient_owtnx"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0.27941364, 0.59827423, 0.3255872, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_scfjq"]
+gradient = SubResource("Gradient_owtnx")
+
+[sub_resource type="Gradient" id="Gradient_wmpf3"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0.77112406, 0.64319843, 0.4815476, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_e5xk7"]
+gradient = SubResource("Gradient_wmpf3")
 
 [sub_resource type="Resource" id="Resource_kb2gb"]
 script = ExtResource("4_glr0r")
@@ -33,8 +55,14 @@ shadow_enabled = true
 
 [node name="BattleBoard" type="Node3D" parent="." unique_id=764612228]
 script = ExtResource("2_battleboard")
-Columns = 12
-Rows = 12
+Columns = 20
+Rows = 20
+WaterTexture = SubResource("GradientTexture1D_owtnx")
+GrassTexture = SubResource("GradientTexture1D_scfjq")
+RockTexture = SubResource("GradientTexture1D_e5xk7")
+TreeScene = ExtResource("2_owtnx")
+GroundThickness = 0.1
+ElevationStep = 1.0
 
 [node name="BattleManager" type="Node" parent="." unique_id=1046962995 node_paths=PackedStringArray("Board", "HUD", "MainCamera")]
 script = ExtResource("2_k6flv")
