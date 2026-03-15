@@ -88,7 +88,7 @@ public partial class BattleManager : Node
         camController.Name = "CameraController";
         
         // True Isometric Offset (Diagonal placement)
-        camController.Offset = new Vector3(12, 12, 12);
+        camController.Offset = new Vector3(15, 15, 15);
         // Pitch down ~35.264 degrees (true isometric pitch), yaw 45 degrees
         camController.RotationDegrees = new Vector3(-35.264f, 45, 0);
         // Narrower field of view simulates a flatter, more orthographic look
