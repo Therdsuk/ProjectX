@@ -6,12 +6,12 @@ using Godot;
 /// </summary>
 public struct QueuedAction
 {
-    public CharacterData Caster;
+    public Node3D Caster;
     public CardData Card;
     public Vector2I TargetCell;
     public Vector2I CasterOrigin;
 
-    public QueuedAction(CharacterData caster, CardData card, Vector2I targetCell, Vector2I casterOrigin)
+    public QueuedAction(Node3D caster, CardData card, Vector2I targetCell, Vector2I casterOrigin)
     {
         Caster = caster;
         Card = card;

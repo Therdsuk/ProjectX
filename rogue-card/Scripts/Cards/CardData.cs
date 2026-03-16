@@ -30,6 +30,9 @@ public partial class CardData : Resource
     /// <summary>Tile range max-distance of the card's target selection.</summary>
     [Export] public int Range          { get; set; } = 1;
 
+    /// <summary>If true, the range of this card is derived from the caster's Strength stat instead of a fixed value.</summary>
+    [Export] public bool RangeScalesWithStrength { get; set; } = false;
+
     /// <summary>Shape of the Area of Effect applied when targeting is resolved.</summary>
     [Export] public AreaOfEffect AoeShape { get; set; } = AreaOfEffect.SingleNode;
 

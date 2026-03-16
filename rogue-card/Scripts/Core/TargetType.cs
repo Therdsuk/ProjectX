@@ -9,6 +9,8 @@ public enum TargetType
     SingleEnemy,
     /// <summary>Can target any valid grid coordinate.</summary>
     AnyTile,
+    /// <summary>Can target any valid grid coordinate, ignoring Line of Sight.</summary>
+    AnyTileNoLoS,
     /// <summary>Affects everything, no specific target selection needed.</summary>
     Global
 }

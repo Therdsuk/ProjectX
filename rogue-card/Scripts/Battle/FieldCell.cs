@@ -19,6 +19,9 @@ public class FieldCell
     /// <summary>Vertical level of the cell (0 = base, 1.5 = high, etc).</summary>
     public float Elevation { get; set; } = 0f;
 
+    /// <summary>Is this cell too steep for movement?</summary>
+    public bool IsCliff { get; set; } = false;
+
     /// <summary>Is this cell an incline (slope)?</summary>
     public bool IsRamp { get; set; } = false;
 

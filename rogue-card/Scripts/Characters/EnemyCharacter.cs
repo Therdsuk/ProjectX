@@ -70,7 +70,8 @@ public partial class EnemyCharacter : Node3D
 
     public void ModifyHp(int amount)
     {
-        CurrentHp = Mathf.Clamp(CurrentHp - amount, 0, MaxHp);
+        // amount is negative for damage, positive for healing
+        CurrentHp = Mathf.Clamp(CurrentHp + amount, 0, MaxHp);
         _healthBar?.UpdateHealth(CurrentHp, MaxHp, isEnemy: true);
         if (CurrentHp <= 0)
             GD.Print($"[EnemyCharacter] {Data?.ClassName} defeated.");
@@ -111,7 +112,8 @@ public partial class EnemyCharacter : Node3D
             // Assume they will be where they locked in to move. If for some reason they aren't in the dictionary, use current pos.
             Vector2I futurePos = lockedPlayerMoves.ContainsKey(p.SteamId) ? lockedPlayerMoves[p.SteamId] : p.GridPosition;
             
-            float dist = MetricManhattan(GridPosition, futurePos);
+            // Use A* path length to find the REAL distance to player, considering obstacles
+            int dist = board.GetPathLength(GridPosition, futurePos);
             if (dist < minDistToPlayer)
             {
                 minDistToPlayer = dist;
@@ -149,14 +151,10 @@ public partial class EnemyCharacter : Node3D
 
                     if (board.IsInBounds(checkPos))
                     {
-                        var occupant = board.GetOccupant(checkPos);
+                        // Use IsOccupied to check for both characters AND solid terrain
+                        bool blocked = board.IsOccupied(checkPos) || lockedPlayerMoves.ContainsValue(checkPos);
                         
-                        // It is blocked if:
-                        // 1. Someone is currently standing there (and we don't assume they are moving out of the way to be safe)
-                        // 2. OR someone has locked in a move to go there in the future
-                        bool blocked = (occupant != null && occupant != this) || lockedPlayerMoves.ContainsValue(checkPos);
-                        
-                        if (!blocked)
+                        if (!blocked || checkPos == GridPosition) 
                         {
                             validMoves.Add(checkPos);
                         }
@@ -169,7 +167,8 @@ public partial class EnemyCharacter : Node3D
         var bestMoves = new List<Vector2I>();
         foreach (var move in validMoves)
         {
-            float distToTarget = MetricManhattan(move, targetPlayerFuturePos);
+            // Use A* path length for scoring the "sweet spot"
+            int distToTarget = board.GetPathLength(move, targetPlayerFuturePos);
             
             // The score is negatively impacted by how far away it is from the optimal range.
             // i.e., distance to sweet spot. If distToTarget == optimalRange, penalty is 0.
@@ -202,8 +201,10 @@ public partial class EnemyCharacter : Node3D
         if (Hand.Cards.Count == 0 || players.Count == 0) return null;
 
         QueuedAction? bestAction = null;
-        float bestScore = -0.1f; // Minimum score threshold to play a card
+        float bestScore = 0.001f; // Minimum score threshold to play a card (must be positive)
         var bestActions = new List<QueuedAction>();
+
+        GD.Print($"[AI Debug] {Data?.ClassName} at {GridPosition} is evaluating {Hand.Cards.Count} cards...");
 
         foreach (var card in Hand.Cards)
         {
@@ -215,15 +216,18 @@ public partial class EnemyCharacter : Node3D
                 // Score the action on this specific target
                 float score = EvaluateCardUtility(board, card, target, players, enemies);
                 
+                int dist = (int)MetricManhattan(GridPosition, target);
+                GD.Print($"[AI Debug] -- Card: {card.Name} (Range:{card.Range}) | Target: {target} (Dist:{dist}) | Utility Score: {score:F2}");
+
                 if (score > bestScore)
                 {
                     bestScore = score;
                     bestActions.Clear();
-                    bestActions.Add(new QueuedAction(Data, card, target, GridPosition));
+                    bestActions.Add(new QueuedAction(this, card, target, GridPosition));
                 }
                 else if (score >= 0 && Mathf.IsEqualApprox(score, bestScore))
                 {
-                    bestActions.Add(new QueuedAction(Data, card, target, GridPosition));
+                    bestActions.Add(new QueuedAction(this, card, target, GridPosition));
                 }
             }
         }
@@ -231,6 +235,11 @@ public partial class EnemyCharacter : Node3D
         if (bestActions.Count > 0)
         {
             bestAction = bestActions[GD.RandRange(0, bestActions.Count - 1)];
+            GD.Print($"[AI Debug] >> DECISION: {bestAction.Value.Card.Name} on {bestAction.Value.TargetCell} (Best Score: {bestScore:F2})");
+        }
+        else
+        {
+            GD.Print("[AI Debug] >> DECISION: Skip turn (no valid high-utility moves).");
         }
 
         return bestAction;
@@ -302,8 +311,10 @@ public partial class EnemyCharacter : Node3D
                             case TargetType.Self:
                                 isValid = (cell == GridPosition);
                                 break;
-                            case TargetType.SingleEnemy: // Actually means "Single Target" usually depending on your design
-                                isValid = board.IsOccupied(cell); // AI can consider targeting any occupied cell
+                            case TargetType.SingleEnemy: 
+                                // For an Enemy AI, a "SingleEnemy" target is a Player!
+                                var target = board.GetOccupant(cell);
+                                isValid = target != null && target is PlayerCharacter;
                                 break;
                             case TargetType.AnyTile:
                                 isValid = true;
@@ -313,7 +324,16 @@ public partial class EnemyCharacter : Node3D
                                 break;
                         }
 
-                        if (isValid) validCells.Add(cell);
+                        if (isValid)
+                        {
+                            // Enforce Line of Sight for non-global/non-self targets
+                            if (card.Target != TargetType.Self && card.Target != TargetType.Global)
+                            {
+                                if (!board.HasLineOfSight(GridPosition, cell)) isValid = false;
+                            }
+                            
+                            if (isValid) validCells.Add(cell);
+                        }
                     }
                 }
             }

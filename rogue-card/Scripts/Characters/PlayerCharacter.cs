@@ -104,7 +104,8 @@ public partial class PlayerCharacter : Node3D
 
     public void ModifyHp(int amount)
     {
-        CurrentHp = Mathf.Clamp(CurrentHp - amount, 0, MaxHp);
+        // amount is negative for damage, positive for healing
+        CurrentHp = Mathf.Clamp(CurrentHp + amount, 0, MaxHp);
         _healthBar?.UpdateHealth(CurrentHp, MaxHp, isEnemy: false);
         
         EventBus.Instance?.EmitSignal(EventBus.SignalName.CharacterHpChanged, Data?.Id ?? "", CurrentHp);

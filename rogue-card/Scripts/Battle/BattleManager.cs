@@ -57,10 +57,14 @@ public partial class BattleManager : Node
     private int _hoveredCardIndex = -1;
     private int _selectedCardIndex = -1;
     private Vector2I _lastHoveredCell = new Vector2I(-999, -999);
+    private Vector3 _lastHitPosition = Vector3.Zero;
 
     // M2 Activation Queue
     private readonly List<QueuedAction> _activationQueue = new();
     private bool _isResolvingQueue = false;
+
+    // Movement Card State
+    private readonly Dictionary<ulong, CardData> _movePhaseCards = new();
 
     // -------------------------------------------------------------------------
     // Lifecycle
@@ -187,6 +191,27 @@ public partial class BattleManager : Node
             return;
         }
 
+        // Try to intercept leaving the Setup Phase to resolve the Queue as well
+        if (_currentPhase == BattlePhase.SetupPhase)
+        {
+            _isResolvingQueue = true;
+            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+            {
+                SteamManager.Instance.BroadcastMessage("QUEUE_RESOLVE_START");
+            }
+            await ResolveActivationQueueAsync();
+            
+            _currentPhase = NextRound();
+            
+            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+            {
+                SteamManager.Instance.BroadcastMessage($"PHASE:{(int)_currentPhase}:{_roundNumber}");
+            }
+            EnterPhase(_currentPhase);
+            _isResolvingQueue = false;
+            return;
+        }
+
         _currentPhase = _currentPhase switch
         {
             BattlePhase.MovePhase   => BattlePhase.BattlePhase,
@@ -270,15 +295,22 @@ public partial class BattleManager : Node
                 if (movingEntity != null)
                 {
                     Vector2I currentPos = (movingEntity is PlayerCharacter pc) ? pc.GridPosition : ((EnemyCharacter)movingEntity).GridPosition;
-                    Board.MoveUnit(movingEntity, currentPos, targetCell);
+                    bool success = Board.MoveUnit(movingEntity, currentPos, targetCell);
                     
-                    if (movingEntity is PlayerCharacter p) p.GridPosition = targetCell;
-                    if (movingEntity is EnemyCharacter e) e.GridPosition = targetCell;
-                    
-                    // If it was the local player and we were still in move phase unconfirmed, refresh updates
-                    if (movingEntity == _players[0] && _currentPhase == BattlePhase.MovePhase && !_hasConfirmedMove)
+                    if (success)
                     {
-                        ShowValidMoves(_players[0]);
+                        if (movingEntity is PlayerCharacter p) p.GridPosition = targetCell;
+                        if (movingEntity is EnemyCharacter e) e.GridPosition = targetCell;
+                        
+                        // If it was the local player and we were still in move phase unconfirmed, refresh updates
+                        if (movingEntity == _players[0] && _currentPhase == BattlePhase.MovePhase && !_hasConfirmedMove)
+                        {
+                            ShowValidMoves(_players[0]);
+                        }
+                    }
+                    else
+                    {
+                        GD.PrintErr($"[BattleManager] Move synchronization FAILED for {movingEntity.Name}. Logical position remains at {currentPos}.");
                     }
                 }
             }
@@ -318,7 +350,7 @@ public partial class BattleManager : Node
                         // Remove from hand physically (won't crash if it wasn't there)
                         player.Hand.PlayCard(targetCard);
                         var targetCell = new Vector2I(tX, tY);
-                        _activationQueue.Add(new QueuedAction(player.Data, targetCard, targetCell, player.GridPosition));
+                        _activationQueue.Add(new QueuedAction(player, targetCard, targetCell, player.GridPosition));
                         
                         // Resort instantly for visual display
                         _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
@@ -349,7 +381,7 @@ public partial class BattleManager : Node
                     {
                         enemy.Hand.PlayCard(targetCard);
                         var targetCell = new Vector2I(tX, tY);
-                        _activationQueue.Add(new QueuedAction(enemy.Data, targetCard, targetCell, enemy.GridPosition));
+                        _activationQueue.Add(new QueuedAction(enemy, targetCard, targetCell, enemy.GridPosition));
                         
                         _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
                         
@@ -529,27 +561,36 @@ public partial class BattleManager : Node
         Board?.ClearHighlights();
         _validMoves.Clear();
 
-        for (int q = -_testMoveRange; q <= _testMoveRange; q++)
-        {
-            for (int r = -_testMoveRange; r <= _testMoveRange; r++)
-            {
-                if (Mathf.Abs(q) + Mathf.Abs(r) <= _testMoveRange)
-                {
-                    Vector2I checkPos = _moveOrigin + new Vector2I(q, r);
+        if (Board == null) return;
 
-                    if (Board.IsInBounds(checkPos))
-                    {
-                        var occupant = Board.GetOccupant(checkPos);
-                        // Allow moving through/onto other players, but not enemies
-                        bool blocked = occupant != null && occupant is EnemyCharacter;
-                        
-                        if (!blocked || checkPos == _moveOrigin)
-                        {
-                            _validMoves.Add(checkPos);
-                            Board.HighlightCell(checkPos, new Color(0.1f, 0.9f, 0.2f)); // Vibrant Green
-                        }
-                    }
-                }
+        var reachable = Board.GetReachableCells(_moveOrigin, _testMoveRange);
+        
+        foreach (var checkPos in reachable)
+        {
+            // Even if reachable via pathfinding, we still check for enemies blocking the final spot
+            // (Pathfinding usually treats enemies as passable if they are moving, but for highlighting 
+            // the 'target' cell, we often want to block if someone is there).
+            var occupant = Board.GetOccupant(checkPos);
+            bool isEnemy = occupant != null && occupant is EnemyCharacter;
+
+            if (!isEnemy || checkPos == _moveOrigin)
+            {
+                _validMoves.Add(checkPos);
+                Board.HighlightCell(checkPos, new Color(0.1f, 0.9f, 0.2f)); // Vibrant Green
+            }
+        }
+
+        // --- Path Preview Logic ---
+        // Highlight the path to either the selected target or the currently hovered (valid) cell
+        Vector2I previewTarget = (_selectedMoveTarget != new Vector2I(-999, -999)) ? _selectedMoveTarget : _lastHoveredCell;
+        
+        if (previewTarget != _moveOrigin && _validMoves.Contains(previewTarget))
+        {
+            var path = Board.GetPath(_moveOrigin, previewTarget);
+            foreach (var step in path)
+            {
+                // Highlight path in a distinct yellow-green or lime
+                Board.HighlightCell(step, new Color(0.6f, 1.0f, 0.2f)); 
             }
         }
         
@@ -583,7 +624,7 @@ public partial class BattleManager : Node
         // Handle Target Preview via Mouse Motion
         if (@event is InputEventMouseMotion mouseMotion)
         {
-            if (_currentPhase == BattlePhase.BattlePhase && MainCamera != null)
+            if ((_currentPhase == BattlePhase.BattlePhase || _currentPhase == BattlePhase.SetupPhase || _currentPhase == BattlePhase.MovePhase) && MainCamera != null)
             {
                 if (_hoveredCardIndex != -1 || _selectedCardIndex != -1)
                 {
@@ -599,11 +640,12 @@ public partial class BattleManager : Node
                         Vector3 hitPosition = (Vector3)result["position"];
                         Vector2I hoveredCell = Board.WorldToGrid(hitPosition);
 
-                        if (hoveredCell != _lastHoveredCell)
+                        if (hitPosition != _lastHitPosition || hoveredCell != _lastHoveredCell)
                         {
+                            _lastHitPosition = hitPosition;
                             _lastHoveredCell = hoveredCell;
                             int activeCardIdx = _selectedCardIndex != -1 ? _selectedCardIndex : _hoveredCardIndex;
-                            UpdateTargetingPreview(activeCardIdx, hoveredCell);
+                            UpdateTargetingPreview(activeCardIdx, hoveredCell, hitPosition);
                         }
                     }
                     else if (_lastHoveredCell != new Vector2I(-999, -999))
@@ -618,7 +660,7 @@ public partial class BattleManager : Node
         // Mouse clicks on the grid
         if (@event is InputEventMouseButton mouseBtn && mouseBtn.Pressed)
         {
-            if (_currentPhase == BattlePhase.MovePhase && _players.Count > 0)
+            if (_currentPhase == BattlePhase.MovePhase && _players.Count > 0 && _selectedCardIndex == -1)
             {
                 if (MainCamera == null) return;
 
@@ -649,7 +691,7 @@ public partial class BattleManager : Node
                 }
             }
 
-            if (_currentPhase == BattlePhase.BattlePhase && MainCamera != null)
+            if ((_currentPhase == BattlePhase.BattlePhase || _currentPhase == BattlePhase.SetupPhase || _currentPhase == BattlePhase.MovePhase) && MainCamera != null)
             {
                 if (mouseBtn.ButtonIndex == MouseButton.Left && _selectedCardIndex != -1 && _players.Count > 0)
                 {
@@ -667,10 +709,27 @@ public partial class BattleManager : Node
 
                         var player = _players[0];
                         var card = player.Hand.Cards[_selectedCardIndex];
+                        
+                        if (card.Name.Contains("Jump"))
+                        {
+                            clickedCell = GetProjectedTarget(player, hitPosition, GetDynamicRange(player, card));
+                        }
+
                         var validTargets = GetValidTargetCells(player, card);
 
                         if (validTargets.Contains(clickedCell))
                         {
+                            // Additional blocking check for Jump
+                            if (card.Name.Contains("Jump"))
+                            {
+                                float v0 = GetLaunchSpeed(player, card);
+                                if (!Board.HighlightTrajectoryArc(player.GridPosition, clickedCell, v0, new Color(1, 1, 1, 0.8f)))
+                                {
+                                    GD.Print("[BattleManager] Jump path is blocked!");
+                                    return;
+                                }
+                            }
+
                             ExecuteCardPlay(player, _selectedCardIndex, clickedCell);
                         }
                         else
@@ -780,16 +839,58 @@ public partial class BattleManager : Node
         
         foreach (var mover in allMovers)
         {
-            if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
-            {
-                // We broadcast all moves so clients see the enemies move too!
-                SteamManager.Instance.BroadcastMessage($"MOVE_CONFIRM:{mover.Id}:{mover.Target.X}:{mover.Target.Y}");
-            }
-            OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"MOVE_CONFIRM:{mover.Id}:{mover.Target.X}:{mover.Target.Y}");
+            var unit = mover.Unit;
+            // Get the original position BEFORE moving the unit
+            Vector2I originalPos = (unit is PlayerCharacter pc) ? pc.GridPosition : ((EnemyCharacter)unit).GridPosition;
             
-            await ToSignal(GetTree().CreateTimer(0.3f), SceneTreeTimer.SignalName.Timeout);
+            // Check if this is a jump card BEFORE processing the network message
+            bool isJump = _movePhaseCards.TryGetValue(mover.Id, out var moveCard) && moveCard.Name.Contains("Jump");
+            
+            if (!isJump)
+            {
+                // For normal moves, broadcast and process through network
+                if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+                {
+                    SteamManager.Instance.BroadcastMessage($"MOVE_CONFIRM:{mover.Id}:{mover.Target.X}:{mover.Target.Y}");
+                }
+                OnSteamNetworkMessage(Steamworks.SteamClient.SteamId, $"MOVE_CONFIRM:{mover.Id}:{mover.Target.X}:{mover.Target.Y}");
+            }
+            else
+            {
+                // For jump cards, manually update the occupant map without visual movement
+                Board.MoveUnitImmediate(unit, originalPos, mover.Target);
+                if (unit is PlayerCharacter p) p.GridPosition = mover.Target;
+                if (unit is EnemyCharacter e) e.GridPosition = mover.Target;
+                // Restore visual position to original for the jump animation
+                unit.GlobalPosition = Board.CellCentre(originalPos);
+            }
+            
+            // Wait for the animation to finish (0.15s per step in MoveUnit)
+            // We use Manhattan distance as a lower-bound estimate, 
+            // but AStar might take a slightly longer path. 
+            // To be safe, we could also just ask the Board for the path length if we wanted to be 100% precise.
+            var path = Board.GetPath(originalPos, mover.Target);
+            float duration = Mathf.Max(0.2f, path.Count * 0.15f + 0.1f);
+
+            // AI Debug Visualization: Briefly show the path before moving
+            Color debugColor = (unit is EnemyCharacter) ? new Color(1, 0, 0, 0.4f) : new Color(0, 0.5f, 1, 0.4f);
+            foreach (var step in path) Board.HighlightCell(step, debugColor);
+            await ToSignal(GetTree().CreateTimer(0.4f), SceneTreeTimer.SignalName.Timeout);
+            Board.ClearHighlights();
+
+            if (isJump)
+            {
+                float v0 = GetLaunchSpeed(unit, moveCard);
+                await AnimateJump(unit, originalPos, mover.Target, v0);
+                Board?.ClearTrajectory();
+            }
+            else
+            {
+                await ToSignal(GetTree().CreateTimer(duration), SceneTreeTimer.SignalName.Timeout);
+            }
         }
         
+        _movePhaseCards.Clear();
         _isResolvingMoves = false;
         AdvancePhase();
     }
@@ -887,11 +988,20 @@ public partial class BattleManager : Node
 
     private void OnCardPlayedRequested(int index)
     {
-        if (_currentPhase != BattlePhase.BattlePhase || _players.Count == 0) return;
+        if (_players.Count == 0) return;
+        bool isBattle = _currentPhase == BattlePhase.BattlePhase;
+        bool isSetup = _currentPhase == BattlePhase.SetupPhase;
+        bool isMove = _currentPhase == BattlePhase.MovePhase;
+        if (!isBattle && !isSetup && !isMove) return;
 
         var player = _players[0];
         if (index < 0 || index >= player.Hand.Cards.Count) return;
         var card = player.Hand.Cards[index];
+
+        // Specific phase card checks
+        if (isBattle && card.CardType != CardType.Battle && card.CardType != CardType.Buff && card.CardType != CardType.Debuff) return;
+        if (isSetup && card.CardType != CardType.Setup) return;
+        if (isMove && card.CardType != CardType.Move) return;
 
         if (card.Target == TargetType.Self || card.Target == TargetType.Global)
         {
@@ -917,8 +1027,18 @@ public partial class BattleManager : Node
     private void ExecuteCardPlay(PlayerCharacter player, int cardIndex, Vector2I targetCell)
     {
         var card = player.Hand.Cards[cardIndex];
-        
-        if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
+
+        if (card.CardType == CardType.Move)
+        {
+            _movePhaseCards[player.SteamId] = card;
+            _selectedMoveTarget = targetCell;
+            _confirmedMoves[player.SteamId] = targetCell; // Lock it in
+            TrySelectOrConfirmMove(targetCell); // Update UI/HUD
+            
+            player.Hand.PlayCard(card);
+            player.Deck.Discard(card);
+        }
+        else if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
         {
             var hostId = SteamManager.Instance.CurrentLobby.Value.Owner.Id;
             if (hostId == Steamworks.SteamClient.SteamId)
@@ -981,14 +1101,14 @@ public partial class BattleManager : Node
 
     private void OnCardHovered(int index)
     {
-        if (_currentPhase != BattlePhase.BattlePhase || _selectedCardIndex != -1) return;
+        if (_selectedCardIndex != -1) return;
         _hoveredCardIndex = index;
         UpdateTargetingPreview(_hoveredCardIndex, _lastHoveredCell);
     }
 
     private void OnCardUnhovered(int index)
     {
-        if (_currentPhase != BattlePhase.BattlePhase || _selectedCardIndex != -1) return;
+        if (_selectedCardIndex != -1) return;
         if (_hoveredCardIndex == index)
         {
             _hoveredCardIndex = -1;
@@ -1000,13 +1120,20 @@ public partial class BattleManager : Node
     // Targeting Helpers
     // -------------------------------------------------------------------------
     
-    private void UpdateTargetingPreview(int cardIndex, Vector2I hoveredCell)
+    private void UpdateTargetingPreview(int cardIndex, Vector2I hoveredCell, Vector3 hitPosition = default)
     {
-        Board.ClearHighlights();
+        Board?.ClearHighlights();
+        Board?.ClearTrajectory();
         if (_players.Count == 0 || cardIndex < 0 || cardIndex >= _players[0].Hand.Cards.Count) return;
 
         var player = _players[0];
         var card = player.Hand.Cards[cardIndex];
+
+        // "Force and Direction" Override for Jump
+        if (card.Name.Contains("Jump") && hitPosition != default)
+        {
+            hoveredCell = GetProjectedTarget(player, hitPosition, GetDynamicRange(player, card));
+        }
 
         // 1. Determine valid aiming cells (Yellow)
         var validTargets = GetValidTargetCells(player, card);
@@ -1024,13 +1151,65 @@ public partial class BattleManager : Node
             {
                 Board.HighlightCell(aoeCell, new Color(0.8f, 0.2f, 0.2f)); // Red
             }
+
+            // 3. Specialized Jump Trajectory Visualization
+            if (card.Name.Contains("Jump"))
+            {
+                float v0 = GetLaunchSpeed(player, card);
+                // In M1, PlayerCharacter might not have a CollisionObject RID directly if it's just a Node3D with child meshes.
+                // We'll pass null for now, or find a child RID.
+                Board?.HighlightTrajectoryArc(player.GridPosition, hoveredCell, v0, new Color(1, 1, 1, 0.8f));
+            }
         }
+    }
+
+    private float GetLaunchSpeed(Node3D unit, CardData card)
+    {
+        CharacterData data = null;
+        if (unit is PlayerCharacter p) data = p.Data;
+        if (unit is EnemyCharacter e) data = e.Data;
+
+        int rangeTiles = card.Range;
+        if (card.RangeScalesWithStrength && data != null)
+        {
+            rangeTiles = Mathf.Max(1, data.BaseStrength / 2);
+        }
+
+        float rangeMeters = rangeTiles * Board.CellSize;
+        float g = Board.JumpGravity;
+        // Buffed power (1.25x) to ensure clear flight over obstacles and reach high ground
+        return 1.25f * Mathf.Sqrt(rangeMeters * g);
+    }
+
+    private int GetDynamicRange(PlayerCharacter player, CardData card)
+    {
+        if (card.RangeScalesWithStrength)
+        {
+            return Mathf.Max(1, player.Data.BaseStrength / 2);
+        }
+        return card.Range;
+    }
+
+    private Vector2I GetProjectedTarget(PlayerCharacter player, Vector3 hitPosition, int maxRange)
+    {
+        Vector3 playerPos = Board.CellCentre(player.GridPosition);
+        Vector3 direction = (hitPosition - playerPos);
+        direction.Y = 0; // Flatten the direction vector
+        float distInMeters = direction.Length();
+        direction = direction.Normalized();
+
+        float maxMeters = maxRange * Board.CellSize;
+        float finalMeters = Mathf.Min(distInMeters, maxMeters);
+
+        Vector3 targetPos = playerPos + direction * finalMeters;
+        return Board.WorldToGrid(targetPos);
     }
 
     private List<Vector2I> GetValidTargetCells(PlayerCharacter player, CardData card)
     {
         var validCells = new List<Vector2I>();
-        int range = card.Range;
+        int range = GetDynamicRange(player, card);
+
         Vector2I origin = player.GridPosition;
 
         for (int q = -range; q <= range; q++)
@@ -1052,6 +1231,7 @@ public partial class BattleManager : Node
                                 isValid = Board.IsOccupied(cell) && Board.GetOccupant(cell) is EnemyCharacter;
                                 break;
                             case TargetType.AnyTile:
+                            case TargetType.AnyTileNoLoS:
                                 isValid = true;
                                 break;
                             case TargetType.Global:
@@ -1059,7 +1239,22 @@ public partial class BattleManager : Node
                                 break;
                         }
 
-                        if (isValid) validCells.Add(cell);
+                        if (isValid)
+                        {
+                            // Enforce Line of Sight for non-global/non-self/non-NoLoS targets
+                            if (card.Target != TargetType.Self && card.Target != TargetType.Global && card.Target != TargetType.AnyTileNoLoS)
+                            {
+                                if (!Board.HasLineOfSight(origin, cell)) isValid = false;
+                            }
+
+                            // JUMP RESTRICTION: Jump cards cannot land on Cliffs/Rocks/Occupied cells
+                            if (isValid && card.Name.Contains("Jump"))
+                            {
+                                if (Board.IsOccupied(cell)) isValid = false;
+                            }
+                            
+                            if (isValid) validCells.Add(cell);
+                        }
                     }
                 }
             }
@@ -1091,23 +1286,105 @@ public partial class BattleManager : Node
             GD.Print($"  -> Executing {action.Card.Name} (Speed: {action.Card.Speed}) at target {action.TargetCell}");
             
             var affectedCells = Board.GetCellsInAoE(action.TargetCell, action.Card.AoeShape, action.CasterOrigin);
+            
+            // Visual Debug: Highlight the ground red before applying logic
+            Board.ClearHighlights();
             foreach (var cell in affectedCells)
             {
-                var occupant = Board.GetOccupant(cell);
-                if (occupant is EnemyCharacter enemy)
+                Board.HighlightCell(cell, new Color(0.8f, 0.2f, 0.2f)); // Red
+            }
+
+            // Wait 1.5 seconds so players can see the card highlight or parse what's happening
+            await ToSignal(GetTree().CreateTimer(1.5f), SceneTreeTimer.SignalName.Timeout);
+
+            Board.ClearHighlights();
+            // Apply Logic based on card type/ID
+            if (action.Card.Name.Contains("Jump"))
+            {
+                var unit = action.Caster;
+                var from = action.CasterOrigin;
+                var to = action.TargetCell;
+
+                float v0 = GetLaunchSpeed(unit as PlayerCharacter, action.Card); // Assuming Player for speed calc, fallback otherwise
+                await AnimateJump(unit, from, to, v0);
+                Board?.ClearTrajectory();
+                
+                Board.MoveUnitImmediate(unit, from, to);
+                if (unit is PlayerCharacter p) p.GridPosition = to;
+                if (unit is EnemyCharacter e) e.GridPosition = to;
+            }
+            else
+            {
+                // Standard Damage/Heal Logic
+                foreach (var cell in affectedCells)
                 {
-                    if (action.Card.BaseDamage > 0) enemy.ModifyHp(action.Card.BaseDamage);
-                    if (action.Card.BaseHealing > 0) enemy.ModifyHp(-action.Card.BaseHealing);
-                }
-                else if (occupant is PlayerCharacter p)
-                {
-                    if (action.Card.BaseDamage > 0) p.ModifyHp(action.Card.BaseDamage);
-                    if (action.Card.BaseHealing > 0) p.ModifyHp(-action.Card.BaseHealing);
+                    var target = Board.GetOccupant(cell);
+                    if (target != null)
+                    {
+                        if (action.Card.BaseDamage > 0)
+                        {
+                            if (target is PlayerCharacter p) p.ModifyHp(-action.Card.BaseDamage);
+                            if (target is EnemyCharacter e) e.ModifyHp(-action.Card.BaseDamage);
+                        }
+                        if (action.Card.BaseHealing > 0)
+                        {
+                            if (target is PlayerCharacter p) p.ModifyHp(action.Card.BaseHealing);
+                            if (target is EnemyCharacter e) e.ModifyHp(action.Card.BaseHealing);
+                        }
+                    }
                 }
             }
 
             // Update display to shrink the queue natively
             HUD?.UpdateQueueDisplay(_activationQueue);
         }
+    }
+
+    private async System.Threading.Tasks.Task AnimateJump(Node3D unit, Vector2I from, Vector2I to, float launchSpeed)
+    {
+        Vector3 startPos = Board.CellCentre(from);
+        Vector3 endPos = Board.CellCentre(to);
+        
+        Vector3 diff = endPos - startPos;
+        float x = new Vector2(diff.X, diff.Z).Length();
+        float y = diff.Y;
+        float g = Board.JumpGravity;
+        float v = launchSpeed;
+        float v2 = v * v;
+        float v4 = v2 * v2;
+
+        float theta = 0;
+        if (x < 0.01f)
+        {
+            theta = Mathf.Pi / 2f;
+        }
+        else
+        {
+            float determinant = v4 - g * (g * x * x + 2 * y * v2);
+            theta = Mathf.Atan((v2 + Mathf.Sqrt(Mathf.Max(0, determinant))) / (g * x));
+        }
+
+        Vector3 horizontalDir = diff;
+        horizontalDir.Y = 0;
+        horizontalDir = horizontalDir.Normalized();
+
+        float vX = v * Mathf.Cos(theta);
+        float vY = v * Mathf.Sin(theta);
+        float totalTime = (x < 0.01f) ? (2 * vY / g) : (x / vX);
+
+        if (totalTime <= 0) return;
+
+        Tween tween = CreateTween();
+        // Use a Proxy value to animate path progress 0.0 -> 1.0
+        tween.TweenMethod(Callable.From<float>((tFactor) => {
+            float t = tFactor * totalTime;
+            Vector3 pos = startPos;
+            pos.X += horizontalDir.X * vX * t;
+            pos.Z += horizontalDir.Z * vX * t;
+            pos.Y += vY * t - 0.5f * g * t * t;
+            unit.GlobalPosition = pos;
+        }), 0.0f, 1.0f, totalTime).SetTrans(Tween.TransitionType.Linear);
+
+        await ToSignal(tween, Tween.SignalName.Finished);
     }
 }

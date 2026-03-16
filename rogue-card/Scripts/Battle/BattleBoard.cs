@@ -31,6 +31,7 @@ public partial class BattleBoard : Node3D
     [Export] public Texture2D WaterTexture;
     [Export] public Texture2D GrassTexture;
     [Export] public Texture2D RockTexture;
+    [Export] public Texture2D CliffTexture;
     [Export] public PackedScene TreeScene;
     [Export] public PackedScene RockScene;
     [Export] public PackedScene GroundScene;
@@ -38,6 +39,8 @@ public partial class BattleBoard : Node3D
     [Export] public float GroundThickness { get; set; } = 0.5f;
     [Export] public float ElevationStep { get; set; } = 0.5f;
     [Export] public float HighGroundDensity { get; set; } = 0.1f;
+    [Export] public float MaxWalkableSlope { get; set; } = 0.7f;
+    [Export] public float JumpGravity { get; set; } = 20.0f; // Custom gravity for the jump arc
 
     [ExportGroup("Editor Tools")]
     [Export]
@@ -69,6 +72,9 @@ public partial class BattleBoard : Node3D
     /// <summary>Mapping from grid position → occupying character node (null if empty).</summary>
     private readonly Dictionary<Vector2I, Node3D> _occupants = new();
 
+    private AStarGrid2D _astar;
+    private MeshInstance3D _trajectoryArcMesh;
+
     // -------------------------------------------------------------------------
     // Lifecycle
     // -------------------------------------------------------------------------
@@ -86,6 +92,24 @@ public partial class BattleBoard : Node3D
         }
 
         GenerateBoard();
+
+        // Setup 3D Trajectory Mesh Instance
+        _trajectoryArcMesh = new MeshInstance3D
+        {
+            Name = "TrajectoryArc",
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+        };
+        _trajectoryArcMesh.Mesh = new ImmediateMesh();
+        
+        var mat = new StandardMaterial3D
+        {
+            ShadingMode = StandardMaterial3D.ShadingModeEnum.Unshaded,
+            AlbedoColor = Colors.White,
+            Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+            NoDepthTest = true, // See through terrain
+        };
+        _trajectoryArcMesh.MaterialOverride = mat;
+        AddChild(_trajectoryArcMesh);
     }
 
     // -------------------------------------------------------------------------
@@ -169,11 +193,76 @@ public partial class BattleBoard : Node3D
             }
         }
 
+        // --- Pass 1.5: Slope Check & Cliff Gaps ---
+        // We create "ramps" or gaps in long cliff walls to ensure playability.
+        var cliffNoise = new FastNoiseLite();
+        cliffNoise.Seed = (int)GD.Randi();
+        cliffNoise.Frequency = 0.2f; // High frequency for frequent gaps
+
+        for (int col = 0; col < Columns; col++)
+        {
+            for (int row = 0; row < Rows; row++)
+            {
+                var cell = _cells[col, row];
+                float h00 = GetVertexHeight(col, row);
+                float h10 = GetVertexHeight(col + 1, row);
+                float h01 = GetVertexHeight(col, row + 1);
+                float h11 = GetVertexHeight(col + 1, row + 1);
+ 
+                float dx1 = Mathf.Abs(h10 - h00);
+                float dx2 = Mathf.Abs(h11 - h01);
+                float dz1 = Mathf.Abs(h01 - h00);
+                float dz2 = Mathf.Abs(h11 - h10);
+                
+                float maxDiff = Mathf.Max(Mathf.Max(dx1, dx2), Mathf.Max(dz1, dz2));
+                float slope = maxDiff / CellSize;
+
+                if (slope > MaxWalkableSlope)
+                {
+                    // Only mark as cliff if the cliffNoise is above a threshold.
+                    // This creates intermittent gaps in long ridges.
+                    if (cliffNoise.GetNoise2D(col, row) < 0.3f) 
+                    {
+                        cell.IsCliff = true;
+                    }
+                }
+            }
+        }
+
         // --- Pass 2: Smoothing (Fill Holes) ---
         // Removed: Continuous float noise is inherently smooth, no need to fill discrete holes.
 
         GD.Print($"[BattleBoard] Generated {Columns}×{Rows} seamless procedural board.");
+        
+        SetupAStar();
         DrawBoardVisuals();
+    }
+
+    private void SetupAStar()
+    {
+        _astar = new AStarGrid2D
+        {
+            Region = new Rect2I(0, 0, Columns, Rows),
+            CellSize = new Vector2(1, 1),
+            DefaultComputeHeuristic = AStarGrid2D.Heuristic.Manhattan,
+            DefaultEstimateHeuristic = AStarGrid2D.Heuristic.Manhattan,
+            DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never
+        };
+        _astar.Update();
+
+        for (int x = 0; x < Columns; x++)
+        {
+            for (int y = 0; y < Rows; y++)
+            {
+                var cell = _cells[x, y];
+                bool isBlocked = cell.FieldType == FieldType.Rock || cell.IsCliff;
+                
+                // Block deep water
+                if (cell.FieldType == FieldType.Water && cell.Elevation < -0.6f) isBlocked = true;
+
+                _astar.SetPointSolid(new Vector2I(x, y), isBlocked);
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -220,8 +309,8 @@ public partial class BattleBoard : Node3D
         
         var cell = _cells[grid.X, grid.Y];
         
-        // Block rocks
-        if (cell.FieldType == FieldType.Rock) return true;
+        // Block rocks and cliffs
+        if (cell.FieldType == FieldType.Rock || cell.IsCliff) return true;
         
         // Block Deep Water, allow Shallow Water
         // Shallow water is anything >= -0.6f (since the new min water depth is -0.5f)
@@ -264,6 +353,36 @@ public partial class BattleBoard : Node3D
     public FieldCell GetCell(Vector2I grid)
         => IsInBounds(grid) ? _cells[grid.X, grid.Y] : null;
 
+    /// <summary>
+    /// Searches outward from a preferred position for the nearest cell that is 
+    /// within bounds and NOT occupied/blocked by terrain (cliffs, rocks, deep water).
+    /// </summary>
+    public Vector2I GetNearestValidCell(Vector2I preferred)
+    {
+        if (!IsOccupied(preferred)) return preferred;
+
+        // Spiral/Outward search
+        for (int dist = 1; dist <= Mathf.Max(Columns, Rows); dist++)
+        {
+            for (int q = -dist; q <= dist; q++)
+            {
+                for (int r = -dist; r <= dist; r++)
+                {
+                    // Only check cells at the current Manhattan distance shell
+                    if (Mathf.Abs(q) + Mathf.Abs(r) != dist) continue;
+
+                    Vector2I candidate = preferred + new Vector2I(q, r);
+                    if (IsInBounds(candidate) && !IsOccupied(candidate))
+                    {
+                        return candidate;
+                    }
+                }
+            }
+        }
+
+        return preferred; // Fallback to preferred if somehow the whole board is blocked
+    }
+
     // -------------------------------------------------------------------------
     // M1 Debug Visualisation
     // -------------------------------------------------------------------------
@@ -285,7 +404,7 @@ public partial class BattleBoard : Node3D
                 // The actual terrain cell should look like a sandy shore sloping into it!
                 var visualType = cell.FieldType == FieldType.Water ? FieldType.Sand : cell.FieldType;
                 
-                Texture2D tex = GetTextureForType(visualType);
+                Texture2D tex = GetTextureForType(visualType, cell.IsCliff);
                 if (tex != null)
                 {
                     material.AlbedoTexture = tex;
@@ -556,8 +675,10 @@ public partial class BattleBoard : Node3D
         };
     }
 
-    private Texture2D GetTextureForType(FieldType type)
+    private Texture2D GetTextureForType(FieldType type, bool isCliff = false)
     {
+        if (isCliff && CliffTexture != null) return CliffTexture;
+
         return type switch
         {
             FieldType.Water => WaterTexture,
@@ -624,6 +745,116 @@ public partial class BattleBoard : Node3D
         }
     }
 
+    public bool HighlightTrajectoryArc(Vector2I fromCell, Vector2I toCell, float launchSpeed, Color color)
+    {
+        if (_trajectoryArcMesh == null || !(_trajectoryArcMesh.Mesh is ImmediateMesh im)) return false;
+
+        im.ClearSurfaces();
+        
+        Vector3 start = CellCentre(fromCell);
+        Vector3 end = CellCentre(toCell);
+        
+        // Offset start/end so logic is above character heads
+        start.Y += 1.2f;
+        end.Y += 1.2f;
+        
+        float g = JumpGravity;
+        Vector3 diff = end - start;
+        float x = new Vector2(diff.X, diff.Z).Length();
+        float y = diff.Y;
+        float v = launchSpeed;
+        float v2 = v * v;
+        float v4 = v2 * v2;
+
+        float theta = 0;
+        bool reachable = true;
+
+        if (x < 0.01f) // Self target (Straight Up)
+        {
+            theta = Mathf.Pi / 2f; 
+        }
+        else
+        {
+            float determinant = v4 - g * (g * x * x + 2 * y * v2);
+            if (determinant < -0.01f) // Added small epsilon for float precision
+            {
+                reachable = false;
+                theta = Mathf.Pi / 4f; // Fallback visualization
+            }
+            else
+            {
+                // High arc (+) feels more like a "Jump" card
+                theta = Mathf.Atan((v2 + Mathf.Sqrt(Mathf.Max(0, determinant))) / (g * x));
+            }
+        }
+
+        // Horizontal direction
+        Vector3 horizontalDir = diff;
+        horizontalDir.Y = 0;
+        horizontalDir = horizontalDir.Normalized();
+
+        // Velocities
+        float vX = v * Mathf.Cos(theta);
+        float vY = v * Mathf.Sin(theta);
+
+        // Calculate flight time
+        float totalTime = (x < 0.01f) ? (2 * vY / g) : (x / vX);
+
+        int steps = 30;
+        bool blocked = !reachable;
+
+        im.SurfaceBegin(Mesh.PrimitiveType.LineStrip);
+        
+        Vector3 lastPos = start;
+        for (int i = 0; i <= steps; i++)
+        {
+            float t = totalTime * (i / (float)steps);
+            Vector3 pos = start;
+            pos.X += horizontalDir.X * vX * t;
+            pos.Z += horizontalDir.Z * vX * t;
+            pos.Y += vY * t - 0.5f * g * t * t;
+            
+            // Collison Check: Skip the first 10% and last 10% of the flight path 
+            // to avoid hitting the character's own feet or the ground/cliff edge upon landing.
+            if (i > steps * 0.1f && i < steps * 0.9f) 
+            {
+                if (CheckArcCollision(lastPos, pos))
+                {
+                    blocked = true;
+                }
+            }
+            
+            lastPos = pos;
+            im.SurfaceAddVertex(pos);
+        }
+        
+        Color arcColor = blocked ? new Color(1, 0, 0, 0.8f) : color;
+        ((StandardMaterial3D)_trajectoryArcMesh.MaterialOverride).AlbedoColor = arcColor;
+        
+        im.SurfaceEnd();
+        _trajectoryArcMesh.Visible = true;
+
+        // Landing Marker
+        HighlightCell(toCell, blocked ? new Color(1, 0, 0, 0.5f) : new Color(arcColor.R, arcColor.G, arcColor.B, 1.0f)); 
+        
+        return !blocked;
+    }
+
+    private bool CheckArcCollision(Vector3 from, Vector3 to)
+    {
+        var spaceState = GetWorld3D().DirectSpaceState;
+        var query = PhysicsRayQueryParameters3D.Create(from, to);
+        var result = spaceState.IntersectRay(query);
+        return result.Count > 0;
+    }
+
+    public void ClearTrajectory()
+    {
+        if (_trajectoryArcMesh == null || !(_trajectoryArcMesh.Mesh is ImmediateMesh im)) return;
+        im.ClearSurfaces();
+        _trajectoryArcMesh.Visible = false;
+    }
+
     /// <summary>Reset all highlights back to invisible.</summary>
     public void ClearHighlights()
     {
@@ -670,15 +901,20 @@ public partial class BattleBoard : Node3D
                 
             case AreaOfEffect.LineForward:
                 // Direction from player to target for the line beam
-                Vector2I dir = new Vector2I(Mathf.Sign(targetCell.X - playerPos.X), Mathf.Sign(targetCell.Y - playerPos.Y));
+                Vector2I diff = targetCell - playerPos;
+                Vector2I dir = Vector2I.Zero;
                 
-                // If diagonal or same cell, default to horizontal beam
-                if (dir.X != 0 && dir.Y != 0) dir.Y = 0; 
+                // Prioritise the cardinal direction of the target relative to caster
+                if (Mathf.Abs(diff.X) > Mathf.Abs(diff.Y)) dir = new Vector2I(Mathf.Sign(diff.X), 0);
+                else dir = new Vector2I(0, Mathf.Sign(diff.Y));
+                
                 if (dir == Vector2I.Zero) dir = Vector2I.Right;
                 
-                for (int i = 0; i < 5; i++) // Example max beam length
+                // Beam starts AT THE CASTER and goes through the target
+                // Length is determined by card range (approximating 5 for now as per previous logic, but ideally we'd pass range)
+                for (int i = 1; i <= 5; i++) 
                 {
-                    var pos = targetCell + dir * i;
+                    var pos = playerPos + dir * i;
                     if (IsInBounds(pos)) cells.Add(pos);
                 }
                 break;
@@ -687,22 +923,168 @@ public partial class BattleBoard : Node3D
         return cells;
     }
 
-    /// <summary>Move a unit cleanly from one cell to another, using a Tween.</summary>
-    public void MoveUnit(Node3D unit, Vector2I from, Vector2I to)
+    /// <summary>Check if there is a clear line of sight between two cells (no rocks or cliffs).</summary>
+    public bool HasLineOfSight(Vector2I from, Vector2I to)
     {
-        if (!IsInBounds(to) || IsOccupied(to)) return;
+        if (from == to) return true;
+
+        // Simple grid raycast (Bresenham-lite)
+        int x0 = from.X; int y0 = from.Y;
+        int x1 = to.X;   int y1 = to.Y;
+
+        int dx = Mathf.Abs(x1 - x0);
+        int dy = Mathf.Abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+
+        while (true)
+        {
+            if (x0 == x1 && y0 == y1) break;
+
+            // Check if CURRENT step is an obstacle (except for the start/end points if desired)
+            // But usually, if the cell you are STANDING ON is a rock, you can't see out.
+            // If the cell you are TARGETING is a rock, you can't see "into" it perfectly,
+            // but for gameplay we usually allow targeting the obstacle itself.
+            if ((x0 != from.X || y0 != from.Y) && (x0 != to.X || y0 != to.Y))
+            {
+                var cell = _cells[x0, y0];
+                if (cell.FieldType == FieldType.Rock || cell.IsCliff) return false;
+            }
+
+            int e2 = 2 * err;
+            if (e2 > -dy) { err -= dy; x0 += sx; }
+            if (e2 < dx) { err += dx; y0 += sy; }
+        }
+
+        return true;
+    }
+
+    /// <summary>Find all cells reachable from start within range, respecting AStar solid points.</summary>
+    public List<Vector2I> GetReachableCells(Vector2I start, int range)
+    {
+        var reachable = new List<Vector2I>();
+        if (_astar == null) SetupAStar();
+
+        // BFS to find all reachable cells within range
+        var queue = new Queue<(Vector2I Pos, int Dist)>();
+        queue.Enqueue((start, 0));
+        var visited = new HashSet<Vector2I> { start };
+
+        while (queue.Count > 0)
+        {
+            var (current, dist) = queue.Dequeue();
+            reachable.Add(current);
+
+            if (dist < range)
+            {
+                // Orthogonal neighbors
+                Vector2I[] neighbors = {
+                    current + Vector2I.Up,
+                    current + Vector2I.Down,
+                    current + Vector2I.Left,
+                    current + Vector2I.Right
+                };
+
+                foreach (var next in neighbors)
+                {
+                    if (IsInBounds(next) && !visited.Contains(next) && !_astar.IsPointSolid(next))
+                    {
+                        visited.Add(next);
+                        queue.Enqueue((next, dist + 1));
+                    }
+                }
+            }
+        }
+
+        return reachable;
+    }
+
+    /// <summary>Find a path between two cells using AStar.</summary>
+    public List<Vector2I> GetPath(Vector2I from, Vector2I to)
+    {
+        if (_astar == null) SetupAStar();
+        var path = _astar.GetIdPath(from, to);
+        return new List<Vector2I>(path);
+    }
+
+    /// <summary>Returns the length of the A* path between two points. Returns 999 if unreachable.</summary>
+    public int GetPathLength(Vector2I from, Vector2I to)
+    {
+        if (from == to) return 0;
+        if (_astar == null) SetupAStar();
+        var path = _astar.GetIdPath(from, to);
+        if (path.Count == 0) return 999;
+        return path.Count - 1; // path includes start point
+    }
+
+    /// <summary>Move a unit cleanly from one cell to another, using a Tween sequence for cell-by-cell movement.</summary>
+    /// <returns>True if the move was valid and initiated, False if blocked or out of bounds.</returns>
+    public bool MoveUnit(Node3D unit, Vector2I from, Vector2I to)
+    {
+        if (from == to) return true; // Already there is a "success"
+        
+        if (!IsInBounds(to))
+        {
+            GD.PrintErr($"[BattleBoard] MoveUnit FAILED: Target {to} out of bounds.");
+            return false;
+        }
+
+        if (IsOccupied(to))
+        {
+            GD.PrintErr($"[BattleBoard] MoveUnit FAILED: Target {to} is occupied by {GetOccupant(to)?.Name ?? "Terrain"}.");
+            return false;
+        }
+
+        GD.Print($"[BattleBoard] MoveUnit: {unit.Name} from {from} to {to}");
 
         // Update Backend
-        if (IsInBounds(from) && _occupants[from] == unit)
+        if (IsInBounds(from))
         {
              _occupants[from] = null;
         }
         _occupants[to] = unit;
 
-        // Update Physics (Slide smoothly over 0.2 seconds)
+        // Pathfinding
+        if (_astar == null) SetupAStar(); // Safety check
+        
+        // Temporarily clear solid status for the unit's start and end to ensure pathfinding works if they were solid
+        // Actually, occupants aren't solid in AStar by default in our setup (only terrain is), 
+        // so we just calculate the path.
+        var path = _astar.GetIdPath(from, to);
+        
+        if (path.Count <= 1)
+        {
+            unit.Position = CellCentre(to);
+            return true;
+        }
+
+        // Update Physics (Slide smoothly cell-by-cell)
         Tween tween = GetTree().CreateTween();
-        tween.TweenProperty(unit, "position", CellCentre(to), 0.2f)
-             .SetTrans(Tween.TransitionType.Quad)
-             .SetEase(Tween.EaseType.Out);
+        
+        // Skip the first point as it is the current position
+        for (int i = 1; i < path.Count; i++)
+        {
+            var nextCell = path[i];
+            tween.TweenProperty(unit, "position", CellCentre(nextCell), 0.15f)
+                 .SetTrans(Tween.TransitionType.Linear);
+        }
+
+        return true;
+    }
+
+    /// <summary>Instantly teleports a unit from one cell to another without animation or pathfinding. Use for Jump/Blink.</summary>
+    public void MoveUnitImmediate(Node3D unit, Vector2I from, Vector2I to)
+    {
+        if (!IsInBounds(to)) return;
+
+        // Update Backend
+        if (IsInBounds(from)) _occupants[from] = null;
+        _occupants[to] = unit;
+
+        // Update Physics
+        unit.Position = CellCentre(to);
+        
+        GD.Print($"[BattleBoard] MoveUnitImmediate: {unit.Name} jumped from {from} to {to}");
     }
 }

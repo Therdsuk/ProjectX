@@ -27,6 +27,7 @@ public partial class CharacterData : Resource
     [Export] public int BaseSpeed      { get; set; } = 5;
     [Export] public int BaseAttack     { get; set; } = 10;
     [Export] public int BaseDefense    { get; set; } = 5;
+    [Export] public int BaseStrength   { get; set; } = 10;
 
     /// <summary>Maximum cells the character can move per Move Phase.</summary>
     [Export] public int MoveRange      { get; set; } = 3;

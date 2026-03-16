@@ -71,17 +71,18 @@ public partial class DebugBattleSpawner : Node
             
             Board.AddChild(player);
             
-            var startPos = new Vector2I(xOffset, 0);
+            var preferredStart = new Vector2I(xOffset, 0);
+            var actualStart = Board.GetNearestValidCell(preferredStart);
             
             if (member.Id == Steamworks.SteamClient.SteamId)
             {
                 localPlayer = player;
-                Manager.AddPlayer(localPlayer, startPos);
+                Manager.AddPlayer(localPlayer, actualStart);
             }
             else
             {
                 remotePlayers.Add(player);
-                remoteStartPositions.Add(startPos);
+                remoteStartPositions.Add(actualStart);
             }
             
             xOffset += 2;
@@ -141,7 +142,9 @@ public partial class DebugBattleSpawner : Node
                 var player = new PlayerCharacter { Name = $"TestPlayer_{setup.StartPos}" };
                 player.InitialiseFromData(data);
                 Board.AddChild(player);
-                Manager.AddPlayer(player, setup.StartPos);
+                
+                var actualStart = Board.GetNearestValidCell(setup.StartPos);
+                Manager.AddPlayer(player, actualStart);
 
                 if (firstPlayer == null) firstPlayer = player;
             }
@@ -167,35 +170,11 @@ public partial class DebugBattleSpawner : Node
     /// </summary>
     private void SafeSpawnEnemy(string label, CharacterData data, Vector2I preferredPos)
     {
-        Vector2I spawnPos = preferredPos;
+        Vector2I spawnPos = Board.GetNearestValidCell(preferredPos);
 
-        if (Board.IsOccupied(spawnPos))
+        if (spawnPos != preferredPos)
         {
-            bool found = false;
-            for (int dist = 1; dist <= 10 && !found; dist++)
-            {
-                for (int q = -dist; q <= dist && !found; q++)
-                {
-                    for (int r = -dist; r <= dist && !found; r++)
-                    {
-                        if (Mathf.Abs(q) + Mathf.Abs(r) != dist) continue;
-                        var candidate = preferredPos + new Vector2I(q, r);
-                        if (Board.IsInBounds(candidate) && !Board.IsOccupied(candidate))
-                        {
-                            spawnPos = candidate;
-                            found = true;
-                        }
-                    }
-                }
-            }
-
-            if (!found)
-            {
-                GD.PrintErr($"[DebugBattleSpawner] No free cell found for '{label}' near {preferredPos} — skipped.");
-                return;
-            }
-
-            GD.PushWarning($"[DebugBattleSpawner] '{label}': {preferredPos} was occupied → spawned at {spawnPos} instead. Set unique StartPos in the Inspector.");
+            GD.PushWarning($"[DebugBattleSpawner] '{label}': {preferredPos} was occupied/blocked → spawned at {spawnPos} instead.");
         }
 
         var enemy = new EnemyCharacter { Name = $"{label}_{spawnPos}", Data = data };
@@ -242,12 +221,20 @@ public partial class DebugBattleSpawner : Node
             Target = TargetType.AnyTile, Range = 5, AoeShape = AreaOfEffect.Cross, BaseDamage = 20
         };
 
+        var jumpCard = new CardData {
+            Id = "jump", Name = "Jump", Cost = 2, CardType = CardType.Move,
+            Target = TargetType.AnyTileNoLoS, Range = 4, AoeShape = AreaOfEffect.SingleNode,
+            RangeScalesWithStrength = true
+        };
+
         data.StartingDeck.Add(strikeCard);
         data.StartingDeck.Add(shieldCard);
         data.StartingDeck.Add(heavyCard);
         data.StartingDeck.Add(fireballCard);
+        data.StartingDeck.Add(jumpCard);
         data.StartingDeck.Add(strikeCard);
         data.StartingDeck.Add(fireballCard);
         data.StartingDeck.Add(heavyCard);
+        data.StartingDeck.Add(jumpCard);
     }
 }
