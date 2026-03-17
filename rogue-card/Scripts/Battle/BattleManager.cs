@@ -1165,24 +1165,21 @@ public partial class BattleManager : Node
 
     private float GetLaunchSpeed(Node3D unit, CardData card)
     {
-        CharacterData data = null;
-        if (unit is PlayerCharacter p) data = p.Data;
-        if (unit is EnemyCharacter e) data = e.Data;
-
-        int rangeTiles = card.Range;
-        if (card.RangeScalesWithStrength && data != null)
-        {
-            rangeTiles = Mathf.Max(1, data.BaseStrength / 2);
-        }
-
-        float rangeMeters = rangeTiles * Board.CellSize;
+        // Use move range distance as the basis for a constant velocity.
+        // This ensures the arc is always high and consistent, preventing terrain clipping.
+        float rangeMeters = _testMoveRange * Board.CellSize;
         float g = Board.JumpGravity;
-        // Buffed power (1.25x) to ensure clear flight over obstacles and reach high ground
-        return 1.25f * Mathf.Sqrt(rangeMeters * g);
+        
+        // v = sqrt(range * g) is the minimum velocity to cover that distance on flat ground.
+        // We multiply by Board.JumpForceMultiplier (default 1.25) to give it a nice high arc.
+        return Board.JumpForceMultiplier * Mathf.Sqrt(rangeMeters * g);
     }
 
     private int GetDynamicRange(PlayerCharacter player, CardData card)
     {
+        // Jump cards always match the unit's test move range
+        if (card.Name.Contains("Jump")) return _testMoveRange;
+
         if (card.RangeScalesWithStrength)
         {
             return Mathf.Max(1, player.Data.BaseStrength / 2);
@@ -1202,7 +1199,13 @@ public partial class BattleManager : Node
         float finalMeters = Mathf.Min(distInMeters, maxMeters);
 
         Vector3 targetPos = playerPos + direction * finalMeters;
-        return Board.WorldToGrid(targetPos);
+        Vector2I grid = Board.WorldToGrid(targetPos);
+        
+        // Clamp to board bounds
+        grid.X = Mathf.Clamp(grid.X, 0, Board.Columns - 1);
+        grid.Y = Mathf.Clamp(grid.Y, 0, Board.Rows - 1);
+        
+        return grid;
     }
 
     private List<Vector2I> GetValidTargetCells(PlayerCharacter player, CardData card)
@@ -1242,15 +1245,25 @@ public partial class BattleManager : Node
                         if (isValid)
                         {
                             // Enforce Line of Sight for non-global/non-self/non-NoLoS targets
-                            if (card.Target != TargetType.Self && card.Target != TargetType.Global && card.Target != TargetType.AnyTileNoLoS)
+                            // EXCEPTION: Jump cards ignore LoS!
+                            if (card.Target != TargetType.Self && card.Target != TargetType.Global && card.Target != TargetType.AnyTileNoLoS && !card.Name.Contains("Jump"))
                             {
                                 if (!Board.HasLineOfSight(origin, cell)) isValid = false;
                             }
 
-                            // JUMP RESTRICTION: Jump cards cannot land on Cliffs/Rocks/Occupied cells
+                            // JUMP RESTRICTION: Jump cards cannot land on occupied cells
                             if (isValid && card.Name.Contains("Jump"))
                             {
-                                if (Board.IsOccupied(cell)) isValid = false;
+                                if (Board.IsOccupied(cell)) 
+                                {
+                                    // Special check: IsOccupied blocks for cliffs/rocks/deep-water.
+                                    // For JUMP, we ONLY want to block if there is a unit there.
+                                    var occupant = Board.GetOccupant(cell);
+                                    if (occupant != null) isValid = false;
+                                    
+                                    // Still block landing ON a cliff edge for safety
+                                    if (Board.GetCell(cell).IsCliff) isValid = false;
+                                }
                             }
                             
                             if (isValid) validCells.Add(cell);
@@ -1305,7 +1318,7 @@ public partial class BattleManager : Node
                 var from = action.CasterOrigin;
                 var to = action.TargetCell;
 
-                float v0 = GetLaunchSpeed(unit as PlayerCharacter, action.Card); // Assuming Player for speed calc, fallback otherwise
+                float v0 = GetLaunchSpeed(unit, action.Card); 
                 await AnimateJump(unit, from, to, v0);
                 Board?.ClearTrajectory();
                 

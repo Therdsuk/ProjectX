@@ -41,6 +41,7 @@ public partial class BattleBoard : Node3D
     [Export] public float HighGroundDensity { get; set; } = 0.1f;
     [Export] public float MaxWalkableSlope { get; set; } = 0.7f;
     [Export] public float JumpGravity { get; set; } = 20.0f; // Custom gravity for the jump arc
+    [Export] public float JumpForceMultiplier { get; set; } = 1.25f; // Buffed power to ensure clear flight over obstacles
 
     [ExportGroup("Editor Tools")]
     [Export]
@@ -287,7 +288,7 @@ public partial class BattleBoard : Node3D
     /// <summary>Convert a world position to the nearest grid coordinate.</summary>
     public Vector2I WorldToGrid(Vector3 world)
     {
-        return new Vector2I((int)(world.X / CellSize), (int)(world.Z / CellSize));
+        return new Vector2I(Mathf.FloorToInt(world.X / CellSize), Mathf.FloorToInt(world.Z / CellSize));
     }
 
     /// <summary>World position at the centre of a cell.</summary>
