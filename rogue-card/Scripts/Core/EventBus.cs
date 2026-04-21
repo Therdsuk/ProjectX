@@ -28,13 +28,6 @@ public partial class EventBus : Node
     /// <summary>Fired when the battle ends. Passes true for victory, false for defeat.</summary>
     [Signal] public delegate void BattleEndedEventHandler(bool playerWon);
 
-    // -------------------------------------------------------------------------
-    // Map Signals
-    // -------------------------------------------------------------------------
-
-    /// <summary>Fired when the player selects a map node to travel to.</summary>
-    [Signal] public delegate void MapNodeSelectedEventHandler(int nodeId);
-
     public override void _Ready()
     {
         if (Instance != null)

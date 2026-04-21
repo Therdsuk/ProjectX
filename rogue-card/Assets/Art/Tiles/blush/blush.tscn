@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://cmkmyrau1wm3p"]
+
+[ext_resource type="Texture2D" uid="uid://chpc6m8o8imo" path="res://Assets/Art/Tiles/blush/blush.png" id="1_qdpmx"]
+
+[node name="Tree" type="Node3D" unique_id=322392384]
+
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=131518205]
+centered = false
+offset = Vector2(-16, -1)
+pixel_size = 0.15
+billboard = 1
+alpha_cut = 2
+texture_filter = 0
+texture = ExtResource("1_qdpmx")

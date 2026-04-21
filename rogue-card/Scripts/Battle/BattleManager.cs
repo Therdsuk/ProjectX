@@ -103,10 +103,17 @@ public partial class BattleManager : Node
         MainCamera = camController;
         camController.MakeCurrent();
 
-        // If a player was spawned while we were deferred, attach camera to them
-        if (_players.Count > 0)
+        // Point camera at the center of the board (fixed position, not following a unit)
+        if (Board != null)
         {
-            camController.Target = _players[0];
+            var boardCenter = new Node3D { Name = "BoardCenterAnchor" };
+            Board.AddChild(boardCenter);
+            boardCenter.Position = new Vector3(
+                Board.Columns * Board.CellSize / 2f, 
+                0, 
+                Board.Rows * Board.CellSize / 2f
+            );
+            camController.Target = boardCenter;
         }
 
         // Connect HUD next-phase button
@@ -521,11 +528,6 @@ public partial class BattleManager : Node
         _players.Add(player);
         Board?.PlaceUnit(player, startCell);
         player.GridPosition = startCell;
-
-        if (_players.Count == 1 && MainCamera is CameraController cam)
-        {
-            cam.Target = player; // Local player is added first
-        }
     }
 
     /// <summary>Spawn an enemy onto the board.</summary>
@@ -1256,13 +1258,9 @@ public partial class BattleManager : Node
                             {
                                 if (Board.IsOccupied(cell)) 
                                 {
-                                    // Special check: IsOccupied blocks for cliffs/rocks/deep-water.
                                     // For JUMP, we ONLY want to block if there is a unit there.
                                     var occupant = Board.GetOccupant(cell);
                                     if (occupant != null) isValid = false;
-                                    
-                                    // Still block landing ON a cliff edge for safety
-                                    if (Board.GetCell(cell).IsCliff) isValid = false;
                                 }
                             }
                             

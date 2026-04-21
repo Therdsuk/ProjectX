@@ -4,12 +4,13 @@ using System.Collections.Generic;
 /// <summary>
 /// Generates and manages the battle grid (board).
 ///
-/// M1 scope:
-///   - Creates a plain grid of cells (all FieldType.Normal)
-///   - Tracks which unit occupies each cell
-///   - Provides helper queries (is cell occupied, world-pos ↔ grid-pos)
+/// Clean flat board with environment art border:
+///   - All playable cells are FieldType.Normal at elevation 0
+///   - Subtle checkerboard visual pattern for tactical clarity
+///   - Decorative environment ring around the playable area
+///   - Preserves all gameplay API (movement, pathfinding, highlighting, targeting)
 ///
-/// Attach to a Node2D in BattleScene.tscn called "BattleBoard".
+/// Attach to a Node3D in BattleScene.tscn called "BattleBoard".
 /// </summary>
 [Tool]
 public partial class BattleBoard : Node3D
@@ -22,26 +23,28 @@ public partial class BattleBoard : Node3D
     [Export] public int Rows       { get; set; } = 6;
     [Export] public float CellSize { get; set; } = 2.0f;  // meters in 3D
 
-    [ExportGroup("Generation Settings")]
-    [Export] public int MapSeed { get; set; } = -1; // -1 means random seed
-    [Export] public float ObstacleDensity { get; set; } = 0.15f; // Chance for Rock/Forest
-    [Export] public float WaterDensity    { get; set; } = 0.05f;
+    [ExportGroup("Visuals")]
+    [Export] public Color CellColorA { get; set; } = new Color(0.22f, 0.24f, 0.30f); // Dark slate
+    [Export] public Color CellColorB { get; set; } = new Color(0.26f, 0.28f, 0.34f); // Slightly lighter slate
+    [Export] public Color GridLineColor { get; set; } = new Color(0.35f, 0.38f, 0.45f, 0.6f); // Subtle grey lines
+    [Export] public float GridLineWidth { get; set; } = 0.03f;
+    [Export] public int EnvironmentBorderSize { get; set; } = 3; // Cells of decoration around the grid
+    [Export] public Color GroundColor { get; set; } = new Color(0.28f, 0.42f, 0.18f); // Forest green ground
 
-    [ExportCategory("Visuals")]
-    [Export] public Texture2D WaterTexture;
-    [Export] public Texture2D GrassTexture;
-    [Export] public Texture2D RockTexture;
-    [Export] public Texture2D CliffTexture;
+    [ExportGroup("Environment")]
     [Export] public PackedScene TreeScene;
     [Export] public PackedScene RockScene;
-    [Export] public PackedScene GroundScene;
-    [Export] public PackedScene RampScene;
-    [Export] public float GroundThickness { get; set; } = 0.5f;
-    [Export] public float ElevationStep { get; set; } = 0.5f;
-    [Export] public float HighGroundDensity { get; set; } = 0.1f;
-    [Export] public float MaxWalkableSlope { get; set; } = 0.7f;
-    [Export] public float JumpGravity { get; set; } = 20.0f; // Custom gravity for the jump arc
-    [Export] public float JumpForceMultiplier { get; set; } = 1.25f; // Buffed power to ensure clear flight over obstacles
+    [Export] public PackedScene BushScene;
+    [Export] public PackedScene GrassScene;
+    [Export] public int TreeCount { get; set; } = 18;
+    [Export] public int RockCount { get; set; } = 10;
+    [Export] public int BushCount { get; set; } = 14;
+    [Export] public int GrassCount { get; set; } = 20;
+    [Export] public float DecorationHideDistance { get; set; } = 12.0f; // Decorations closer than this to camera get hidden
+
+    [ExportGroup("Jump Physics")]
+    [Export] public float JumpGravity { get; set; } = 20.0f;
+    [Export] public float JumpForceMultiplier { get; set; } = 1.25f;
 
     [ExportGroup("Editor Tools")]
     [Export]
@@ -64,7 +67,7 @@ public partial class BattleBoard : Node3D
     /// <summary>2-D array of cell data indexed by [col, row].</summary>
     private FieldCell[,] _cells;
 
-    /// <summary>2-D array of 3D meshes for visual highlighting.</summary>
+    /// <summary>2-D array of 3D meshes for cell visuals.</summary>
     private MeshInstance3D[,] _cellMeshes;
 
     /// <summary>A second layer of meshes for dynamic highlights (overlay).</summary>
@@ -76,6 +79,9 @@ public partial class BattleBoard : Node3D
     private AStarGrid2D _astar;
     private MeshInstance3D _trajectoryArcMesh;
 
+    /// <summary>All spawned environment decorations (for camera occlusion).</summary>
+    private readonly List<Node3D> _decorations = new();
+
     // -------------------------------------------------------------------------
     // Lifecycle
     // -------------------------------------------------------------------------
@@ -84,7 +90,6 @@ public partial class BattleBoard : Node3D
     {
         if (Engine.IsEditorHint())
         {
-            // Only generate automatically if the board is empty in the editor
             if (GetChildCount() == 0)
             {
                 GenerateBoard();
@@ -107,24 +112,99 @@ public partial class BattleBoard : Node3D
             ShadingMode = StandardMaterial3D.ShadingModeEnum.Unshaded,
             AlbedoColor = Colors.White,
             Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-            NoDepthTest = true, // See through terrain
+            NoDepthTest = true,
         };
         _trajectoryArcMesh.MaterialOverride = mat;
         AddChild(_trajectoryArcMesh);
     }
 
+    public override void _Process(double delta)
+    {
+        if (Engine.IsEditorHint()) return;
+        UpdateDecorationVisibility();
+    }
+
+    /// <summary>Fade decorations that are between the camera and the board.</summary>
+    private void UpdateDecorationVisibility()
+    {
+        var camera = GetViewport()?.GetCamera3D();
+        if (camera == null) return;
+
+        Vector3 camPos = camera.GlobalPosition;
+        Vector3 boardCenter = new Vector3(Columns * CellSize / 2f, 0, Rows * CellSize / 2f);
+
+        // Direction from board center to camera
+        Vector3 camDir = (camPos - boardCenter).Normalized();
+
+        foreach (var deco in _decorations)
+        {
+            if (!IsInstanceValid(deco)) continue;
+
+            // Check if decoration is on the camera side of the board
+            Vector3 decoDir = (deco.GlobalPosition - boardCenter).Normalized();
+            float dot = camDir.Dot(decoDir);
+
+            float distToCamera = deco.GlobalPosition.DistanceTo(camPos);
+
+            // Calculate target alpha: fade out when on camera side AND close
+            float targetAlpha = 1.0f;
+            if (dot > 0.3f && distToCamera < DecorationHideDistance)
+            {
+                // Smooth gradient: fully transparent at close range, fade in toward the threshold
+                float fadeStart = DecorationHideDistance;
+                float fadeEnd = DecorationHideDistance * 0.4f; // Fully transparent at 40% of threshold
+                targetAlpha = Mathf.Clamp((distToCamera - fadeEnd) / (fadeStart - fadeEnd), 0.1f, 1.0f);
+            }
+
+            SetNodeAlpha(deco, targetAlpha);
+        }
+    }
+
+    /// <summary>Recursively set transparency on all visual descendants (MeshInstance3D + Sprite3D).</summary>
+    private void SetNodeAlpha(Node node, float alpha)
+    {
+        if (node is Sprite3D sprite)
+        {
+            var c = sprite.Modulate;
+            sprite.Modulate = new Color(c.R, c.G, c.B, alpha);
+        }
+        else if (node is MeshInstance3D mesh)
+        {
+            if (mesh.MaterialOverride is StandardMaterial3D mat)
+            {
+                if (alpha < 0.99f)
+                {
+                    mat.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
+                    var c = mat.AlbedoColor;
+                    mat.AlbedoColor = new Color(c.R, c.G, c.B, alpha);
+                }
+                else
+                {
+                    mat.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
+                    var c = mat.AlbedoColor;
+                    mat.AlbedoColor = new Color(c.R, c.G, c.B, 1.0f);
+                }
+            }
+        }
+
+        foreach (var child in node.GetChildren())
+        {
+            SetNodeAlpha(child, alpha);
+        }
+    }
+
     // -------------------------------------------------------------------------
-    // Board Generation
+    // Board Generation — Clean Flat Grid
     // -------------------------------------------------------------------------
 
-    /// <summary>Creates a procedurally generated board.</summary>
+    /// <summary>Creates a clean flat board with environment decoration border.</summary>
     public void GenerateBoard()
     {
-        // Clear existing visuals safely (works for both runtime and editor)
+        // Clear existing visuals
         var children = GetChildren();
         foreach (var child in children)
         {
-            if (child is MeshInstance3D || child is Sprite3D || child is StaticBody3D || child is Node3D)
+            if (child is Node3D)
             {
                 RemoveChild(child);
                 child.QueueFree();
@@ -135,108 +215,61 @@ public partial class BattleBoard : Node3D
         _cellMeshes = new MeshInstance3D[Columns, Rows];
         _highlightMeshes = new MeshInstance3D[Columns, Rows];
         _occupants.Clear();
+        _decorations.Clear();
 
-        // Use custom seed if provided, else generate random
-        int effectiveSeed = MapSeed == -1 ? (int)GD.Randi() : MapSeed;
-
-        // 1. Noise Setup
-        var noise = new FastNoiseLite();
-        noise.Seed = effectiveSeed;
-        noise.NoiseType = FastNoiseLite.NoiseTypeEnum.Perlin;
-        noise.Frequency = 0.15f; // Scale of hills/lakes
-
-        var obstacleNoise = new FastNoiseLite();
-        obstacleNoise.Seed = effectiveSeed + 1; // Offset slightly for different pattern
-        obstacleNoise.Frequency = 0.25f; // More granular for trees/rocks
-
-        // 2. Base Terrain & Elevation Pass
+        // All cells are flat Normal
         for (int col = 0; col < Columns; col++)
         {
             for (int row = 0; row < Rows; row++)
             {
                 var pos = new Vector2I(col, row);
-                float val = noise.GetNoise2D(col, row);
-                
-                FieldType type = FieldType.Normal;
-                float elevation = 0f;
-
-                // Thresholds for biomes (smooth continuous elevation)
-                if (val < -0.25f) 
-                {
-                    type = FieldType.Water;
-                    
-                    // The lower the noise, the deeper the water. 
-                    // To prevent awkward shorelines poking through the Shader surface (at -0.15f), 
-                    // we immediately sink all water to a minimum of -0.5f flat.
-                    // From there, it slopes down dynamically to -1.0f based on the noise intensity.
-                    float depthPercent = Mathf.Clamp(Mathf.Abs(val + 0.25f) / 0.75f, 0f, 1f);
-                    elevation = -0.5f - (0.5f * depthPercent);
-                }
-                else if (val > 0.1f) 
-                {
-                    // Map positive noise dynamically to elevation (val is roughly 0.1 to 0.8)
-                    elevation = (val - 0.1f) * 5.0f;
-                }
-
-                // Obstacle pass (Forest/Rock) - only on relatively flat ground
-                if (type == FieldType.Normal && elevation < 0.5f)
-                {
-                    float obsVal = obstacleNoise.GetNoise2D(col, row);
-                    if (obsVal > 0.5f) type = FieldType.Forest;
-                    else if (obsVal < -0.6f) type = FieldType.Rock;
-                }
-
-                _cells[col, row] = new FieldCell(pos, type)
-                {
-                    Elevation = elevation
-                };
+                _cells[col, row] = new FieldCell(pos, FieldType.Normal);
                 _occupants[pos] = null;
             }
         }
 
-        // --- Pass 1.5: Slope Check & Cliff Gaps ---
-        // We create "ramps" or gaps in long cliff walls to ensure playability.
-        var cliffNoise = new FastNoiseLite();
-        cliffNoise.Seed = (int)GD.Randi();
-        cliffNoise.Frequency = 0.2f; // High frequency for frequent gaps
-
-        for (int col = 0; col < Columns; col++)
-        {
-            for (int row = 0; row < Rows; row++)
-            {
-                var cell = _cells[col, row];
-                float h00 = GetVertexHeight(col, row);
-                float h10 = GetVertexHeight(col + 1, row);
-                float h01 = GetVertexHeight(col, row + 1);
-                float h11 = GetVertexHeight(col + 1, row + 1);
- 
-                float dx1 = Mathf.Abs(h10 - h00);
-                float dx2 = Mathf.Abs(h11 - h01);
-                float dz1 = Mathf.Abs(h01 - h00);
-                float dz2 = Mathf.Abs(h11 - h10);
-                
-                float maxDiff = Mathf.Max(Mathf.Max(dx1, dx2), Mathf.Max(dz1, dz2));
-                float slope = maxDiff / CellSize;
-
-                if (slope > MaxWalkableSlope)
-                {
-                    // Only mark as cliff if the cliffNoise is above a threshold.
-                    // This creates intermittent gaps in long ridges.
-                    if (cliffNoise.GetNoise2D(col, row) < 0.3f) 
-                    {
-                        cell.IsCliff = true;
-                    }
-                }
-            }
-        }
-
-        // --- Pass 2: Smoothing (Fill Holes) ---
-        // Removed: Continuous float noise is inherently smooth, no need to fill discrete holes.
-
-        GD.Print($"[BattleBoard] Generated {Columns}×{Rows} seamless procedural board.");
+        GD.Print($"[BattleBoard] Generated {Columns}×{Rows} flat board.");
         
         SetupAStar();
         DrawBoardVisuals();
+        DrawEnvironmentBorder();
+        SetupLighting();
+    }
+
+    /// <summary>Adds a directional light from the camera direction + ambient fill.</summary>
+    private void SetupLighting()
+    {
+        // Directional light — matches the isometric camera angle (upper-right)
+        var dirLight = new DirectionalLight3D
+        {
+            Name = "BoardDirectionalLight",
+            // Side light — comes from the right, pitched down 35°
+            RotationDegrees = new Vector3(-35f, 90f, 0f),
+            LightColor = new Color(1.0f, 0.96f, 0.90f), // Warm sunlight
+            LightEnergy = 1.0f,
+            ShadowEnabled = true,
+            DirectionalShadowMode = DirectionalLight3D.ShadowMode.Orthogonal,
+            ShadowNormalBias = 2.0f,
+            ShadowBias = 0.1f,
+        };
+        AddChild(dirLight);
+
+        // Ambient environment so shadows aren't pitch black
+        var env = new Godot.Environment
+        {
+            BackgroundMode = Godot.Environment.BGMode.Color,
+            BackgroundColor = new Color(0.12f, 0.14f, 0.18f), // Dark blue-grey sky
+            AmbientLightSource = Godot.Environment.AmbientSource.Color,
+            AmbientLightColor = new Color(0.5f, 0.55f, 0.65f), // Cool blue-ish fill
+            AmbientLightEnergy = 0.4f,
+            TonemapMode = Godot.Environment.ToneMapper.Filmic,
+        };
+        var worldEnv = new WorldEnvironment
+        {
+            Name = "BoardWorldEnvironment",
+            Environment = env,
+        };
+        AddChild(worldEnv);
     }
 
     private void SetupAStar()
@@ -251,38 +284,18 @@ public partial class BattleBoard : Node3D
         };
         _astar.Update();
 
-        for (int x = 0; x < Columns; x++)
-        {
-            for (int y = 0; y < Rows; y++)
-            {
-                var cell = _cells[x, y];
-                bool isBlocked = cell.FieldType == FieldType.Rock || cell.IsCliff;
-                
-                // Block deep water
-                if (cell.FieldType == FieldType.Water && cell.Elevation < -0.6f) isBlocked = true;
-
-                _astar.SetPointSolid(new Vector2I(x, y), isBlocked);
-            }
-        }
+        // On a flat board, no cells are solid by default
+        // (Field type effects like Rock blocking can be added later via M3)
     }
 
     // -------------------------------------------------------------------------
     // Coordinate Helpers
     // -------------------------------------------------------------------------
 
-    /// <summary>Convert a grid position to world pos (top-left of cell usually, but keeping logic consistent).</summary>
+    /// <summary>Convert a grid position to world pos.</summary>
     public Vector3 GridToWorld(Vector2I grid)
     {
-        float y = 0;
-        if (IsInBounds(grid))
-        {
-            float h00 = GetVertexHeight(grid.X, grid.Y);
-            float h10 = GetVertexHeight(grid.X + 1, grid.Y);
-            float h01 = GetVertexHeight(grid.X, grid.Y + 1);
-            float h11 = GetVertexHeight(grid.X + 1, grid.Y + 1);
-            y = (h00 + h10 + h01 + h11) / 4f; // Interpolated center height
-        }
-        return new Vector3(grid.X * CellSize, y, grid.Y * CellSize);
+        return new Vector3(grid.X * CellSize, 0, grid.Y * CellSize);
     }
 
     /// <summary>Convert a world position to the nearest grid coordinate.</summary>
@@ -307,16 +320,6 @@ public partial class BattleBoard : Node3D
     public bool IsOccupied(Vector2I grid)
     {
         if (!IsInBounds(grid)) return true;
-        
-        var cell = _cells[grid.X, grid.Y];
-        
-        // Block rocks and cliffs
-        if (cell.FieldType == FieldType.Rock || cell.IsCliff) return true;
-        
-        // Block Deep Water, allow Shallow Water
-        // Shallow water is anything >= -0.6f (since the new min water depth is -0.5f)
-        if (cell.FieldType == FieldType.Water && cell.Elevation < -0.6f) return true;
-
         return _occupants[grid] != null;
     }
 
@@ -356,20 +359,18 @@ public partial class BattleBoard : Node3D
 
     /// <summary>
     /// Searches outward from a preferred position for the nearest cell that is 
-    /// within bounds and NOT occupied/blocked by terrain (cliffs, rocks, deep water).
+    /// within bounds and NOT occupied.
     /// </summary>
     public Vector2I GetNearestValidCell(Vector2I preferred)
     {
         if (!IsOccupied(preferred)) return preferred;
 
-        // Spiral/Outward search
         for (int dist = 1; dist <= Mathf.Max(Columns, Rows); dist++)
         {
             for (int q = -dist; q <= dist; q++)
             {
                 for (int r = -dist; r <= dist; r++)
                 {
-                    // Only check cells at the current Manhattan distance shell
                     if (Mathf.Abs(q) + Mathf.Abs(r) != dist) continue;
 
                     Vector2I candidate = preferred + new Vector2I(q, r);
@@ -381,109 +382,100 @@ public partial class BattleBoard : Node3D
             }
         }
 
-        return preferred; // Fallback to preferred if somehow the whole board is blocked
+        return preferred;
     }
 
     // -------------------------------------------------------------------------
-    // M1 Debug Visualisation
+    // Board Visuals — Flat Checkerboard Grid
     // -------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draws the grid cells and spawns 3D decorations based on terrain.
-    /// </summary>
     private void DrawBoardVisuals()
     {
         for (int col = 0; col < Columns; col++)
         {
             for (int row = 0; row < Rows; row++)
             {
-                var cell = _cells[col, row];
-                var center = CellCentre(new Vector2I(col, row));
-                var material = new StandardMaterial3D();
-                
-                // If it's water, the global shader handles the surface.
-                // The actual terrain cell should look like a sandy shore sloping into it!
-                var visualType = cell.FieldType == FieldType.Water ? FieldType.Sand : cell.FieldType;
-                
-                Texture2D tex = GetTextureForType(visualType, cell.IsCliff);
-                if (tex != null)
-                {
-                    material.AlbedoTexture = tex;
-                    material.AlbedoColor = Colors.White;
-                }
-                else
-                {
-                    material.AlbedoColor = GetColorForType(visualType);
-                }
+                // Checkerboard pattern
+                bool isDark = (col + row) % 2 == 0;
+                Color cellColor = isDark ? CellColorA : CellColorB;
 
-                // 1. Get Corner Heights
-                float h00 = GetVertexHeight(col, row);
-                float h10 = GetVertexHeight(col + 1, row);
-                float h01 = GetVertexHeight(col, row + 1);
-                float h11 = GetVertexHeight(col + 1, row + 1);
+                var material = new StandardMaterial3D
+                {
+                    AlbedoColor = cellColor,
+                    Roughness = 0.85f,
+                };
 
-                // 2. Build Seamless Mesh
+                // Simple flat quad for each cell
+                var planeMesh = new PlaneMesh
+                {
+                    Size = new Vector2(CellSize, CellSize),
+                };
+
                 var mi = new MeshInstance3D
                 {
-                    Mesh = BuildSeamlessCellMesh(h00, h10, h01, h11, col, row),
+                    Mesh = planeMesh,
                     MaterialOverride = material,
-                    Position = new Vector3(col * CellSize, 0, row * CellSize),
+                    Position = new Vector3(col * CellSize + CellSize / 2f, 0, row * CellSize + CellSize / 2f),
+                    CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
                     Name = $"Cell_{col}_{row}"
                 };
                 AddChild(mi);
                 _cellMeshes[col, row] = mi;
 
-                // 2b. Add Collision for Raycasts (Runtime only, skip in Editor to avoid clutter)
+                // Collision for raycasts (runtime only)
                 if (!Engine.IsEditorHint())
                 {
                     mi.CreateTrimeshCollision();
                 }
 
-                // 3. Highlight Layer
+                // Grid lines — thin raised quads on cell edges
+                DrawGridLines(col, row);
+
+                // Highlight layer
                 var highlightMat = new StandardMaterial3D
                 {
                     Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
                     AlbedoColor = new Color(1, 1, 1, 0.4f),
-                    // Disable depth writing so overlapping highlights don't cut each other out (optional, but good for glassy looks)
-                    NoDepthTest = false,
+                    ShadingMode = StandardMaterial3D.ShadingModeEnum.Unshaded,
                 };
                 
+                float highlightInset = CellSize * 0.05f;
                 var highlightMi = new MeshInstance3D
                 {
-                    Mesh = BuildHighlightMesh(h00, h10, h01, h11),
+                    Mesh = new PlaneMesh { Size = new Vector2(CellSize - highlightInset * 2, CellSize - highlightInset * 2) },
                     MaterialOverride = highlightMat,
-                    Position = new Vector3(col * CellSize, 0, row * CellSize), // Position at cell origin now
+                    Position = new Vector3(col * CellSize + CellSize / 2f, 0.02f, row * CellSize + CellSize / 2f),
+                    CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
                     Visible = false,
                     Name = $"Highlight_{col}_{row}"
                 };
-                AddChild(highlightMi); // Parent to board directly to keep scaling simple
+                AddChild(highlightMi);
                 _highlightMeshes[col, row] = highlightMi;
-
-                // 4. Decoration (Tree/Rock)
-                SpawnDecoration(cell, center);
             }
         }
-        
-        // 5. Global Water Plane
-        var waterPlane = new MeshInstance3D
+
+        // Board base (slightly below to give depth)
+        var baseMat = new StandardMaterial3D
         {
-            Mesh = new PlaneMesh { Size = new Vector2(Columns * CellSize, Rows * CellSize) },
-            Position = new Vector3((Columns * CellSize) / 2f, -0.15f, (Rows * CellSize) / 2f),
-            Name = "GlobalWaterPlane"
+            AlbedoColor = new Color(0.15f, 0.16f, 0.20f),
+            Roughness = 0.95f,
         };
-        var waterShader = GD.Load<Shader>("res://Scripts/Battle/Water.gdshader");
-        if (waterShader != null)
+        var basePlane = new MeshInstance3D
         {
-            waterPlane.MaterialOverride = new ShaderMaterial { Shader = waterShader };
-        }
-        else
-        {
-            GD.PrintErr("[BattleBoard] Could not load Water.gdshader!");
-        }
-        
-        // Disable raycast collision against the water surface so clicks hit the ground underneath it
-        // MeshInstance3D doesn't have collision natively so we are completely fine.
-        AddChild(waterPlane);
+            Mesh = new BoxMesh 
+            { 
+                Size = new Vector3(Columns * CellSize + 0.2f, 0.15f, Rows * CellSize + 0.2f) 
+            },
+            MaterialOverride = baseMat,
+            Position = new Vector3(
+                Columns * CellSize / 2f, 
+                -0.095f, // Top face at -0.02, clearly below cells at Y=0
+                Rows * CellSize / 2f
+            ),
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            Name = "BoardBase"
+        };
+        AddChild(basePlane);
 
         // Ensure the editor redraws the children
         if (Engine.IsEditorHint())
@@ -498,235 +490,283 @@ public partial class BattleBoard : Node3D
         }
     }
 
-    /// <summary>Calculates elevation at a grid corner by picking the max height of its 4 neighbor cells.</summary>
-    private float GetVertexHeight(int x, int z)
+    private void DrawGridLines(int col, int row)
     {
-        float maxElev = -999f;
-        bool hasNeighbor = false;
-        
-        for (int dx = -1; dx <= 0; dx++)
+        var lineMat = new StandardMaterial3D
         {
-            for (int dz = -1; dz <= 0; dz++)
+            AlbedoColor = GridLineColor,
+            ShadingMode = StandardMaterial3D.ShadingModeEnum.Unshaded,
+            Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+        };
+
+        float y = 0.005f; // Slight float above cell surface
+
+        // Bottom edge of cell
+        if (row == Rows - 1 || true) // Draw all horizontal lines
+        {
+            var hLine = new MeshInstance3D
             {
-                int nx = x + dx;
-                int nz = z + dz;
-                if (IsInBounds(new Vector2I(nx, nz)))
-                {
-                    maxElev = Mathf.Max(maxElev, _cells[nx, nz].Elevation);
-                    hasNeighbor = true;
-                }
-            }
+                Mesh = new PlaneMesh { Size = new Vector2(CellSize, GridLineWidth) },
+                MaterialOverride = lineMat,
+                Position = new Vector3(col * CellSize + CellSize / 2f, y, row * CellSize),
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+                Name = $"GridH_{col}_{row}"
+            };
+            AddChild(hLine);
         }
-        
-        if (!hasNeighbor) return 0f;
-        return maxElev * ElevationStep;
-    }
 
-    /// <summary>Creates a procedural block mesh where the top vertices follow the given corner heights.</summary>
-    private Mesh BuildSeamlessCellMesh(float h00, float h10, float h01, float h11, int col, int row)
-    {
-        var st = new SurfaceTool();
-        st.Begin(Mesh.PrimitiveType.Triangles);
-
-        // Define top vertices (Local to the cell origin)
-        Vector3 v00 = new Vector3(0, h00, 0);
-        Vector3 v10 = new Vector3(CellSize, h10, 0);
-        Vector3 v01 = new Vector3(0, h01, CellSize);
-        Vector3 v11 = new Vector3(CellSize, h11, CellSize);
-
-        // Bottom vertices
-        float bY = -GroundThickness;
-        Vector3 b00 = new Vector3(0, bY, 0);
-        Vector3 b10 = new Vector3(CellSize, bY, 0);
-        Vector3 b01 = new Vector3(0, bY, CellSize);
-        Vector3 b11 = new Vector3(CellSize, bY, CellSize);
-
-        // --- TOP FACE ---
-        // Calculate a single normal for the top face to ensure "flat" shading (low-poly look)
-        // We use the average normal of the two triangles
-        Vector3 nTop1 = (v11 - v00).Cross(v10 - v00).Normalized();
-        Vector3 nTop2 = (v01 - v00).Cross(v11 - v00).Normalized();
-        Vector3 nTop = (nTop1 + nTop2).Normalized();
-
-        st.SetNormal(nTop);
-        st.SetUV(new Vector2(0, 0)); st.AddVertex(v00);
-        st.SetUV(new Vector2(1, 0)); st.AddVertex(v10);
-        st.SetUV(new Vector2(1, 1)); st.AddVertex(v11);
-
-        st.SetNormal(nTop);
-        st.SetUV(new Vector2(0, 0)); st.AddVertex(v00);
-        st.SetUV(new Vector2(1, 1)); st.AddVertex(v11);
-        st.SetUV(new Vector2(0, 1)); st.AddVertex(v01);
-
-        // --- SIDE WALLS ---
-        // Only draw side walls if they are on the absolute boundary of the entire board.
-        // This prevents internal walls from rendering, which would otherwise Z-fight or be
-        // visible through translucent materials (like water surfaces).
-
-        // North face (z=0) -> Top edge of board
-        if (row == 0)
+        // Right edge of cell 
+        if (col == Columns - 1 || true) // Draw all vertical lines
         {
-            st.SetNormal(new Vector3(0, 0, -1));
-            st.AddVertex(v10); st.AddVertex(v00); st.AddVertex(b00);
-            st.AddVertex(v10); st.AddVertex(b00); st.AddVertex(b10);
+            var vLine = new MeshInstance3D
+            {
+                Mesh = new PlaneMesh { Size = new Vector2(GridLineWidth, CellSize) },
+                MaterialOverride = lineMat,
+                Position = new Vector3(col * CellSize, y, row * CellSize + CellSize / 2f),
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+                Name = $"GridV_{col}_{row}"
+            };
+            AddChild(vLine);
         }
 
-        // South face (z=CellSize) -> Bottom edge of board
+        // Close the grid on bottom and right borders
         if (row == Rows - 1)
         {
-            st.SetNormal(new Vector3(0, 0, 1));
-            st.AddVertex(v01); st.AddVertex(v11); st.AddVertex(b11);
-            st.AddVertex(v01); st.AddVertex(b11); st.AddVertex(b01);
+            var hLineEnd = new MeshInstance3D
+            {
+                Mesh = new PlaneMesh { Size = new Vector2(CellSize, GridLineWidth) },
+                MaterialOverride = lineMat,
+                Position = new Vector3(col * CellSize + CellSize / 2f, y, (row + 1) * CellSize),
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+                Name = $"GridHEnd_{col}"
+            };
+            AddChild(hLineEnd);
         }
-
-        // East face (x=CellSize) -> Right edge of board
         if (col == Columns - 1)
         {
-            st.SetNormal(new Vector3(1, 0, 0));
-            st.AddVertex(v11); st.AddVertex(v10); st.AddVertex(b10);
-            st.AddVertex(v11); st.AddVertex(b10); st.AddVertex(b11);
+            var vLineEnd = new MeshInstance3D
+            {
+                Mesh = new PlaneMesh { Size = new Vector2(GridLineWidth, CellSize) },
+                MaterialOverride = lineMat,
+                Position = new Vector3((col + 1) * CellSize, y, row * CellSize + CellSize / 2f),
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+                Name = $"GridVEnd_{row}"
+            };
+            AddChild(vLineEnd);
         }
-
-        // West face (x=0) -> Left edge of board
-        if (col == 0)
-        {
-            st.SetNormal(new Vector3(-1, 0, 0));
-            st.AddVertex(v00); st.AddVertex(v01); st.AddVertex(b01);
-            st.AddVertex(v00); st.AddVertex(b01); st.AddVertex(b00);
-        }
-
-        // Note: Don't call st.GenerateNormals() as we set them manually for flat shading
-        st.GenerateTangents(); 
-        return st.Commit();
     }
 
-    /// <summary>Creates a terrain-conforming highlight mesh (just the top face, slightly inset and floating).</summary>
-    private Mesh BuildHighlightMesh(float h00, float h10, float h01, float h11)
+    // -------------------------------------------------------------------------
+    // Environment Border — Decorative Ring Around the Board
+    // -------------------------------------------------------------------------
+
+    private void DrawEnvironmentBorder()
     {
-        var st = new SurfaceTool();
-        st.Begin(Mesh.PrimitiveType.Triangles);
+        int border = EnvironmentBorderSize;
+        float boardW = Columns * CellSize;
+        float boardH = Rows * CellSize;
+        float totalW = boardW + border * CellSize * 2;
+        float totalH = boardH + border * CellSize * 2;
 
-        // Gap/Margin logic: we shrink the highlight by 5% on all sides
-        float margin = CellSize * 0.05f;
-        float innerSize = CellSize - margin;
-        
-        // Z-fighting pad: float slightly above ground
-        float yPad = 0.05f;
-
-        // Calculate heights for the inset corners using bilinear interpolation
-        // Standard formula: h(x,z) ≈ h00*(1-x)*(1-z) + h10*x*(1-z) + h01*(1-x)*z + h11*x*z  (where x,z are 0.0 to 1.0)
-        float pctMin = margin / CellSize;
-        float pctMax = innerSize / CellSize;
-
-        float GetInterpolatedY(float xPct, float zPct)
+        // Large ground plane extending under and around the board
+        var groundMat = new StandardMaterial3D
         {
-            // The underlying mesh is NOT a smooth bilinear surface; it's two flat triangles.
-            // Triangle 1: (0,0), (1,0), (1,1)
-            // Triangle 2: (0,0), (1,1), (0,1)
-            // To prevent clipping (especially on "saddle" shapes), we must calculate the exact 
-            // height on the specific flat triangle the point belongs to.
-            
-            if (xPct >= zPct)
-            {
-                // Triangle 1 (Bottom Right side of diagonal)
-                // Weights based on barycentric coordinates for this specific triangle split
-                return h00 * (1 - xPct) + h10 * (xPct - zPct) + h11 * zPct;
-            }
-            else
-            {
-                // Triangle 2 (Top Left side of diagonal)
-                return h00 * (1 - zPct) + h01 * (zPct - xPct) + h11 * xPct;
-            }
-        }
-
-        Vector3 v00 = new Vector3(margin,    GetInterpolatedY(pctMin, pctMin) + yPad, margin);
-        Vector3 v10 = new Vector3(innerSize, GetInterpolatedY(pctMax, pctMin) + yPad, margin);
-        Vector3 v01 = new Vector3(margin,    GetInterpolatedY(pctMin, pctMax) + yPad, innerSize);
-        Vector3 v11 = new Vector3(innerSize, GetInterpolatedY(pctMax, pctMax) + yPad, innerSize);
-
-        // Top face normal
-        Vector3 nTop1 = (v11 - v00).Cross(v10 - v00).Normalized();
-        Vector3 nTop2 = (v01 - v00).Cross(v11 - v00).Normalized();
-        Vector3 nTop = (nTop1 + nTop2).Normalized();
-
-        st.SetNormal(nTop);
-        st.SetUV(new Vector2(0, 0)); st.AddVertex(v00);
-        st.SetUV(new Vector2(1, 0)); st.AddVertex(v10);
-        st.SetUV(new Vector2(1, 1)); st.AddVertex(v11);
-
-        st.SetNormal(nTop);
-        st.SetUV(new Vector2(0, 0)); st.AddVertex(v00);
-        st.SetUV(new Vector2(1, 1)); st.AddVertex(v11);
-        st.SetUV(new Vector2(0, 1)); st.AddVertex(v01);
-
-        st.GenerateTangents(); 
-        return st.Commit();
-    }
-
-    private Color GetColorForType(FieldType type)
-    {
-        return type switch
-        {
-            FieldType.Water  => new Color(0.1f, 0.3f, 0.7f), // Blue
-            FieldType.Lava   => new Color(0.8f, 0.2f, 0.1f), // Red/Orange
-            FieldType.Forest => new Color(0.1f, 0.4f, 0.1f), // Dark Green
-            FieldType.Rock   => new Color(0.4f, 0.4f, 0.45f), // Grey
-            FieldType.Sand   => new Color(0.8f, 0.7f, 0.4f), // Tan
-            _                => new Color(0.25f, 0.27f, 0.35f) // Single clean slate color
+            AlbedoColor = GroundColor,
+            Roughness = 0.95f,
         };
-    }
-
-    private Texture2D GetTextureForType(FieldType type, bool isCliff = false)
-    {
-        if (isCliff && CliffTexture != null) return CliffTexture;
-
-        return type switch
+        var groundPlane = new MeshInstance3D
         {
-            FieldType.Water => WaterTexture,
-            FieldType.Rock  => RockTexture,
-            _               => GrassTexture
+            Mesh = new PlaneMesh { Size = new Vector2(totalW + 8f, totalH + 8f) },
+            MaterialOverride = groundMat,
+            Position = new Vector3(boardW / 2f, -0.01f, boardH / 2f),
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            Name = "EnvironmentGround"
         };
+        AddChild(groundPlane);
+
+        // Spawn decorative objects around the border
+        var rng = new RandomNumberGenerator();
+        rng.Seed = 42; // Deterministic for consistency
+
+        SpawnBorderDecorations(rng, boardW, boardH, border);
     }
 
-    private void SpawnDecoration(FieldCell cell, Vector3 position)
+    private void SpawnBorderDecorations(RandomNumberGenerator rng, float boardW, float boardH, int border)
     {
-        if (cell.FieldType == FieldType.Forest)
+        float borderWorldSize = border * CellSize;
+
+        // Define the border zone (outside the playable grid)
+        float minX = -borderWorldSize;
+        float maxX = boardW + borderWorldSize;
+        float minZ = -borderWorldSize;
+        float maxZ = boardH + borderWorldSize;
+
+        // Trees
+        for (int i = 0; i < TreeCount; i++)
         {
-            if (TreeScene != null)
-            {
-                var tree = TreeScene.Instantiate<Node3D>();
-                tree.Position = position;
-                AddChild(tree);
-            }
-            else
-            {
-                // Simple placeholder 3D Sprite for Tree
-                var sprite = new Sprite3D();
-                sprite.Billboard = BaseMaterial3D.BillboardModeEnum.Enabled;
-                sprite.Position = position + new Vector3(0, 0.7f, 0);
-                sprite.PixelSize = 0.02f;
-                sprite.Modulate = new Color(0.2f, 0.8f, 0.2f);
-                // Try load a generic icon or just stay as a green square
-                AddChild(sprite);
-            }
+            Vector3 pos = GetRandomBorderPosition(rng, minX, maxX, minZ, maxZ, boardW, boardH, 1.5f);
+            var deco = SpawnTree(pos);
+            if (deco != null) _decorations.Add(deco);
         }
-        else if (cell.FieldType == FieldType.Rock)
+
+        // Rocks
+        for (int i = 0; i < RockCount; i++)
         {
-            if (RockScene != null)
-            {
-                var rock = RockScene.Instantiate<Node3D>();
-                rock.Position = position;
-                AddChild(rock);
-            }
-            else
-            {
-                // Placeholder Mesh (Cube)
-                var mesh = new MeshInstance3D();
-                mesh.Mesh = new BoxMesh { Size = new Vector3(0.8f, 0.8f, 0.8f) };
-                mesh.Position = position + new Vector3(0, 0.4f, 0);
-                AddChild(mesh);
-            }
+            Vector3 pos = GetRandomBorderPosition(rng, minX, maxX, minZ, maxZ, boardW, boardH, 0.5f);
+            var deco = SpawnRock(pos);
+            if (deco != null) _decorations.Add(deco);
         }
+
+        // Bushes
+        for (int i = 0; i < BushCount; i++)
+        {
+            Vector3 pos = GetRandomBorderPosition(rng, minX, maxX, minZ, maxZ, boardW, boardH, 0.8f);
+            var deco = SpawnBush(pos);
+            if (deco != null) _decorations.Add(deco);
+        }
+
+        // Grass patches
+        for (int i = 0; i < GrassCount; i++)
+        {
+            Vector3 pos = GetRandomBorderPosition(rng, minX, maxX, minZ, maxZ, boardW, boardH, 0.2f);
+            var deco = SpawnGrassPatch(pos);
+            if (deco != null) _decorations.Add(deco);
+        }
+    }
+
+    /// <summary>Returns a random position within the border zone (NOT inside the playable grid).</summary>
+    private Vector3 GetRandomBorderPosition(RandomNumberGenerator rng, float minX, float maxX, float minZ, float maxZ, float boardW, float boardH, float padding)
+    {
+        Vector3 pos;
+        int attempts = 0;
+        do
+        {
+            pos = new Vector3(
+                rng.RandfRange(minX, maxX),
+                0,
+                rng.RandfRange(minZ, maxZ)
+            );
+            attempts++;
+        }
+        while (pos.X > -padding && pos.X < boardW + padding &&
+               pos.Z > -padding && pos.Z < boardH + padding &&
+               attempts < 50);
+
+        return pos;
+    }
+
+    private Node3D SpawnTree(Vector3 position)
+    {
+        if (TreeScene != null)
+        {
+            var tree = TreeScene.Instantiate<Node3D>();
+            tree.Position = position;
+            AddChild(tree);
+            return tree;
+        }
+
+        // Placeholder: Trunk + Canopy grouped under one Node3D
+        var treeGroup = new Node3D { Name = "Tree", Position = position };
+
+        var trunkMat = new StandardMaterial3D { AlbedoColor = new Color(0.40f, 0.26f, 0.13f), Roughness = 0.9f };
+        var canopyMat = new StandardMaterial3D { AlbedoColor = new Color(0.15f, 0.5f, 0.15f), Roughness = 0.85f };
+
+        var trunk = new MeshInstance3D
+        {
+            Mesh = new CylinderMesh { TopRadius = 0.15f, BottomRadius = 0.2f, Height = 1.8f },
+            MaterialOverride = trunkMat,
+            Position = new Vector3(0, 0.9f, 0),
+            Name = "Tree_Trunk"
+        };
+        var canopy = new MeshInstance3D
+        {
+            Mesh = new SphereMesh { Radius = 0.8f, Height = 1.2f },
+            MaterialOverride = canopyMat,
+            Position = new Vector3(0, 2.2f, 0),
+            Name = "Tree_Canopy"
+        };
+        treeGroup.AddChild(trunk);
+        treeGroup.AddChild(canopy);
+        AddChild(treeGroup);
+        return treeGroup;
+    }
+
+    private Node3D SpawnRock(Vector3 position)
+    {
+        if (RockScene != null)
+        {
+            var rockInstance = RockScene.Instantiate<Node3D>();
+            rockInstance.Position = position;
+            AddChild(rockInstance);
+            return rockInstance;
+        }
+
+        // Placeholder: Grey box with slight random scale
+        var rockMat = new StandardMaterial3D { AlbedoColor = new Color(0.45f, 0.43f, 0.40f), Roughness = 0.95f };
+        var rng = new RandomNumberGenerator();
+        float s = rng.RandfRange(0.4f, 0.9f);
+
+        var rock = new MeshInstance3D
+        {
+            Mesh = new BoxMesh { Size = new Vector3(s * 1.2f, s * 0.7f, s) },
+            MaterialOverride = rockMat,
+            Position = position + new Vector3(0, s * 0.35f, 0),
+            Name = "Rock"
+        };
+        AddChild(rock);
+        return rock;
+    }
+
+    private Node3D SpawnBush(Vector3 position)
+    {
+        if (BushScene != null)
+        {
+            var bushInstance = BushScene.Instantiate<Node3D>();
+            bushInstance.Position = position;
+            AddChild(bushInstance);
+            return bushInstance;
+        }
+
+        // Placeholder: Small green sphere close to the ground
+        var bushMat = new StandardMaterial3D { AlbedoColor = new Color(0.20f, 0.55f, 0.20f), Roughness = 0.85f };
+
+        var bush = new MeshInstance3D
+        {
+            Mesh = new SphereMesh { Radius = 0.45f, Height = 0.6f },
+            MaterialOverride = bushMat,
+            Position = position + new Vector3(0, 0.25f, 0),
+            Name = "Bush"
+        };
+        AddChild(bush);
+        return bush;
+    }
+
+    private Node3D SpawnGrassPatch(Vector3 position)
+    {
+        if (GrassScene != null)
+        {
+            var grassInstance = GrassScene.Instantiate<Node3D>();
+            grassInstance.Position = position;
+            AddChild(grassInstance);
+            return grassInstance;
+        }
+
+        // Placeholder: Slightly lighter green flat disc
+        var grassMat = new StandardMaterial3D 
+        { 
+            AlbedoColor = new Color(0.32f, 0.52f, 0.22f), 
+            Roughness = 0.9f,
+        };
+
+        var grass = new MeshInstance3D
+        {
+            Mesh = new PlaneMesh { Size = new Vector2(0.8f, 0.8f) },
+            MaterialOverride = grassMat,
+            Position = position + new Vector3(0, 0.005f, 0),
+            Name = "GrassPatch"
+        };
+        AddChild(grass);
+        return grass;
     }
 
     // -------------------------------------------------------------------------
@@ -741,7 +781,7 @@ public partial class BattleBoard : Node3D
         var mesh = _highlightMeshes[grid.X, grid.Y];
         if (mesh.MaterialOverride is StandardMaterial3D mat)
         {
-            mat.AlbedoColor = new Color(color.R, color.G, color.B, 0.6f); // Increased opacity for better visibility
+            mat.AlbedoColor = new Color(color.R, color.G, color.B, 0.6f);
             mesh.Visible = true;
         }
     }
@@ -755,7 +795,6 @@ public partial class BattleBoard : Node3D
         Vector3 start = CellCentre(fromCell);
         Vector3 end = CellCentre(toCell);
         
-        // Offset start/end so logic is above character heads
         start.Y += 1.2f;
         end.Y += 1.2f;
         
@@ -770,35 +809,31 @@ public partial class BattleBoard : Node3D
         float theta = 0;
         bool reachable = true;
 
-        if (x < 0.01f) // Self target (Straight Up)
+        if (x < 0.01f)
         {
             theta = Mathf.Pi / 2f; 
         }
         else
         {
             float determinant = v4 - g * (g * x * x + 2 * y * v2);
-            if (determinant < -0.01f) // Added small epsilon for float precision
+            if (determinant < -0.01f)
             {
                 reachable = false;
-                theta = Mathf.Pi / 4f; // Fallback visualization
+                theta = Mathf.Pi / 4f;
             }
             else
             {
-                // High arc (+) feels more like a "Jump" card
                 theta = Mathf.Atan((v2 + Mathf.Sqrt(Mathf.Max(0, determinant))) / (g * x));
             }
         }
 
-        // Horizontal direction
         Vector3 horizontalDir = diff;
         horizontalDir.Y = 0;
         horizontalDir = horizontalDir.Normalized();
 
-        // Velocities
         float vX = v * Mathf.Cos(theta);
         float vY = v * Mathf.Sin(theta);
 
-        // Calculate flight time
         float totalTime = (x < 0.01f) ? (2 * vY / g) : (x / vX);
 
         int steps = 30;
@@ -815,8 +850,6 @@ public partial class BattleBoard : Node3D
             pos.Z += horizontalDir.Z * vX * t;
             pos.Y += vY * t - 0.5f * g * t * t;
             
-            // Collison Check: Skip the first 10% and last 10% of the flight path 
-            // to avoid hitting the character's own feet or the ground/cliff edge upon landing.
             if (i > steps * 0.1f && i < steps * 0.9f) 
             {
                 if (CheckArcCollision(lastPos, pos))
@@ -835,7 +868,6 @@ public partial class BattleBoard : Node3D
         im.SurfaceEnd();
         _trajectoryArcMesh.Visible = true;
 
-        // Landing Marker
         HighlightCell(toCell, blocked ? new Color(1, 0, 0, 0.5f) : new Color(arcColor.R, arcColor.G, arcColor.B, 1.0f)); 
         
         return !blocked;
@@ -901,18 +933,14 @@ public partial class BattleBoard : Node3D
                 break;
                 
             case AreaOfEffect.LineForward:
-                // Direction from player to target for the line beam
-                Vector2I diff = targetCell - playerPos;
+                Vector2I lineDiff = targetCell - playerPos;
                 Vector2I dir = Vector2I.Zero;
                 
-                // Prioritise the cardinal direction of the target relative to caster
-                if (Mathf.Abs(diff.X) > Mathf.Abs(diff.Y)) dir = new Vector2I(Mathf.Sign(diff.X), 0);
-                else dir = new Vector2I(0, Mathf.Sign(diff.Y));
+                if (Mathf.Abs(lineDiff.X) > Mathf.Abs(lineDiff.Y)) dir = new Vector2I(Mathf.Sign(lineDiff.X), 0);
+                else dir = new Vector2I(0, Mathf.Sign(lineDiff.Y));
                 
                 if (dir == Vector2I.Zero) dir = Vector2I.Right;
                 
-                // Beam starts AT THE CASTER and goes through the target
-                // Length is determined by card range (approximating 5 for now as per previous logic, but ideally we'd pass range)
                 for (int i = 1; i <= 5; i++) 
                 {
                     var pos = playerPos + dir * i;
@@ -924,40 +952,12 @@ public partial class BattleBoard : Node3D
         return cells;
     }
 
-    /// <summary>Check if there is a clear line of sight between two cells (no rocks or cliffs).</summary>
+    /// <summary>Check if there is a clear line of sight between two cells.</summary>
     public bool HasLineOfSight(Vector2I from, Vector2I to)
     {
+        // On a flat board with no obstacles, line of sight is always clear
         if (from == to) return true;
-
-        // Simple grid raycast (Bresenham-lite)
-        int x0 = from.X; int y0 = from.Y;
-        int x1 = to.X;   int y1 = to.Y;
-
-        int dx = Mathf.Abs(x1 - x0);
-        int dy = Mathf.Abs(y1 - y0);
-        int sx = x0 < x1 ? 1 : -1;
-        int sy = y0 < y1 ? 1 : -1;
-        int err = dx - dy;
-
-        while (true)
-        {
-            if (x0 == x1 && y0 == y1) break;
-
-            // Check if CURRENT step is an obstacle (except for the start/end points if desired)
-            // But usually, if the cell you are STANDING ON is a rock, you can't see out.
-            // If the cell you are TARGETING is a rock, you can't see "into" it perfectly,
-            // but for gameplay we usually allow targeting the obstacle itself.
-            if ((x0 != from.X || y0 != from.Y) && (x0 != to.X || y0 != to.Y))
-            {
-                var cell = _cells[x0, y0];
-                if (cell.FieldType == FieldType.Rock || cell.IsCliff) return false;
-            }
-
-            int e2 = 2 * err;
-            if (e2 > -dy) { err -= dy; x0 += sx; }
-            if (e2 < dx) { err += dx; y0 += sy; }
-        }
-
+        if (!IsInBounds(from) || !IsInBounds(to)) return false;
         return true;
     }
 
@@ -967,7 +967,6 @@ public partial class BattleBoard : Node3D
         var reachable = new List<Vector2I>();
         if (_astar == null) SetupAStar();
 
-        // BFS to find all reachable cells within range
         var queue = new Queue<(Vector2I Pos, int Dist)>();
         queue.Enqueue((start, 0));
         var visited = new HashSet<Vector2I> { start };
@@ -979,7 +978,6 @@ public partial class BattleBoard : Node3D
 
             if (dist < range)
             {
-                // Orthogonal neighbors
                 Vector2I[] neighbors = {
                     current + Vector2I.Up,
                     current + Vector2I.Down,
@@ -1016,14 +1014,14 @@ public partial class BattleBoard : Node3D
         if (_astar == null) SetupAStar();
         var path = _astar.GetIdPath(from, to);
         if (path.Count == 0) return 999;
-        return path.Count - 1; // path includes start point
+        return path.Count - 1;
     }
 
     /// <summary>Move a unit cleanly from one cell to another, using a Tween sequence for cell-by-cell movement.</summary>
     /// <returns>True if the move was valid and initiated, False if blocked or out of bounds.</returns>
     public bool MoveUnit(Node3D unit, Vector2I from, Vector2I to)
     {
-        if (from == to) return true; // Already there is a "success"
+        if (from == to) return true;
         
         if (!IsInBounds(to))
         {
@@ -1039,19 +1037,14 @@ public partial class BattleBoard : Node3D
 
         GD.Print($"[BattleBoard] MoveUnit: {unit.Name} from {from} to {to}");
 
-        // Update Backend
         if (IsInBounds(from))
         {
              _occupants[from] = null;
         }
         _occupants[to] = unit;
 
-        // Pathfinding
-        if (_astar == null) SetupAStar(); // Safety check
+        if (_astar == null) SetupAStar();
         
-        // Temporarily clear solid status for the unit's start and end to ensure pathfinding works if they were solid
-        // Actually, occupants aren't solid in AStar by default in our setup (only terrain is), 
-        // so we just calculate the path.
         var path = _astar.GetIdPath(from, to);
         
         if (path.Count <= 1)
@@ -1060,10 +1053,8 @@ public partial class BattleBoard : Node3D
             return true;
         }
 
-        // Update Physics (Slide smoothly cell-by-cell)
         Tween tween = GetTree().CreateTween();
         
-        // Skip the first point as it is the current position
         for (int i = 1; i < path.Count; i++)
         {
             var nextCell = path[i];
@@ -1079,11 +1070,9 @@ public partial class BattleBoard : Node3D
     {
         if (!IsInBounds(to)) return;
 
-        // Update Backend
         if (IsInBounds(from)) _occupants[from] = null;
         _occupants[to] = unit;
 
-        // Update Physics
         unit.Position = CellCentre(to);
         
         GD.Print($"[BattleBoard] MoveUnitImmediate: {unit.Name} jumped from {from} to {to}");

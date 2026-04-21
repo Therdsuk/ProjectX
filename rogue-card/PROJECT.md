@@ -32,9 +32,7 @@ The overworld is a directed graph (a "node map") where the player selects their 
 > **Important:** City nodes are the parent container. Each City has a **random subset** of the sub-types above — not every sub-type is guaranteed to appear in every city. Each sub-type can also appear as a **standalone** node on the route (outside a city).
 
 ### Map Generation Rules
-- The map is generated as a layer-based directed graph.
-- Each layer has a configurable number of nodes.
-- Edges between layers are randomly connected, giving the player branching route choices.
+- *(Deferred — overworld map is not yet implemented. Battle uses a clean flat board.)*
 - A **Boss Battle** node always appears at the end of each chapter/act.
 
 ---
@@ -113,7 +111,9 @@ Cards are collected in a shared activation queue sorted by speed tier → charac
 
 ### 5.1 Battlefield
 
-The battlefield is a **grid** (like a chessboard). Each cell has a **Field Type** that affects gameplay:
+The battlefield is a **clean flat grid** (checkerboard pattern) surrounded by decorative **environment art** (trees, rocks, bushes). All playable cells are at the same elevation for tactical clarity.
+
+Field types can be added to specific cells in future milestones:
 
 | Field Type | Effect |
 |-----------|--------|
@@ -124,7 +124,7 @@ The battlefield is a **grid** (like a chessboard). Each cell has a **Field Type*
 | **Ice**     | Chance to Freeze on contact; slippery movement |
 | **Sand**    | Reduces Speed; no special damage interaction |
 
-> **Note:** For the initial development milestone, the battlefield starts as plain (Normal) cells only. Field types will be layered in progressively.
+> **Note:** The battlefield is currently all Normal cells. Field types will be added as designed encounters in future milestones.
 
 ### 5.2 Battle Initialization
 
@@ -215,10 +215,7 @@ rogue-card/
 │   │   ├── CharacterData.cs    ← Stats, class definition (resource)
 │   │   ├── PlayerCharacter.cs  ← Player unit on the board
 │   │   └── EnemyCharacter.cs   ← Enemy unit + basic AI
-│   ├── Map/
-│   │   ├── MapGenerator.cs     ← Procedural node-map generation
-│   │   ├── MapNode.cs          ← Node data (type, connections)
-│   │   └── MapManager.cs       ← Current position, route tracking
+│   ├── Map/                    ← (Deferred — overworld map not yet implemented)
 │   ├── City/
 │   │   ├── CityGenerator.cs    ← Randomly picks sub-nodes for a city
 │   │   └── ShopManager.cs
@@ -276,7 +273,7 @@ enum NodeType { Battle, City, Shop, Exchange, Quest, Heal, Revive, Boss }
 | **M2** | Card data model, deck/hand system, basic card play | ⬜ |
 | **M3** | Field types, card effects, activation queue | ⬜ |
 | **M4** | Enemy AI, battle victory/defeat flow | ⬜ |
-| **M5** | Node map generation, city sub-nodes, scene transitions | ⬜ |
+| **M5** | Node map generation (deferred), city sub-nodes, scene transitions | ⬜ |
 | **M6** | Shop, Exchange, Quest, Heal, Revive scenes | ⬜ |
 | **M7** | Save/load, full run loop | ⬜ |
 | **M8** | Polish, SFX, music, art pass | ⬜ |

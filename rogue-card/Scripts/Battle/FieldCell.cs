@@ -1,7 +1,5 @@
 using Godot;
 
-public enum RampType { None, Straight, Corner }
-
 /// <summary>
 /// Represents a single cell on the battle grid.
 /// Holds the cell's field type and a reference to any unit occupying it.
@@ -16,20 +14,8 @@ public class FieldCell
     /// <summary>The terrain/field type of this cell.</summary>
     public FieldType FieldType { get; set; }
 
-    /// <summary>Vertical level of the cell (0 = base, 1.5 = high, etc).</summary>
+    /// <summary>Vertical level of the cell (0 for flat boards).</summary>
     public float Elevation { get; set; } = 0f;
-
-    /// <summary>Is this cell too steep for movement?</summary>
-    public bool IsCliff { get; set; } = false;
-
-    /// <summary>Is this cell an incline (slope)?</summary>
-    public bool IsRamp { get; set; } = false;
-
-    /// <summary>What kind of ramp is this (Straight vs Corner)?</summary>
-    public RampType RampType { get; set; } = RampType.None;
-
-    /// <summary>The Euler rotation required for the ramp (in radians).</summary>
-    public Vector3 RampRotation { get; set; } = Vector3.Zero;
 
     public FieldCell(Vector2I gridPosition, FieldType fieldType = FieldType.Normal)
     {
