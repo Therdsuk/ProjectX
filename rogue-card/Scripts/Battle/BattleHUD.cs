@@ -116,45 +116,44 @@ public partial class BattleHUD : CanvasLayer
             RoundLabel.Text = $"Round {round}";
     }
 
-    /// <summary>Clear and recreate card buttons in the hand container.</summary>
+    /// <summary>Preloaded CardUI scene for instantiation.</summary>
+    private static readonly PackedScene CardUIScene = GD.Load<PackedScene>("res://Scenes/UI/CardUI.tscn");
+
+    /// <summary>Clear and recreate card UI elements in the hand container.</summary>
     public void UpdateHand(System.Collections.Generic.IReadOnlyList<CardData> cards)
     {
         if (HandContainer == null) return;
 
-        // Clear existing card buttons
+        // Clear existing cards
         foreach (Node child in HandContainer.GetChildren())
         {
             child.QueueFree();
         }
 
-        // Create new buttons for each card in hand
+        // Create CardUI instances for each card in hand
         for (int i = 0; i < cards.Count; i++)
         {
             var card = cards[i];
             int index = i; // capture for the lambda
 
-            var btn = new Button
-            {
-                Text = $"{card.Name}\nCost: {card.Cost}",
-                CustomMinimumSize = new Vector2(100, 140)
-            };
+            var cardUI = CardUIScene.Instantiate<CardUI>();
+            HandContainer.AddChild(cardUI);
+            cardUI.SetCard(card);
 
-            // Disable the button if the card is not playable in the current phase
+            // Disable the card if not playable in the current phase
             bool isPlayable = false;
             if (_currentPhase == BattlePhase.MovePhase && card.CardType == CardType.Move) isPlayable = true;
             if (_currentPhase == BattlePhase.BattlePhase && (card.CardType == CardType.Battle || card.CardType == CardType.Buff || card.CardType == CardType.Debuff)) isPlayable = true;
             if (_currentPhase == BattlePhase.SetupPhase && card.CardType == CardType.Setup) isPlayable = true;
 
-            btn.Disabled = !isPlayable;
+            cardUI.SetDisabled(!isPlayable);
 
             // When clicked, request to play this card
-            btn.Pressed += () => EmitSignal(SignalName.CardPlayedRequested, index);
+            cardUI.CardClicked += () => EmitSignal(SignalName.CardPlayedRequested, index);
             
-            // Hover logic for previewing targeting (only emit if not disabled)
-            btn.MouseEntered += () => { if (!btn.Disabled) EmitSignal(SignalName.CardHovered, index); };
-            btn.MouseExited += () => { if (!btn.Disabled) EmitSignal(SignalName.CardUnhovered, index); };
-
-            HandContainer.AddChild(btn);
+            // Hover logic for previewing targeting
+            cardUI.CardHoverEntered += () => EmitSignal(SignalName.CardHovered, index);
+            cardUI.CardHoverExited += () => EmitSignal(SignalName.CardUnhovered, index);
         }
         GD.Print($"[BattleHUD] Rendered {cards.Count} cards in hand.");
     }
@@ -169,21 +168,14 @@ public partial class BattleHUD : CanvasLayer
             child.QueueFree();
         }
 
-        // Add new UI elements for each queued action
+        // Add CardUI elements for each queued action (smaller size for the queue)
         foreach (var action in queue)
         {
-            var panel = new PanelContainer();
-            panel.CustomMinimumSize = new Vector2(90, 120);
-            
-            var lbl = new Label
-            {
-                Text = $"{action.Card.Name}\nLvl {action.Card.UpgradeLevel}\nSpd: {action.Card.Speed}",
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                AutowrapMode = TextServer.AutowrapMode.Word
-            };
-            panel.AddChild(lbl);
-            QueueContainer.AddChild(panel);
+            var cardUI = CardUIScene.Instantiate<CardUI>();
+            cardUI.CustomMinimumSize = new Vector2(90, 130);
+            QueueContainer.AddChild(cardUI);
+            cardUI.SetCard(action.Card);
+            cardUI.SetDisabled(true); // Queue cards are display-only
         }
     }
 

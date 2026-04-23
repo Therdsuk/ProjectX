@@ -91,30 +91,45 @@ public partial class BattleManager : Node
         var camController = new CameraController();
         camController.Name = "CameraController";
         
-        // True Isometric Offset (Diagonal placement)
-        camController.Offset = new Vector3(15, 15, 15);
-        // Pitch down ~35.264 degrees (true isometric pitch), yaw 45 degrees
-        camController.RotationDegrees = new Vector3(-35.264f, 45, 0);
-        // Narrower field of view simulates a flatter, more orthographic look
+        // Rail camera: slides along X, fixed height and depth
+        camController.Offset = new Vector3(0, 16, 16);
+        // Pitch down 45° to look at the board, facing -Z
+        camController.RotationDegrees = new Vector3(-45f, 0f, 0);
+        // Slightly narrow FOV for a tactical feel
         camController.Fov = 40f;
+
+        // Configure rail bounds from board dimensions
+        if (Board != null)
+        {
+            float boardW = Board.Columns * Board.CellSize;
+            float boardH = Board.Rows * Board.CellSize;
+            float boardCenterX = boardW / 2f;
+            float boardCenterZ = boardH / 2f;
+
+            // Rail slides along X, clamped to board width
+            camController.RailMinX = boardCenterX; // If board fits in view, lock to center
+            camController.RailMaxX = boardCenterX;
+            camController.RailZ = boardCenterZ;
+
+            // If the board is wider than what the camera can see, allow panning
+            // Estimate visible width at board distance using FOV and aspect ratio
+            float distance = camController.Offset.Z; // Z offset = distance from board center line
+            float halfVisibleW = distance * Mathf.Tan(Mathf.DegToRad(camController.Fov / 2f));
+            float visibleW = halfVisibleW * 2f * (GetViewport().GetVisibleRect().Size.X / GetViewport().GetVisibleRect().Size.Y);
+
+            if (boardW > visibleW)
+            {
+                // Allow panning so the camera can reach both edges
+                float margin = (boardW - visibleW) / 2f;
+                camController.RailMinX = boardCenterX - margin;
+                camController.RailMaxX = boardCenterX + margin;
+            }
+        }
         
         MainCamera.GetParent().AddChild(camController);
         MainCamera.QueueFree();
         MainCamera = camController;
         camController.MakeCurrent();
-
-        // Point camera at the center of the board (fixed position, not following a unit)
-        if (Board != null)
-        {
-            var boardCenter = new Node3D { Name = "BoardCenterAnchor" };
-            Board.AddChild(boardCenter);
-            boardCenter.Position = new Vector3(
-                Board.Columns * Board.CellSize / 2f, 
-                0, 
-                Board.Rows * Board.CellSize / 2f
-            );
-            camController.Target = boardCenter;
-        }
 
         // Connect HUD next-phase button
         if (HUD != null)

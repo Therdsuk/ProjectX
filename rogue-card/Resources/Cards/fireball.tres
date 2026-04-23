@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CardData" format=3]
+
+[ext_resource type="Script" uid="uid://cwo4ll8ki1xtn" path="res://Scripts/Cards/CardData.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+Id = "fireball"
+Name = "Fireball"
+Description = "Launch a fireball in a cross pattern dealing 20 damage."
+CardType = 1
+AllowedClasses = PackedStringArray("wizard")
+Cost = 3
+Target = 2
+Range = 5
+AoeShape = 1
+BaseDamage = 20
+Speed = 1
+metadata/_custom_type_script = "uid://cwo4ll8ki1xtn"

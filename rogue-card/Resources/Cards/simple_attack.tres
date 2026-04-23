@@ -4,7 +4,9 @@
 
 [resource]
 script = ExtResource("1_6n0hf")
+Id = "simple_attack"
 Name = "Slime Bounce!!"
 Description = "hit you"
+Target = 0
 BaseDamage = 10
 metadata/_custom_type_script = "uid://cwo4ll8ki1xtn"

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://bg7lmf78ykg4i"]
+
+[ext_resource type="Texture2D" uid="uid://lchxfrj45bi4" path="res://Assets/Art/Tiles/tile.png" id="1_l35e1"]
+[ext_resource type="Script" uid="uid://cwo4ll8ki1xtn" path="res://Scripts/Cards/CardData.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+Id = "heavy_blow"
+Name = "Heavy Blow"
+Description = "A devastating 3x3 slam dealing 15 damage. Slow but powerful."
+AllowedClasses = PackedStringArray("warrior")
+Cost = 2
+Target = 2
+Range = 3
+AoeShape = 2
+BaseDamage = 15
+Speed = 2
+Art = ExtResource("1_l35e1")
+metadata/_custom_type_script = "uid://cwo4ll8ki1xtn"

@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+CardDatabase="*res://Scripts/Cards/CardDatabase.cs"
 EventBus="*res://Scripts/Core/EventBus.cs"
 SteamManager="*res://Scripts/Core/Network/SteamManager.cs"
 

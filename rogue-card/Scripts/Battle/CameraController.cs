@@ -2,37 +2,57 @@ using Godot;
 using System;
 
 /// <summary>
-/// A simple camera controller that smoothly follows a target Node3D.
+/// Rail + Orbit camera controller.
+/// - A/D keys: slide the focus point (pin) left/right along the X-axis rail
+/// - Q/E keys: rotate the camera around the current focus point
+/// The camera orbits at a fixed offset distance from the pin.
+/// The pin is clamped to configurable board boundaries.
 /// </summary>
 public partial class CameraController : Camera3D
 {
-    /// <summary>The node this camera should follow.</summary>
-    public Node3D Target { get; set; }
+    /// <summary>The height (Y) and distance offset from the focus point.</summary>
+    [Export] public Vector3 Offset { get; set; } = new Vector3(0, 16, 16);
 
-    /// <summary>The offset from the target's position.</summary>
-    [Export] public Vector3 Offset { get; set; } = new Vector3(0, 10, 10);
+    /// <summary>How fast the focus point pans horizontally (world units per second).</summary>
+    [Export] public float PanSpeed { get; set; } = 12f;
 
-    /// <summary>How quickly the camera catches up to the target (higher is faster).</summary>
-    [Export] public float FollowSpeed { get; set; } = 5f;
-    
-    /// <summary>How quickly the camera rotates (higher is faster).</summary>
+    /// <summary>How quickly the camera smoothly catches up (higher is faster).</summary>
+    [Export] public float SmoothSpeed { get; set; } = 8f;
+
+    /// <summary>How quickly the camera rotates on Q/E (higher is faster).</summary>
     [Export] public float RotationSpeed { get; set; } = 8f;
 
-    private float _targetYaw = 45f;
-    private float _currentYaw = 45f;
-    private float _baseYaw = 45f;
-    private Vector3 _currentFocusPosition;
+    /// <summary>Minimum X position the focus point can pan to (left edge).</summary>
+    public float RailMinX { get; set; } = 0f;
+
+    /// <summary>Maximum X position the focus point can pan to (right edge).</summary>
+    public float RailMaxX { get; set; } = 16f;
+
+    /// <summary>The fixed Z position of the focus point (board center Z).</summary>
+    public float RailZ { get; set; } = 6f;
+
+    // Internal state
+    private float _targetX;
+    private float _currentX;
+    private float _targetYaw;
+    private float _currentYaw;
+    private float _baseYaw;
 
     public override void _Ready()
     {
+        // Start at the left side of the rail
+        _targetX = RailMinX;
+        _currentX = _targetX;
+
+        // Initialize yaw from the camera's initial rotation
         _baseYaw = RotationDegrees.Y;
         _targetYaw = _baseYaw;
         _currentYaw = _baseYaw;
-        if (Target != null) _currentFocusPosition = Target.GlobalPosition;
     }
 
     public override void _Input(InputEvent @event)
     {
+        // Q/E for orbital rotation (step-based, like before)
         if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
         {
             if (keyEvent.Keycode == Key.Q)
@@ -48,28 +68,35 @@ public partial class CameraController : Camera3D
 
     public override void _PhysicsProcess(double delta)
     {
-        // 1. Smoothly interpolate the yaw rotation (using LerpAngle for safe 0-360 transitions)
+        float dt = (float)delta;
+
+        // --- Rail panning (A/D) ---
+        float panInput = 0f;
+        if (Input.IsKeyPressed(Key.D)) panInput += 1f;
+        if (Input.IsKeyPressed(Key.A)) panInput -= 1f;
+
+        _targetX += panInput * PanSpeed * dt;
+        _targetX = Mathf.Clamp(_targetX, RailMinX, RailMaxX);
+        _currentX = Mathf.Lerp(_currentX, _targetX, dt * SmoothSpeed);
+
+        // --- Orbital rotation (Q/E) ---
         float currentRad = Mathf.DegToRad(_currentYaw);
         float targetRad = Mathf.DegToRad(_targetYaw);
-        _currentYaw = Mathf.RadToDeg(Mathf.LerpAngle(currentRad, targetRad, (float)delta * RotationSpeed));
-        
-        // Apply the rotation to the Camera's Y-axis
+        _currentYaw = Mathf.RadToDeg(Mathf.LerpAngle(currentRad, targetRad, dt * RotationSpeed));
+
+        // Apply yaw to the camera's rotation (keep pitch from initial setup)
         Vector3 rot = RotationDegrees;
         rot.Y = _currentYaw;
         RotationDegrees = rot;
 
-        if (Target == null) return;
+        // --- Position: orbit the offset around the focus point ---
+        // Focus point (the "pin") slides along the rail
+        Vector3 focusPoint = new Vector3(_currentX, 0, RailZ);
 
-        // 2. Smoothly follow the target position (the "Focus Point")
-        _currentFocusPosition = _currentFocusPosition.Lerp(Target.GlobalPosition, (float)delta * FollowSpeed);
-
-        // 3. Calculate the exact point on the orbit circle based on current interpolated yaw
-        // We rotate the original offset to find where the camera should be in its arc
+        // Rotate the offset around Y by the yaw delta from base
         Basis yawRotation = Basis.FromEuler(new Vector3(0, Mathf.DegToRad(_currentYaw - _baseYaw), 0));
         Vector3 rotatedOffset = yawRotation * Offset;
 
-        // 4. Set position directly relative to the focus point. 
-        // This ensures a perfect circular arc without cutting corners.
-        GlobalPosition = _currentFocusPosition + rotatedOffset;
+        GlobalPosition = focusPoint + rotatedOffset;
     }
 }

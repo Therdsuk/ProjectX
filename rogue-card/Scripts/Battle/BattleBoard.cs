@@ -4,10 +4,11 @@ using System.Collections.Generic;
 /// <summary>
 /// Generates and manages the battle grid (board).
 ///
-/// Clean flat board with environment art border:
+/// Clean flat board with environment art strips:
 ///   - All playable cells are FieldType.Normal at elevation 0
 ///   - Subtle checkerboard visual pattern for tactical clarity
-///   - Decorative environment ring around the playable area
+///   - Decorative environment strips above (behind) and below (in front of) the board
+///   - Camera views the board from below (front), looking toward the back
 ///   - Preserves all gameplay API (movement, pathfinding, highlighting, targeting)
 ///
 /// Attach to a Node3D in BattleScene.tscn called "BattleBoard".
@@ -557,54 +558,127 @@ public partial class BattleBoard : Node3D
     }
 
     // -------------------------------------------------------------------------
-    // Environment Border — Decorative Ring Around the Board
+    // Environment Border — Road Extension (Left/Right) + Nature (Top/Bottom)
     // -------------------------------------------------------------------------
+
+    [ExportGroup("Road Extension")]
+    [Export] public int RoadExtendLeft { get; set; } = 12;  // Extra columns to the left (entry road)
+    [Export] public int RoadExtendRight { get; set; } = 3;  // Extra columns to the right
 
     private void DrawEnvironmentBorder()
     {
         int border = EnvironmentBorderSize;
         float boardW = Columns * CellSize;
         float boardH = Rows * CellSize;
-        float totalW = boardW + border * CellSize * 2;
-        float totalH = boardH + border * CellSize * 2;
 
-        // Large ground plane extending under and around the board
+        // --- 1) Draw road tiles extending left and right (looks like board, but not playable) ---
+        DrawRoadExtension(boardW, boardH);
+
+        // --- 2) Environment ground for top/bottom strips ---
         var groundMat = new StandardMaterial3D
         {
             AlbedoColor = GroundColor,
             Roughness = 0.95f,
         };
-        var groundPlane = new MeshInstance3D
+
+        float groundExtraZ = 12f;   // How far the environment extends above/below
+        float totalRoadW = (RoadExtendLeft + Columns + RoadExtendRight) * CellSize;
+        float roadLeftEdge = -RoadExtendLeft * CellSize;
+        float roadRightEdge = boardW + RoadExtendRight * CellSize;
+        float roadCenterX = (roadLeftEdge + roadRightEdge) / 2f;
+
+        // Top environment strip (behind the board, low Z)
+        var topGround = new MeshInstance3D
         {
-            Mesh = new PlaneMesh { Size = new Vector2(totalW + 8f, totalH + 8f) },
+            Mesh = new PlaneMesh { Size = new Vector2(totalRoadW + 4f, groundExtraZ) },
             MaterialOverride = groundMat,
-            Position = new Vector3(boardW / 2f, -0.01f, boardH / 2f),
+            Position = new Vector3(roadCenterX, -0.01f, -groundExtraZ / 2f),
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-            Name = "EnvironmentGround"
+            Name = "EnvironmentGroundTop"
         };
-        AddChild(groundPlane);
+        AddChild(topGround);
 
-        // Spawn decorative objects around the border
+        // Bottom environment strip (in front of the board, high Z)
+        var bottomGround = new MeshInstance3D
+        {
+            Mesh = new PlaneMesh { Size = new Vector2(totalRoadW + 4f, groundExtraZ) },
+            MaterialOverride = groundMat,
+            Position = new Vector3(roadCenterX, -0.01f, boardH + groundExtraZ / 2f),
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            Name = "EnvironmentGroundBottom"
+        };
+        AddChild(bottomGround);
+
+        // --- 3) Spawn decorative objects in the top/bottom environment strips ---
         var rng = new RandomNumberGenerator();
-        rng.Seed = 42; // Deterministic for consistency
+        rng.Seed = 42;
 
-        SpawnBorderDecorations(rng, boardW, boardH, border);
+        SpawnBorderDecorations(rng, roadCenterX, totalRoadW, boardH, groundExtraZ);
     }
 
-    private void SpawnBorderDecorations(RandomNumberGenerator rng, float boardW, float boardH, int border)
+    /// <summary>Draw visual-only checkerboard tiles extending left and right of the playable board (the "road").</summary>
+    private void DrawRoadExtension(float boardW, float boardH)
     {
-        float borderWorldSize = border * CellSize;
+        // Use slightly darker/desaturated versions of the board colors for the road
+        Color roadColorA = CellColorA.Darkened(0.15f);
+        Color roadColorB = CellColorB.Darkened(0.15f);
 
-        // Define the border zone (outside the playable grid)
-        float minX = -borderWorldSize;
-        float maxX = boardW + borderWorldSize;
-        float minZ = -borderWorldSize;
-        float maxZ = boardH + borderWorldSize;
+        // Left extension: columns from -RoadExtendLeft to -1
+        for (int col = -RoadExtendLeft; col < 0; col++)
+        {
+            for (int row = 0; row < Rows; row++)
+            {
+                DrawRoadTile(col, row, roadColorA, roadColorB);
+            }
+        }
+
+        // Right extension: columns from Columns to Columns + RoadExtendRight - 1
+        for (int col = Columns; col < Columns + RoadExtendRight; col++)
+        {
+            for (int row = 0; row < Rows; row++)
+            {
+                DrawRoadTile(col, row, roadColorA, roadColorB);
+            }
+        }
+    }
+
+    private void DrawRoadTile(int col, int row, Color colorA, Color colorB)
+    {
+        bool isDark = (col + row) % 2 == 0;
+        Color tileColor = isDark ? colorA : colorB;
+
+        var material = new StandardMaterial3D
+        {
+            AlbedoColor = tileColor,
+            Roughness = 0.85f,
+        };
+
+        var planeMesh = new PlaneMesh
+        {
+            Size = new Vector2(CellSize, CellSize),
+        };
+
+        var mi = new MeshInstance3D
+        {
+            Mesh = planeMesh,
+            MaterialOverride = material,
+            Position = new Vector3(col * CellSize + CellSize / 2f, 0, row * CellSize + CellSize / 2f),
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            Name = $"Road_{col}_{row}"
+        };
+        AddChild(mi);
+    }
+
+    private void SpawnBorderDecorations(RandomNumberGenerator rng, float centerX, float totalW, float boardH, float envDepth)
+    {
+        // Decorations go in top/bottom strips (along Z), spanning the full road width
+        float minX = centerX - totalW / 2f - 2f;
+        float maxX = centerX + totalW / 2f + 2f;
 
         // Trees
         for (int i = 0; i < TreeCount; i++)
         {
-            Vector3 pos = GetRandomBorderPosition(rng, minX, maxX, minZ, maxZ, boardW, boardH, 1.5f);
+            Vector3 pos = GetRandomEnvPosition(rng, minX, maxX, boardH, envDepth, 0.3f);
             var deco = SpawnTree(pos);
             if (deco != null) _decorations.Add(deco);
         }
@@ -612,7 +686,7 @@ public partial class BattleBoard : Node3D
         // Rocks
         for (int i = 0; i < RockCount; i++)
         {
-            Vector3 pos = GetRandomBorderPosition(rng, minX, maxX, minZ, maxZ, boardW, boardH, 0.5f);
+            Vector3 pos = GetRandomEnvPosition(rng, minX, maxX, boardH, envDepth, 0.1f);
             var deco = SpawnRock(pos);
             if (deco != null) _decorations.Add(deco);
         }
@@ -620,7 +694,7 @@ public partial class BattleBoard : Node3D
         // Bushes
         for (int i = 0; i < BushCount; i++)
         {
-            Vector3 pos = GetRandomBorderPosition(rng, minX, maxX, minZ, maxZ, boardW, boardH, 0.8f);
+            Vector3 pos = GetRandomEnvPosition(rng, minX, maxX, boardH, envDepth, 0.1f);
             var deco = SpawnBush(pos);
             if (deco != null) _decorations.Add(deco);
         }
@@ -628,31 +702,29 @@ public partial class BattleBoard : Node3D
         // Grass patches
         for (int i = 0; i < GrassCount; i++)
         {
-            Vector3 pos = GetRandomBorderPosition(rng, minX, maxX, minZ, maxZ, boardW, boardH, 0.2f);
+            Vector3 pos = GetRandomEnvPosition(rng, minX, maxX, boardH, envDepth, 0.0f);
             var deco = SpawnGrassPatch(pos);
             if (deco != null) _decorations.Add(deco);
         }
     }
 
-    /// <summary>Returns a random position within the border zone (NOT inside the playable grid).</summary>
-    private Vector3 GetRandomBorderPosition(RandomNumberGenerator rng, float minX, float maxX, float minZ, float maxZ, float boardW, float boardH, float padding)
+    /// <summary>Returns a random position in the top or bottom environment strip (along Z axis).</summary>
+    private Vector3 GetRandomEnvPosition(RandomNumberGenerator rng, float minX, float maxX, float boardH, float envDepth, float padding)
     {
-        Vector3 pos;
-        int attempts = 0;
-        do
+        // 50/50: top strip (negative Z) or bottom strip (positive Z past board)
+        bool topSide = rng.Randf() < 0.5f;
+        float z;
+        if (topSide)
         {
-            pos = new Vector3(
-                rng.RandfRange(minX, maxX),
-                0,
-                rng.RandfRange(minZ, maxZ)
-            );
-            attempts++;
+            z = rng.RandfRange(-envDepth, -padding);
         }
-        while (pos.X > -padding && pos.X < boardW + padding &&
-               pos.Z > -padding && pos.Z < boardH + padding &&
-               attempts < 50);
+        else
+        {
+            z = rng.RandfRange(boardH + padding, boardH + envDepth);
+        }
 
-        return pos;
+        float x = rng.RandfRange(minX, maxX);
+        return new Vector3(x, 0, z);
     }
 
     private Node3D SpawnTree(Vector3 position)

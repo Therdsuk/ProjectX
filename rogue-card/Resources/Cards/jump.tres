@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardData" format=3]
+
+[ext_resource type="Script" uid="uid://cwo4ll8ki1xtn" path="res://Scripts/Cards/CardData.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+Id = "jump"
+Name = "Jump"
+Description = "Leap to a distant tile. Range scales with Strength."
+CardType = 0
+Cost = 2
+Target = 3
+Range = 4
+RangeScalesWithStrength = true
+AoeShape = 0
+Speed = 0
+metadata/_custom_type_script = "uid://cwo4ll8ki1xtn"

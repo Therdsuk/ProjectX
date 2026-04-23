@@ -21,6 +21,9 @@ public partial class CardData : Resource
     /// <summary>Which phase this card can be played in.</summary>
     [Export] public CardType CardType  { get; set; } = CardType.Battle;
 
+    /// <summary>Class IDs that can use this card (e.g. "warrior", "wizard"). Empty = all classes.</summary>
+    [Export] public string[] AllowedClasses { get; set; } = System.Array.Empty<string>();
+
     /// <summary>Mana cost to play this card.</summary>
     [Export] public int Cost           { get; set; } = 1;
 
@@ -47,6 +50,9 @@ public partial class CardData : Resource
 
     /// <summary>How many times this card has been upgraded (0 = base).</summary>
     [Export] public int UpgradeLevel   { get; set; } = 0;
+
+    /// <summary>Card artwork displayed on the card UI.</summary>
+    [Export] public Texture2D Art      { get; set; }
 
     // Upgrade: override fields — future milestone
     // public CardData UpgradedVersion { get; set; }

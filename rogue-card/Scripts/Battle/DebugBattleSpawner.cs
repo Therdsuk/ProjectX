@@ -200,19 +200,42 @@ public partial class DebugBattleSpawner : Node
     private void AddMockCardsToDeck(CharacterData data, bool isPlayer)
     {
         data.StartingDeck = new Godot.Collections.Array<CardData>();
-        
+
+        // Try loading from CardDatabase first
+        var db = CardDatabase.Instance;
+        if (db != null && db.Count > 0)
+        {
+            var strike   = db.GetCard("strike");
+            var defend   = db.GetCard("defend");
+            var heavy    = db.GetCard("heavy_blow");
+            var fireball = db.GetCard("fireball");
+            var jump     = db.GetCard("jump");
+
+            if (strike != null)   { data.StartingDeck.Add(strike); data.StartingDeck.Add(strike); }
+            if (defend != null)   data.StartingDeck.Add(defend);
+            if (heavy != null)    { data.StartingDeck.Add(heavy); data.StartingDeck.Add(heavy); }
+            if (fireball != null) { data.StartingDeck.Add(fireball); data.StartingDeck.Add(fireball); }
+            if (jump != null)     { data.StartingDeck.Add(jump); data.StartingDeck.Add(jump); }
+
+            GD.Print($"[DebugBattleSpawner] Loaded {data.StartingDeck.Count} cards from CardDatabase.");
+            return;
+        }
+
+        // Fallback: create cards inline (if CardDatabase hasn't loaded yet)
+        GD.PushWarning("[DebugBattleSpawner] CardDatabase not available — using inline card definitions.");
+
         var strikeCard = new CardData { 
             Id = "strike", Name = "Strike", Cost = 1, CardType = CardType.Battle, 
             Target = TargetType.SingleEnemy, Range = 1, AoeShape = AreaOfEffect.SingleNode, BaseDamage = 10
         };
         
         var shieldCard = new CardData { 
-            Id = "shield", Name = "Defend", Cost = 1, CardType = CardType.Battle, 
+            Id = "defend", Name = "Defend", Cost = 1, CardType = CardType.Battle, 
             Target = TargetType.Self, Range = 0, AoeShape = AreaOfEffect.SingleNode, BaseHealing = 5
         };
         
         var heavyCard  = new CardData { 
-            Id = "heavy", Name = "Heavy Blow", Cost = 2, CardType = CardType.Battle,
+            Id = "heavy_blow", Name = "Heavy Blow", Cost = 2, CardType = CardType.Battle,
             Target = TargetType.AnyTile, Range = 3, AoeShape = AreaOfEffect.Square3x3, BaseDamage = 15
         };
 

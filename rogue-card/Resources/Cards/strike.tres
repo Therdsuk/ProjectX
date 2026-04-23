@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardData" format=3]
+
+[ext_resource type="Script" uid="uid://cwo4ll8ki1xtn" path="res://Scripts/Cards/CardData.cs" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+Id = "strike"
+Name = "Strike"
+Description = "A quick melee attack dealing 10 damage."
+CardType = 1
+Cost = 1
+Target = 1
+Range = 1
+AoeShape = 0
+BaseDamage = 10
+Speed = 1
+metadata/_custom_type_script = "uid://cwo4ll8ki1xtn"
