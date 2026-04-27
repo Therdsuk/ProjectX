@@ -1,4 +1,5 @@
 using Godot;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Manages the battle HUD: displays the current phase, round number, and
@@ -24,6 +25,9 @@ public partial class BattleHUD : CanvasLayer
 
     /// <summary>Emitted when the player's mouse leaves a card button in their hand.</summary>
     [Signal] public delegate void CardUnhoveredEventHandler(int cardIndex);
+
+    /// <summary>Emitted when all queue cards have finished their flip-reveal animation.</summary>
+    [Signal] public delegate void RevealCompletedEventHandler();
 
     // -------------------------------------------------------------------------
     // Child Node References (wire in Inspector via @Export or find by name)
@@ -158,7 +162,7 @@ public partial class BattleHUD : CanvasLayer
         GD.Print($"[BattleHUD] Rendered {cards.Count} cards in hand.");
     }
 
-    public void UpdateQueueDisplay(System.Collections.Generic.IReadOnlyList<QueuedAction> queue)
+    public void UpdateQueueDisplay(System.Collections.Generic.IReadOnlyList<QueuedAction> queue, bool faceDown = false)
     {
         if (QueueContainer == null) return;
 
@@ -176,7 +180,40 @@ public partial class BattleHUD : CanvasLayer
             QueueContainer.AddChild(cardUI);
             cardUI.SetCard(action.Card);
             cardUI.SetDisabled(true); // Queue cards are display-only
+
+            if (faceDown)
+            {
+                // Show the card face-down — will be revealed later
+                cardUI.SetFaceDown(true);
+            }
         }
+    }
+
+    /// <summary>
+    /// Flip all face-down cards in the queue simultaneously with a reveal animation.
+    /// Awaitable — returns when all flip animations complete.
+    /// </summary>
+    public async Task RevealAllQueueCards(float duration = 0.5f)
+    {
+        if (QueueContainer == null) return;
+
+        var flipTasks = new System.Collections.Generic.List<Task>();
+
+        foreach (Node child in QueueContainer.GetChildren())
+        {
+            if (child is CardUI cardUI && cardUI.IsFaceDown)
+            {
+                flipTasks.Add(cardUI.PlayFlipReveal(duration));
+            }
+        }
+
+        // Wait for ALL flip animations to complete simultaneously
+        if (flipTasks.Count > 0)
+        {
+            await Task.WhenAll(flipTasks);
+        }
+
+        EmitSignal(SignalName.RevealCompleted);
     }
 
     // -------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 using Godot;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Reusable card UI template. Attach to the root of CardUI.tscn.
@@ -8,6 +9,7 @@ using Godot;
 ///   - Top-right badge: Speed
 ///   - Top half: Card artwork
 ///   - Bottom half: Name + description
+///   - CardBack overlay: shown when face-down
 ///
 /// Call SetCard(CardData) after adding to the scene tree.
 /// </summary>
@@ -44,6 +46,7 @@ public partial class CardUI : PanelContainer
     private Label _descLabel;
     private Control _costBadge;
     private Control _speedBadge;
+    private PanelContainer _cardBack;
 
     // -------------------------------------------------------------------------
     // State
@@ -51,6 +54,7 @@ public partial class CardUI : PanelContainer
 
     private CardData _cardData;
     private bool _isDisabled;
+    private bool _isFaceDown;
 
     private CardData _pendingCard;
     private bool _nodesReady;
@@ -87,6 +91,7 @@ public partial class CardUI : PanelContainer
         _descLabel      = GetNode<Label>("CardFrame/VBox/InfoContainer/InfoVBox/CardDescription");
         _costBadge      = GetNode<Control>("CardFrame/VBox/ArtContainer/CostBadge");
         _speedBadge     = GetNode<Control>("CardFrame/VBox/ArtContainer/SpeedBadge");
+        _cardBack       = GetNodeOrNull<PanelContainer>("CardBack");
 
         _nodesReady = _costLabel != null;
     }
@@ -177,6 +182,64 @@ public partial class CardUI : PanelContainer
             }
             _cardFrame.AddThemeStyleboxOverride("panel", style);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Face-Down / Flip Reveal
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Toggle the card between face-down (card back visible) and face-up (card front visible).
+    /// </summary>
+    public void SetFaceDown(bool faceDown)
+    {
+        _isFaceDown = faceDown;
+
+        if (_cardBack != null)
+        {
+            _cardBack.Visible = faceDown;
+        }
+        if (_cardFrame != null)
+        {
+            _cardFrame.Visible = !faceDown;
+        }
+    }
+
+    /// <summary>
+    /// Whether this card is currently face-down.
+    /// </summary>
+    public bool IsFaceDown => _isFaceDown;
+
+    /// <summary>
+    /// Play a 2D card-flip reveal animation using Scale.X (1 → 0 → 1).
+    /// At the midpoint, swaps from card back to card front.
+    /// </summary>
+    /// <param name="duration">Total flip duration in seconds.</param>
+    public async Task PlayFlipReveal(float duration = 0.5f)
+    {
+        if (!_isFaceDown) return;
+
+        PivotOffset = Size / 2f;
+        float half = duration / 2f;
+
+        // Phase 1: Shrink Scale.X to 0 (card turns edge-on)
+        var tweenShrink = CreateTween();
+        tweenShrink.TweenProperty(this, "scale", new Vector2(0f, 1f), half)
+                   .SetTrans(Tween.TransitionType.Cubic)
+                   .SetEase(Tween.EaseType.In);
+        await ToSignal(tweenShrink, Tween.SignalName.Finished);
+
+        // Midpoint: Swap from card back to card front
+        _isFaceDown = false;
+        if (_cardBack != null) _cardBack.Visible = false;
+        if (_cardFrame != null) _cardFrame.Visible = true;
+
+        // Phase 2: Expand Scale.X back to 1 (card reveals front)
+        var tweenExpand = CreateTween();
+        tweenExpand.TweenProperty(this, "scale", Vector2.One, half)
+                   .SetTrans(Tween.TransitionType.Cubic)
+                   .SetEase(Tween.EaseType.Out);
+        await ToSignal(tweenExpand, Tween.SignalName.Finished);
     }
 
     // -------------------------------------------------------------------------

@@ -1,6 +1,13 @@
 [gd_scene format=3 uid="uid://jbrt7emfh8ja"]
 
 [ext_resource type="Script" uid="uid://csdf0gofmpouc" path="res://Scripts/UI/CardUI.cs" id="1_script"]
+[ext_resource type="Shader" path="res://Scripts/UI/card_flip_3d.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flip"]
+shader = ExtResource("2_shader")
+shader_parameter/rotation_y = 0.0
+shader_parameter/card_center_global = Vector2(0, 0)
+shader_parameter/perspective_strength = 0.0015
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_root"]
 
@@ -32,19 +39,38 @@ content_margin_right = 6.0
 content_margin_bottom = 4.0
 bg_color = Color(0.12, 0.13, 0.16, 0)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cardback"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.08, 0.18, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.25, 0.55, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="CardUI" type="PanelContainer" unique_id=359868936]
 custom_minimum_size = Vector2(160, 220)
+material = SubResource("ShaderMaterial_flip")
 theme_override_styles/panel = SubResource("StyleBoxEmpty_root")
 script = ExtResource("1_script")
 
 [node name="CardFrame" type="PanelContainer" parent="." unique_id=1129174827]
 layout_mode = 2
 mouse_filter = 2
+use_parent_material = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_frame")
 
 [node name="VBox" type="VBoxContainer" parent="CardFrame" unique_id=885323361]
 layout_mode = 2
 mouse_filter = 2
+use_parent_material = true
 theme_override_constants/separation = 0
 
 [node name="ArtContainer" type="PanelContainer" parent="CardFrame/VBox" unique_id=1856772358]
@@ -52,11 +78,13 @@ custom_minimum_size = Vector2(0, 110)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
+use_parent_material = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_art_bg")
 
 [node name="ArtPlaceholder" type="ColorRect" parent="CardFrame/VBox/ArtContainer" unique_id=1708874643]
 layout_mode = 2
 mouse_filter = 2
+use_parent_material = true
 color = Color(0.25, 0.27, 0.32, 1)
 
 [node name="CardArt" type="TextureRect" parent="CardFrame/VBox/ArtContainer" unique_id=1214722215]
@@ -64,12 +92,14 @@ visible = false
 texture_filter = 1
 layout_mode = 2
 mouse_filter = 2
+use_parent_material = true
 expand_mode = 1
 stretch_mode = 6
 
 [node name="CostBadge" type="Control" parent="CardFrame/VBox/ArtContainer" unique_id=34241314]
 layout_mode = 2
 mouse_filter = 2
+use_parent_material = true
 
 [node name="CostLabel" type="Label" parent="CardFrame/VBox/ArtContainer/CostBadge" unique_id=1295154059]
 layout_mode = 1
@@ -80,6 +110,7 @@ offset_left = 110.0
 offset_bottom = -82.0
 grow_horizontal = 2
 grow_vertical = 2
+use_parent_material = true
 theme_override_font_sizes/font_size = 14
 text = "0"
 horizontal_alignment = 1
@@ -88,6 +119,7 @@ vertical_alignment = 1
 [node name="SpeedBadge" type="Control" parent="CardFrame/VBox/ArtContainer" unique_id=739626989]
 layout_mode = 2
 mouse_filter = 2
+use_parent_material = true
 
 [node name="SpeedLabel" type="Label" parent="CardFrame/VBox/ArtContainer/SpeedBadge" unique_id=959683746]
 layout_mode = 0
@@ -97,6 +129,7 @@ offset_right = -113.0
 offset_bottom = -83.0
 grow_horizontal = 2
 grow_vertical = 2
+use_parent_material = true
 theme_override_font_sizes/font_size = 12
 text = "F"
 horizontal_alignment = 1
@@ -106,15 +139,18 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
+use_parent_material = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_info_bg")
 
 [node name="InfoVBox" type="VBoxContainer" parent="CardFrame/VBox/InfoContainer" unique_id=2076382804]
 layout_mode = 2
 mouse_filter = 2
+use_parent_material = true
 theme_override_constants/separation = 2
 
 [node name="CardName" type="Label" parent="CardFrame/VBox/InfoContainer/InfoVBox" unique_id=1803440322]
 layout_mode = 2
+use_parent_material = true
 theme_override_colors/font_color = Color(0.95, 0.92, 0.85, 1)
 theme_override_font_sizes/font_size = 13
 text = "Card Name"
@@ -124,12 +160,35 @@ autowrap_mode = 3
 [node name="HSeparator" type="HSeparator" parent="CardFrame/VBox/InfoContainer/InfoVBox" unique_id=608489269]
 layout_mode = 2
 mouse_filter = 2
+use_parent_material = true
 
 [node name="CardDescription" type="Label" parent="CardFrame/VBox/InfoContainer/InfoVBox" unique_id=1448294977]
 layout_mode = 2
 size_flags_vertical = 3
+use_parent_material = true
 theme_override_colors/font_color = Color(0.7, 0.72, 0.78, 1)
 theme_override_font_sizes/font_size = 10
 text = "Card description goes here."
 horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="CardBack" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+use_parent_material = true
+theme_override_styles/panel = SubResource("StyleBoxFlat_cardback")
+
+[node name="BackCenter" type="CenterContainer" parent="CardBack"]
+layout_mode = 2
+mouse_filter = 2
+use_parent_material = true
+
+[node name="BackSymbol" type="Label" parent="CardBack/BackCenter"]
+layout_mode = 2
+use_parent_material = true
+theme_override_colors/font_color = Color(0.5, 0.35, 0.75, 0.8)
+theme_override_font_sizes/font_size = 48
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1

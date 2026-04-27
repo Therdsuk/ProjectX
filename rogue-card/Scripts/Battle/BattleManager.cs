@@ -195,6 +195,23 @@ public partial class BattleManager : Node
                 ProcessAIBattlePhase();
             }
 
+            // Wait one frame so any QueueFree'd nodes from UpdateQueueDisplay are actually removed.
+            // Without this, RevealAllQueueCards picks up dying nodes, tweens on them get killed
+            // mid-animation, and the await hangs forever.
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+
+            // Rebuild the queue display face-down with a clean slate, then reveal
+            HUD?.UpdateQueueDisplay(_activationQueue, true);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+
+            // Reveal all face-down cards simultaneously before resolving
+            if (HUD != null)
+            {
+                await HUD.RevealAllQueueCards(0.5f);
+            }
+            // Brief pause after reveal so players can read the cards
+            await ToSignal(GetTree().CreateTimer(0.8f), SceneTreeTimer.SignalName.Timeout);
+
             if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
             {
                 SteamManager.Instance.BroadcastMessage("QUEUE_RESOLVE_START");
@@ -217,6 +234,21 @@ public partial class BattleManager : Node
         if (_currentPhase == BattlePhase.SetupPhase)
         {
             _isResolvingQueue = true;
+
+            // Wait one frame so any QueueFree'd nodes are cleaned up
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+
+            // Rebuild the queue display face-down with a clean slate, then reveal
+            HUD?.UpdateQueueDisplay(_activationQueue, true);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+
+            // Reveal all face-down cards simultaneously before resolving
+            if (HUD != null)
+            {
+                await HUD.RevealAllQueueCards(0.5f);
+            }
+            await ToSignal(GetTree().CreateTimer(0.8f), SceneTreeTimer.SignalName.Timeout);
+
             if (SteamManager.Instance != null && SteamManager.Instance.CurrentLobby.HasValue)
             {
                 SteamManager.Instance.BroadcastMessage("QUEUE_RESOLVE_START");
@@ -379,7 +411,7 @@ public partial class BattleManager : Node
                         
                         player.Deck.Discard(targetCard);
                         if (player == _players[0]) HUD?.UpdateHand(player.Hand.Cards);
-                        HUD?.UpdateQueueDisplay(_activationQueue);
+                        HUD?.UpdateQueueDisplay(_activationQueue, true);
                     }
                 }
             }
@@ -408,7 +440,7 @@ public partial class BattleManager : Node
                         _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
                         
                         enemy.Deck.Discard(targetCard);
-                        HUD?.UpdateQueueDisplay(_activationQueue);
+                        HUD?.UpdateQueueDisplay(_activationQueue, true);
                     }
                 }
             }
@@ -1113,7 +1145,7 @@ public partial class BattleManager : Node
         
         // Final resort to interleave player and enemy speeds!
         _activationQueue.Sort((a, b) => a.Card.Speed.CompareTo(b.Card.Speed));
-        HUD?.UpdateQueueDisplay(_activationQueue);
+        HUD?.UpdateQueueDisplay(_activationQueue, true);
     }
 
     private void OnCardHovered(int index)
