@@ -33,7 +33,7 @@ public partial class CameraController : Camera3D
 
     [ExportGroup("Zoom")]
     [Export] public float MinZoom { get; set; } = 0.4f;
-    [Export] public float MaxZoom { get; set; } = 2.0f;
+    [Export] public float MaxZoom { get; set; } = 1.4f;
     [Export] public float ZoomSpeed { get; set; } = 0.15f;
     [Export] public float ZoomSmoothSpeed { get; set; } = 10f;
 

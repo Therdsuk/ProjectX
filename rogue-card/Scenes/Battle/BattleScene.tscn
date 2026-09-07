@@ -2628,8 +2628,7 @@ directional_shadow_fade_start = 0.0
 
 [node name="BattleBoard" type="Node3D" parent="." unique_id=764612228]
 script = ExtResource("2_battleboard")
-Columns = 10
-Rows = 10
+Rows = 8
 CellColorA = Color(0.874424, 0.63392943, 0.38465145, 1)
 CellColorB = Color(0.874424, 0.63392943, 0.38465145, 1)
 GridLineColor = Color(0.34901962, 0.38039216, 0.4509804, 0)
@@ -2646,2627 +2645,2627 @@ JumpGravity = 10.0
 RoadExtendLeft = 0
 RoadExtendRight = 0
 
-[node name="Cell_0_0" type="MeshInstance3D" parent="BattleBoard" unique_id=215448325]
+[node name="Cell_0_0" type="MeshInstance3D" parent="BattleBoard" unique_id=645459019]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1)
 material_override = SubResource("StandardMaterial3D_scfjq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_wmpf3")
 
-[node name="GridH_0_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1769122415]
+[node name="GridH_0_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1172438173]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_e5xk7")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_riamw")
 
-[node name="GridV_0_0" type="MeshInstance3D" parent="BattleBoard" unique_id=54031927]
+[node name="GridV_0_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1095960476]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_e5xk7")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4sfpr")
 
-[node name="Highlight_0_0" type="MeshInstance3D" parent="BattleBoard" unique_id=900685184]
+[node name="Highlight_0_0" type="MeshInstance3D" parent="BattleBoard" unique_id=670916220]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_7dfnc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_wt7gk")
 
-[node name="Cell_0_1" type="MeshInstance3D" parent="BattleBoard" unique_id=852769557]
+[node name="Cell_0_1" type="MeshInstance3D" parent="BattleBoard" unique_id=805622865]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 3)
 material_override = SubResource("StandardMaterial3D_6r6cp")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_t1wdy")
 
-[node name="GridH_0_1" type="MeshInstance3D" parent="BattleBoard" unique_id=743564116]
+[node name="GridH_0_1" type="MeshInstance3D" parent="BattleBoard" unique_id=196492971]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_3cwlu")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ctt64")
 
-[node name="GridV_0_1" type="MeshInstance3D" parent="BattleBoard" unique_id=664431020]
+[node name="GridV_0_1" type="MeshInstance3D" parent="BattleBoard" unique_id=24682644]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_3cwlu")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_g5x2q")
 
-[node name="Highlight_0_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1802991359]
+[node name="Highlight_0_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1572405074]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_3qxee")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_qvryn")
 
-[node name="Cell_0_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1924737812]
+[node name="Cell_0_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1466520881]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 5)
 material_override = SubResource("StandardMaterial3D_lhimn")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ngxwo")
 
-[node name="GridH_0_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1564155156]
+[node name="GridH_0_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1128613536]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_nxlxe")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ulhgp")
 
-[node name="GridV_0_2" type="MeshInstance3D" parent="BattleBoard" unique_id=314986795]
+[node name="GridV_0_2" type="MeshInstance3D" parent="BattleBoard" unique_id=372371219]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_nxlxe")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_58vfi")
 
-[node name="Highlight_0_2" type="MeshInstance3D" parent="BattleBoard" unique_id=685969085]
+[node name="Highlight_0_2" type="MeshInstance3D" parent="BattleBoard" unique_id=578890931]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_cvw4v")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_wkru1")
 
-[node name="Cell_0_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1909938500]
+[node name="Cell_0_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1566874526]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 7)
 material_override = SubResource("StandardMaterial3D_ix504")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0eljm")
 
-[node name="GridH_0_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1267799614]
+[node name="GridH_0_3" type="MeshInstance3D" parent="BattleBoard" unique_id=637789686]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_0ibpl")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mxwxj")
 
-[node name="GridV_0_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1246597061]
+[node name="GridV_0_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1840722043]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_0ibpl")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6ryqc")
 
-[node name="Highlight_0_3" type="MeshInstance3D" parent="BattleBoard" unique_id=690208514]
+[node name="Highlight_0_3" type="MeshInstance3D" parent="BattleBoard" unique_id=710330574]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_ipxw6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_k2pnj")
 
-[node name="Cell_0_4" type="MeshInstance3D" parent="BattleBoard" unique_id=651010272]
+[node name="Cell_0_4" type="MeshInstance3D" parent="BattleBoard" unique_id=181520573]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 9)
 material_override = SubResource("StandardMaterial3D_lqw26")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ubaci")
 
-[node name="GridH_0_4" type="MeshInstance3D" parent="BattleBoard" unique_id=906240337]
+[node name="GridH_0_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1385396685]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_ylalp")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_edybn")
 
-[node name="GridV_0_4" type="MeshInstance3D" parent="BattleBoard" unique_id=883101872]
+[node name="GridV_0_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1521786201]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_ylalp")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7hexa")
 
-[node name="Highlight_0_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1557915327]
+[node name="Highlight_0_4" type="MeshInstance3D" parent="BattleBoard" unique_id=36280170]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_u3gxd")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_kp818")
 
-[node name="Cell_0_5" type="MeshInstance3D" parent="BattleBoard" unique_id=626725074]
+[node name="Cell_0_5" type="MeshInstance3D" parent="BattleBoard" unique_id=939341977]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 11)
 material_override = SubResource("StandardMaterial3D_vm6lx")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_iduu4")
 
-[node name="GridH_0_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1562594732]
+[node name="GridH_0_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1485906433]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_ykhcb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_k0ofc")
 
-[node name="GridV_0_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1544416038]
+[node name="GridV_0_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1230118356]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_ykhcb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_s2qob")
 
-[node name="Highlight_0_5" type="MeshInstance3D" parent="BattleBoard" unique_id=784904189]
+[node name="Highlight_0_5" type="MeshInstance3D" parent="BattleBoard" unique_id=230460658]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_jvcjk")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yuc2k")
 
-[node name="Cell_0_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1878687247]
+[node name="Cell_0_6" type="MeshInstance3D" parent="BattleBoard" unique_id=743841225]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 13)
 material_override = SubResource("StandardMaterial3D_3x5t6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_d1wn8")
 
-[node name="GridH_0_6" type="MeshInstance3D" parent="BattleBoard" unique_id=712514942]
+[node name="GridH_0_6" type="MeshInstance3D" parent="BattleBoard" unique_id=67263791]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_q7fms")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_wihx1")
 
-[node name="GridV_0_6" type="MeshInstance3D" parent="BattleBoard" unique_id=656293913]
+[node name="GridV_0_6" type="MeshInstance3D" parent="BattleBoard" unique_id=199751912]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_q7fms")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_b7c6v")
 
-[node name="Highlight_0_6" type="MeshInstance3D" parent="BattleBoard" unique_id=571041061]
+[node name="Highlight_0_6" type="MeshInstance3D" parent="BattleBoard" unique_id=657997920]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_ok5ly")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_i5d80")
 
-[node name="Cell_0_7" type="MeshInstance3D" parent="BattleBoard" unique_id=985420635]
+[node name="Cell_0_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1222724171]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 15)
 material_override = SubResource("StandardMaterial3D_tv787")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_1lsyo")
 
-[node name="GridH_0_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1171778510]
+[node name="GridH_0_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1263195112]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_yvv18")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4cuv0")
 
-[node name="GridV_0_7" type="MeshInstance3D" parent="BattleBoard" unique_id=154264483]
+[node name="GridV_0_7" type="MeshInstance3D" parent="BattleBoard" unique_id=2097477194]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_yvv18")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_m7wqj")
 
-[node name="Highlight_0_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1116595694]
+[node name="Highlight_0_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1557016884]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_ec3qa")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_olsfk")
 
-[node name="Cell_0_8" type="MeshInstance3D" parent="BattleBoard" unique_id=337451770]
+[node name="Cell_0_8" type="MeshInstance3D" parent="BattleBoard" unique_id=773147304]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 17)
 material_override = SubResource("StandardMaterial3D_m2c61")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4nak5")
 
-[node name="GridH_0_8" type="MeshInstance3D" parent="BattleBoard" unique_id=399025410]
+[node name="GridH_0_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1730566672]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_gpgys")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_16kag")
 
-[node name="GridV_0_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1297444453]
+[node name="GridV_0_8" type="MeshInstance3D" parent="BattleBoard" unique_id=746034195]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_gpgys")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_tavcx")
 
-[node name="Highlight_0_8" type="MeshInstance3D" parent="BattleBoard" unique_id=814297466]
+[node name="Highlight_0_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1749648915]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_8saj5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_756ap")
 
-[node name="Cell_0_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1339311534]
+[node name="Cell_0_9" type="MeshInstance3D" parent="BattleBoard" unique_id=442144462]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 19)
 material_override = SubResource("StandardMaterial3D_ly0cd")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_m3nrf")
 
-[node name="GridH_0_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1448099602]
+[node name="GridH_0_9" type="MeshInstance3D" parent="BattleBoard" unique_id=429598474]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_dhytc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_tiqun")
 
-[node name="GridV_0_9" type="MeshInstance3D" parent="BattleBoard" unique_id=561700354]
+[node name="GridV_0_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2030517186]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_dhytc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mhny1")
 
-[node name="GridHEnd_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1462266235]
+[node name="GridHEnd_0" type="MeshInstance3D" parent="BattleBoard" unique_id=786130448]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_dhytc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_x5osy")
 
-[node name="Highlight_0_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1530078826]
+[node name="Highlight_0_9" type="MeshInstance3D" parent="BattleBoard" unique_id=827257482]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_o1t4p")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7r8wh")
 
-[node name="Cell_1_0" type="MeshInstance3D" parent="BattleBoard" unique_id=2057865718]
+[node name="Cell_1_0" type="MeshInstance3D" parent="BattleBoard" unique_id=171199338]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 1)
 material_override = SubResource("StandardMaterial3D_c3j5n")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_1i3wu")
 
-[node name="GridH_1_0" type="MeshInstance3D" parent="BattleBoard" unique_id=954955246]
+[node name="GridH_1_0" type="MeshInstance3D" parent="BattleBoard" unique_id=906697461]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_kri12")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_030ai")
 
-[node name="GridV_1_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1444126093]
+[node name="GridV_1_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1128055311]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_kri12")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4suvs")
 
-[node name="Highlight_1_0" type="MeshInstance3D" parent="BattleBoard" unique_id=173918021]
+[node name="Highlight_1_0" type="MeshInstance3D" parent="BattleBoard" unique_id=756486144]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_4wbhi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_imvam")
 
-[node name="Cell_1_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1485356287]
+[node name="Cell_1_1" type="MeshInstance3D" parent="BattleBoard" unique_id=819363076]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 3)
 material_override = SubResource("StandardMaterial3D_e2e0n")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_me4c7")
 
-[node name="GridH_1_1" type="MeshInstance3D" parent="BattleBoard" unique_id=342399746]
+[node name="GridH_1_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1715420132]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_bt4du")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ycw2e")
 
-[node name="GridV_1_1" type="MeshInstance3D" parent="BattleBoard" unique_id=2066729268]
+[node name="GridV_1_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1482491690]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_bt4du")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_p44jp")
 
-[node name="Highlight_1_1" type="MeshInstance3D" parent="BattleBoard" unique_id=2145034543]
+[node name="Highlight_1_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1664307739]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_kgyi2")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_1fwc4")
 
-[node name="Cell_1_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1668214331]
+[node name="Cell_1_2" type="MeshInstance3D" parent="BattleBoard" unique_id=2141998979]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 5)
 material_override = SubResource("StandardMaterial3D_5vs3g")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_fbfb1")
 
-[node name="GridH_1_2" type="MeshInstance3D" parent="BattleBoard" unique_id=348741253]
+[node name="GridH_1_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1782375885]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_vfpro")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_32tyh")
 
-[node name="GridV_1_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1317967662]
+[node name="GridV_1_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1788961504]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_vfpro")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_n064f")
 
-[node name="Highlight_1_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1451514864]
+[node name="Highlight_1_2" type="MeshInstance3D" parent="BattleBoard" unique_id=417901653]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_ny4jo")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ykpx1")
 
-[node name="Cell_1_3" type="MeshInstance3D" parent="BattleBoard" unique_id=233547584]
+[node name="Cell_1_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1791884138]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 7)
 material_override = SubResource("StandardMaterial3D_ck560")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_056li")
 
-[node name="GridH_1_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1613913925]
+[node name="GridH_1_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1755232037]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_wfoun")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_77qii")
 
-[node name="GridV_1_3" type="MeshInstance3D" parent="BattleBoard" unique_id=119939184]
+[node name="GridV_1_3" type="MeshInstance3D" parent="BattleBoard" unique_id=375762063]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_wfoun")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_pgvqp")
 
-[node name="Highlight_1_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1191456963]
+[node name="Highlight_1_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1293148082]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_1a3f4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_x1dyw")
 
-[node name="Cell_1_4" type="MeshInstance3D" parent="BattleBoard" unique_id=343702506]
+[node name="Cell_1_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1038521222]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 9)
 material_override = SubResource("StandardMaterial3D_aosgq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_57ry8")
 
-[node name="GridH_1_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1742027510]
+[node name="GridH_1_4" type="MeshInstance3D" parent="BattleBoard" unique_id=590941750]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_s0j5d")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_8irbb")
 
-[node name="GridV_1_4" type="MeshInstance3D" parent="BattleBoard" unique_id=150841020]
+[node name="GridV_1_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1464223619]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_s0j5d")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_p8cka")
 
-[node name="Highlight_1_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1655253679]
+[node name="Highlight_1_4" type="MeshInstance3D" parent="BattleBoard" unique_id=2049977093]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_12ymg")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dujod")
 
-[node name="Cell_1_5" type="MeshInstance3D" parent="BattleBoard" unique_id=803736117]
+[node name="Cell_1_5" type="MeshInstance3D" parent="BattleBoard" unique_id=926777604]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 11)
 material_override = SubResource("StandardMaterial3D_ixo3u")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ectwl")
 
-[node name="GridH_1_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1677948747]
+[node name="GridH_1_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1662618865]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_7qv67")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_nxoml")
 
-[node name="GridV_1_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1417446196]
+[node name="GridV_1_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1240106421]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_7qv67")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_s5xdi")
 
-[node name="Highlight_1_5" type="MeshInstance3D" parent="BattleBoard" unique_id=254371526]
+[node name="Highlight_1_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1255004407]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_0adb2")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7wdvd")
 
-[node name="Cell_1_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1631373445]
+[node name="Cell_1_6" type="MeshInstance3D" parent="BattleBoard" unique_id=2041446617]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 13)
 material_override = SubResource("StandardMaterial3D_vmyjw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_3y2bc")
 
-[node name="GridH_1_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1849769606]
+[node name="GridH_1_6" type="MeshInstance3D" parent="BattleBoard" unique_id=452584779]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_kleg5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_hg7ef")
 
-[node name="GridV_1_6" type="MeshInstance3D" parent="BattleBoard" unique_id=77739821]
+[node name="GridV_1_6" type="MeshInstance3D" parent="BattleBoard" unique_id=2042321041]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_kleg5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_g4wm2")
 
-[node name="Highlight_1_6" type="MeshInstance3D" parent="BattleBoard" unique_id=331138472]
+[node name="Highlight_1_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1330189539]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_84lp6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6npnl")
 
-[node name="Cell_1_7" type="MeshInstance3D" parent="BattleBoard" unique_id=896371360]
+[node name="Cell_1_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1284212241]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 15)
 material_override = SubResource("StandardMaterial3D_5eflc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_suoxy")
 
-[node name="GridH_1_7" type="MeshInstance3D" parent="BattleBoard" unique_id=486568601]
+[node name="GridH_1_7" type="MeshInstance3D" parent="BattleBoard" unique_id=2124605850]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_r8b1b")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_vgd3u")
 
-[node name="GridV_1_7" type="MeshInstance3D" parent="BattleBoard" unique_id=815610507]
+[node name="GridV_1_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1813449215]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_r8b1b")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_idf1y")
 
-[node name="Highlight_1_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1166420512]
+[node name="Highlight_1_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1333305531]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_yijlo")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dy8gl")
 
-[node name="Cell_1_8" type="MeshInstance3D" parent="BattleBoard" unique_id=671463933]
+[node name="Cell_1_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1310732900]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 17)
 material_override = SubResource("StandardMaterial3D_vxu61")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_plble")
 
-[node name="GridH_1_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1089933072]
+[node name="GridH_1_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1291435106]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_um2cv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_323a5")
 
-[node name="GridV_1_8" type="MeshInstance3D" parent="BattleBoard" unique_id=85023053]
+[node name="GridV_1_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1700945992]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_um2cv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_rqw71")
 
-[node name="Highlight_1_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1806470339]
+[node name="Highlight_1_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1496521652]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_hc2xi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5wi3n")
 
-[node name="Cell_1_9" type="MeshInstance3D" parent="BattleBoard" unique_id=776342101]
+[node name="Cell_1_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1486892043]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 19)
 material_override = SubResource("StandardMaterial3D_n70uf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dn2u7")
 
-[node name="GridH_1_9" type="MeshInstance3D" parent="BattleBoard" unique_id=350868490]
+[node name="GridH_1_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2147202946]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_ye1kj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_uy1gn")
 
-[node name="GridV_1_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1703185203]
+[node name="GridV_1_9" type="MeshInstance3D" parent="BattleBoard" unique_id=650966487]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_ye1kj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_p44tw")
 
-[node name="GridHEnd_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1309994542]
+[node name="GridHEnd_1" type="MeshInstance3D" parent="BattleBoard" unique_id=52519215]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_ye1kj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_k1vpm")
 
-[node name="Highlight_1_9" type="MeshInstance3D" parent="BattleBoard" unique_id=381916066]
+[node name="Highlight_1_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1672480594]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_whh50")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_t1tap")
 
-[node name="Cell_2_0" type="MeshInstance3D" parent="BattleBoard" unique_id=756284511]
+[node name="Cell_2_0" type="MeshInstance3D" parent="BattleBoard" unique_id=754294035]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 1)
 material_override = SubResource("StandardMaterial3D_821up")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_kl38c")
 
-[node name="GridH_2_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1681226890]
+[node name="GridH_2_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1137967657]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_vnjtd")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mdcsu")
 
-[node name="GridV_2_0" type="MeshInstance3D" parent="BattleBoard" unique_id=942440888]
+[node name="GridV_2_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1256397625]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_vnjtd")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ov5nh")
 
-[node name="Highlight_2_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1512977339]
+[node name="Highlight_2_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1579653023]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_cfjhc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ojnig")
 
-[node name="Cell_2_1" type="MeshInstance3D" parent="BattleBoard" unique_id=847372035]
+[node name="Cell_2_1" type="MeshInstance3D" parent="BattleBoard" unique_id=935535654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 3)
 material_override = SubResource("StandardMaterial3D_rtos3")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_1b3ys")
 
-[node name="GridH_2_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1197311948]
+[node name="GridH_2_1" type="MeshInstance3D" parent="BattleBoard" unique_id=2133185263]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_je5ks")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_moi4t")
 
-[node name="GridV_2_1" type="MeshInstance3D" parent="BattleBoard" unique_id=400601442]
+[node name="GridV_2_1" type="MeshInstance3D" parent="BattleBoard" unique_id=439624151]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_je5ks")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0brro")
 
-[node name="Highlight_2_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1833175034]
+[node name="Highlight_2_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1586047201]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_eo375")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_46b08")
 
-[node name="Cell_2_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1661112613]
+[node name="Cell_2_2" type="MeshInstance3D" parent="BattleBoard" unique_id=130169027]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 5)
 material_override = SubResource("StandardMaterial3D_vgxti")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2vcti")
 
-[node name="GridH_2_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1753179152]
+[node name="GridH_2_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1751501534]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_0qq6x")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_38fjf")
 
-[node name="GridV_2_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1038967084]
+[node name="GridV_2_2" type="MeshInstance3D" parent="BattleBoard" unique_id=2004631494]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_0qq6x")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_hhl8h")
 
-[node name="Highlight_2_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1550259269]
+[node name="Highlight_2_2" type="MeshInstance3D" parent="BattleBoard" unique_id=751342486]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_l2v4j")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4x8mu")
 
-[node name="Cell_2_3" type="MeshInstance3D" parent="BattleBoard" unique_id=2127624693]
+[node name="Cell_2_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1472897566]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 7)
 material_override = SubResource("StandardMaterial3D_5ayoj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dateg")
 
-[node name="GridH_2_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1817304931]
+[node name="GridH_2_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1330402634]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_2xqv3")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_o55s0")
 
-[node name="GridV_2_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1439199077]
+[node name="GridV_2_3" type="MeshInstance3D" parent="BattleBoard" unique_id=77794919]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_2xqv3")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_86nx8")
 
-[node name="Highlight_2_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1365193130]
+[node name="Highlight_2_3" type="MeshInstance3D" parent="BattleBoard" unique_id=2085324007]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_3541b")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_neudv")
 
-[node name="Cell_2_4" type="MeshInstance3D" parent="BattleBoard" unique_id=526156186]
+[node name="Cell_2_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1000916628]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 9)
 material_override = SubResource("StandardMaterial3D_tnrwb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_s0pd4")
 
-[node name="GridH_2_4" type="MeshInstance3D" parent="BattleBoard" unique_id=547323753]
+[node name="GridH_2_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1158519062]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_yvhp5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_655bd")
 
-[node name="GridV_2_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1795835058]
+[node name="GridV_2_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1106924761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_yvhp5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dg2a2")
 
-[node name="Highlight_2_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1260533013]
+[node name="Highlight_2_4" type="MeshInstance3D" parent="BattleBoard" unique_id=512953466]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_fyat0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_pia82")
 
-[node name="Cell_2_5" type="MeshInstance3D" parent="BattleBoard" unique_id=263197137]
+[node name="Cell_2_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1283499605]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 11)
 material_override = SubResource("StandardMaterial3D_an2rj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ybmot")
 
-[node name="GridH_2_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1578493085]
+[node name="GridH_2_5" type="MeshInstance3D" parent="BattleBoard" unique_id=91618641]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_3xo7m")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5qwpv")
 
-[node name="GridV_2_5" type="MeshInstance3D" parent="BattleBoard" unique_id=934452883]
+[node name="GridV_2_5" type="MeshInstance3D" parent="BattleBoard" unique_id=826435002]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_3xo7m")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gqgro")
 
-[node name="Highlight_2_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1714686934]
+[node name="Highlight_2_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1816762061]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_58e54")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2s4r5")
 
-[node name="Cell_2_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1279147992]
+[node name="Cell_2_6" type="MeshInstance3D" parent="BattleBoard" unique_id=243294085]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 13)
 material_override = SubResource("StandardMaterial3D_rcf04")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_svl2y")
 
-[node name="GridH_2_6" type="MeshInstance3D" parent="BattleBoard" unique_id=161135450]
+[node name="GridH_2_6" type="MeshInstance3D" parent="BattleBoard" unique_id=656679629]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_id4os")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mpu0x")
 
-[node name="GridV_2_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1740421379]
+[node name="GridV_2_6" type="MeshInstance3D" parent="BattleBoard" unique_id=160277638]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_id4os")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jdd6g")
 
-[node name="Highlight_2_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1646735852]
+[node name="Highlight_2_6" type="MeshInstance3D" parent="BattleBoard" unique_id=434709476]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_f562u")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_nseo0")
 
-[node name="Cell_2_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1941298540]
+[node name="Cell_2_7" type="MeshInstance3D" parent="BattleBoard" unique_id=715261366]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 15)
 material_override = SubResource("StandardMaterial3D_wwm13")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_k6ewp")
 
-[node name="GridH_2_7" type="MeshInstance3D" parent="BattleBoard" unique_id=647670682]
+[node name="GridH_2_7" type="MeshInstance3D" parent="BattleBoard" unique_id=903105347]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_punqh")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_so3d8")
 
-[node name="GridV_2_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1538058138]
+[node name="GridV_2_7" type="MeshInstance3D" parent="BattleBoard" unique_id=966630239]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_punqh")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7ys7e")
 
-[node name="Highlight_2_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1801997024]
+[node name="Highlight_2_7" type="MeshInstance3D" parent="BattleBoard" unique_id=752917549]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_hgujb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gib7h")
 
-[node name="Cell_2_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1277302839]
+[node name="Cell_2_8" type="MeshInstance3D" parent="BattleBoard" unique_id=441103853]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 17)
 material_override = SubResource("StandardMaterial3D_8pt52")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_61tjs")
 
-[node name="GridH_2_8" type="MeshInstance3D" parent="BattleBoard" unique_id=795083250]
+[node name="GridH_2_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1536651515]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_shnvl")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_01vyr")
 
-[node name="GridV_2_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1079614352]
+[node name="GridV_2_8" type="MeshInstance3D" parent="BattleBoard" unique_id=817170523]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_shnvl")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2n8i6")
 
-[node name="Highlight_2_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1851466464]
+[node name="Highlight_2_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1026514656]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_f6gbk")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_sdi3p")
 
-[node name="Cell_2_9" type="MeshInstance3D" parent="BattleBoard" unique_id=992897355]
+[node name="Cell_2_9" type="MeshInstance3D" parent="BattleBoard" unique_id=431196541]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 19)
 material_override = SubResource("StandardMaterial3D_5iluo")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_qpwe7")
 
-[node name="GridH_2_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1640709804]
+[node name="GridH_2_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1787758505]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_4l41t")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_qpo3a")
 
-[node name="GridV_2_9" type="MeshInstance3D" parent="BattleBoard" unique_id=732819338]
+[node name="GridV_2_9" type="MeshInstance3D" parent="BattleBoard" unique_id=389370177]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_4l41t")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6mjc5")
 
-[node name="GridHEnd_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1145118953]
+[node name="GridHEnd_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1214877316]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_4l41t")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_l6ar0")
 
-[node name="Highlight_2_9" type="MeshInstance3D" parent="BattleBoard" unique_id=226366531]
+[node name="Highlight_2_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1269405792]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_eqpda")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2c3go")
 
-[node name="Cell_3_0" type="MeshInstance3D" parent="BattleBoard" unique_id=917618066]
+[node name="Cell_3_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1391881104]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 1)
 material_override = SubResource("StandardMaterial3D_2xbkd")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_qg055")
 
-[node name="GridH_3_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1552378716]
+[node name="GridH_3_0" type="MeshInstance3D" parent="BattleBoard" unique_id=217072690]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_tf4jm")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_nfw74")
 
-[node name="GridV_3_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1382998661]
+[node name="GridV_3_0" type="MeshInstance3D" parent="BattleBoard" unique_id=400387172]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_tf4jm")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_tp50v")
 
-[node name="Highlight_3_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1909980543]
+[node name="Highlight_3_0" type="MeshInstance3D" parent="BattleBoard" unique_id=454708721]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_mggd0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_eb735")
 
-[node name="Cell_3_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1379677997]
+[node name="Cell_3_1" type="MeshInstance3D" parent="BattleBoard" unique_id=2029476909]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 3)
 material_override = SubResource("StandardMaterial3D_f2u3k")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_pkdmp")
 
-[node name="GridH_3_1" type="MeshInstance3D" parent="BattleBoard" unique_id=960406860]
+[node name="GridH_3_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1282360453]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_4ylef")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yan0k")
 
-[node name="GridV_3_1" type="MeshInstance3D" parent="BattleBoard" unique_id=163084785]
+[node name="GridV_3_1" type="MeshInstance3D" parent="BattleBoard" unique_id=248237052]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_4ylef")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_csclq")
 
-[node name="Highlight_3_1" type="MeshInstance3D" parent="BattleBoard" unique_id=324318561]
+[node name="Highlight_3_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1127131171]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_pvx5n")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_enmq5")
 
-[node name="Cell_3_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1664139828]
+[node name="Cell_3_2" type="MeshInstance3D" parent="BattleBoard" unique_id=124863253]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 5)
 material_override = SubResource("StandardMaterial3D_bn1gt")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ekssu")
 
-[node name="GridH_3_2" type="MeshInstance3D" parent="BattleBoard" unique_id=390629645]
+[node name="GridH_3_2" type="MeshInstance3D" parent="BattleBoard" unique_id=544969090]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_02r34")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_oae54")
 
-[node name="GridV_3_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1377621020]
+[node name="GridV_3_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1661942926]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_02r34")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_d5dse")
 
-[node name="Highlight_3_2" type="MeshInstance3D" parent="BattleBoard" unique_id=785202019]
+[node name="Highlight_3_2" type="MeshInstance3D" parent="BattleBoard" unique_id=603064145]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_xx7r0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2iy8a")
 
-[node name="Cell_3_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1577803783]
+[node name="Cell_3_3" type="MeshInstance3D" parent="BattleBoard" unique_id=949289517]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 7)
 material_override = SubResource("StandardMaterial3D_lav37")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_u2vp3")
 
-[node name="GridH_3_3" type="MeshInstance3D" parent="BattleBoard" unique_id=557099231]
+[node name="GridH_3_3" type="MeshInstance3D" parent="BattleBoard" unique_id=473035552]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_3j6at")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_b3344")
 
-[node name="GridV_3_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1965670643]
+[node name="GridV_3_3" type="MeshInstance3D" parent="BattleBoard" unique_id=207445575]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_3j6at")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ghr8v")
 
-[node name="Highlight_3_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1256928427]
+[node name="Highlight_3_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1672534389]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_ipi4m")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yqrgt")
 
-[node name="Cell_3_4" type="MeshInstance3D" parent="BattleBoard" unique_id=232148015]
+[node name="Cell_3_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1701346520]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 9)
 material_override = SubResource("StandardMaterial3D_h4x8v")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_o0ymp")
 
-[node name="GridH_3_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1986042482]
+[node name="GridH_3_4" type="MeshInstance3D" parent="BattleBoard" unique_id=2146899956]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_qokfv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_cf853")
 
-[node name="GridV_3_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1819246972]
+[node name="GridV_3_4" type="MeshInstance3D" parent="BattleBoard" unique_id=462515320]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_qokfv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ye6sr")
 
-[node name="Highlight_3_4" type="MeshInstance3D" parent="BattleBoard" unique_id=658050509]
+[node name="Highlight_3_4" type="MeshInstance3D" parent="BattleBoard" unique_id=504511094]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_gi0cr")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jslgi")
 
-[node name="Cell_3_5" type="MeshInstance3D" parent="BattleBoard" unique_id=727556]
+[node name="Cell_3_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1944977194]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 11)
 material_override = SubResource("StandardMaterial3D_kbmjb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_tydot")
 
-[node name="GridH_3_5" type="MeshInstance3D" parent="BattleBoard" unique_id=142159992]
+[node name="GridH_3_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1634476646]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_d8gq2")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gankv")
 
-[node name="GridV_3_5" type="MeshInstance3D" parent="BattleBoard" unique_id=860725556]
+[node name="GridV_3_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1557187775]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_d8gq2")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2h8j2")
 
-[node name="Highlight_3_5" type="MeshInstance3D" parent="BattleBoard" unique_id=2063595912]
+[node name="Highlight_3_5" type="MeshInstance3D" parent="BattleBoard" unique_id=544687598]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_emyni")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_g5342")
 
-[node name="Cell_3_6" type="MeshInstance3D" parent="BattleBoard" unique_id=26050225]
+[node name="Cell_3_6" type="MeshInstance3D" parent="BattleBoard" unique_id=93447910]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 13)
 material_override = SubResource("StandardMaterial3D_6ecbe")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_n8uus")
 
-[node name="GridH_3_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1076755183]
+[node name="GridH_3_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1019848779]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_v5dh6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ypmms")
 
-[node name="GridV_3_6" type="MeshInstance3D" parent="BattleBoard" unique_id=745043368]
+[node name="GridV_3_6" type="MeshInstance3D" parent="BattleBoard" unique_id=411024481]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_v5dh6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_cr8fm")
 
-[node name="Highlight_3_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1766632422]
+[node name="Highlight_3_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1961175670]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_qpgqt")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_olpnr")
 
-[node name="Cell_3_7" type="MeshInstance3D" parent="BattleBoard" unique_id=495317049]
+[node name="Cell_3_7" type="MeshInstance3D" parent="BattleBoard" unique_id=354286221]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 15)
 material_override = SubResource("StandardMaterial3D_0j4ld")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yw0uo")
 
-[node name="GridH_3_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1727685723]
+[node name="GridH_3_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1505201493]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_1ftar")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4hxhg")
 
-[node name="GridV_3_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1699522170]
+[node name="GridV_3_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1235118133]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_1ftar")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0upiy")
 
-[node name="Highlight_3_7" type="MeshInstance3D" parent="BattleBoard" unique_id=79903997]
+[node name="Highlight_3_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1531304252]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_fgodr")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dqiqw")
 
-[node name="Cell_3_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1370452358]
+[node name="Cell_3_8" type="MeshInstance3D" parent="BattleBoard" unique_id=2141810996]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 17)
 material_override = SubResource("StandardMaterial3D_rwjsb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5cjwl")
 
-[node name="GridH_3_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1720940796]
+[node name="GridH_3_8" type="MeshInstance3D" parent="BattleBoard" unique_id=636727914]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_lwt2q")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_3rht4")
 
-[node name="GridV_3_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1521684418]
+[node name="GridV_3_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1265991964]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_lwt2q")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_hedj8")
 
-[node name="Highlight_3_8" type="MeshInstance3D" parent="BattleBoard" unique_id=931175947]
+[node name="Highlight_3_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1504896760]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_1cwhc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_uella")
 
-[node name="Cell_3_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1394818550]
+[node name="Cell_3_9" type="MeshInstance3D" parent="BattleBoard" unique_id=994682970]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 19)
 material_override = SubResource("StandardMaterial3D_7oap6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_lkxai")
 
-[node name="GridH_3_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2004761377]
+[node name="GridH_3_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1051988366]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_uo8qo")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dnlvi")
 
-[node name="GridV_3_9" type="MeshInstance3D" parent="BattleBoard" unique_id=690354403]
+[node name="GridV_3_9" type="MeshInstance3D" parent="BattleBoard" unique_id=662101106]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_uo8qo")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_snjsy")
 
-[node name="GridHEnd_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1042022501]
+[node name="GridHEnd_3" type="MeshInstance3D" parent="BattleBoard" unique_id=124126768]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_uo8qo")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0wtc2")
 
-[node name="Highlight_3_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1075751991]
+[node name="Highlight_3_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1342478772]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_4el8b")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_hpfen")
 
-[node name="Cell_4_0" type="MeshInstance3D" parent="BattleBoard" unique_id=2067474121]
+[node name="Cell_4_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1398847409]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 1)
 material_override = SubResource("StandardMaterial3D_m3l2o")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_p6wlm")
 
-[node name="GridH_4_0" type="MeshInstance3D" parent="BattleBoard" unique_id=763499682]
+[node name="GridH_4_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1964254502]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_ykq6n")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ae2r0")
 
-[node name="GridV_4_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1199363408]
+[node name="GridV_4_0" type="MeshInstance3D" parent="BattleBoard" unique_id=943082439]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_ykq6n")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_w0veu")
 
-[node name="Highlight_4_0" type="MeshInstance3D" parent="BattleBoard" unique_id=555327094]
+[node name="Highlight_4_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1906010676]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_011bj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ugedr")
 
-[node name="Cell_4_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1389545065]
+[node name="Cell_4_1" type="MeshInstance3D" parent="BattleBoard" unique_id=921027986]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 3)
 material_override = SubResource("StandardMaterial3D_fx8we")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_xqdsl")
 
-[node name="GridH_4_1" type="MeshInstance3D" parent="BattleBoard" unique_id=506242728]
+[node name="GridH_4_1" type="MeshInstance3D" parent="BattleBoard" unique_id=733558834]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_mjpwi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_vc8oc")
 
-[node name="GridV_4_1" type="MeshInstance3D" parent="BattleBoard" unique_id=315711836]
+[node name="GridV_4_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1441895236]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_mjpwi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_76r4l")
 
-[node name="Highlight_4_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1082687055]
+[node name="Highlight_4_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1650004327]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_ovdgv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_avy8j")
 
-[node name="Cell_4_2" type="MeshInstance3D" parent="BattleBoard" unique_id=420139920]
+[node name="Cell_4_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1504546687]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 5)
 material_override = SubResource("StandardMaterial3D_d0nlw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ilam2")
 
-[node name="GridH_4_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1632358921]
+[node name="GridH_4_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1677440306]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_ulj32")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_17aiy")
 
-[node name="GridV_4_2" type="MeshInstance3D" parent="BattleBoard" unique_id=917608296]
+[node name="GridV_4_2" type="MeshInstance3D" parent="BattleBoard" unique_id=2060234895]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_ulj32")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5swnr")
 
-[node name="Highlight_4_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1060378356]
+[node name="Highlight_4_2" type="MeshInstance3D" parent="BattleBoard" unique_id=971977923]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_ptpsu")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dre0n")
 
-[node name="Cell_4_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1846232987]
+[node name="Cell_4_3" type="MeshInstance3D" parent="BattleBoard" unique_id=2089724414]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 7)
 material_override = SubResource("StandardMaterial3D_50ys6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_87p0j")
 
-[node name="GridH_4_3" type="MeshInstance3D" parent="BattleBoard" unique_id=547486684]
+[node name="GridH_4_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1031682363]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_4h38e")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_xqh21")
 
-[node name="GridV_4_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1578887195]
+[node name="GridV_4_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1372673664]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_4h38e")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ejqwo")
 
-[node name="Highlight_4_3" type="MeshInstance3D" parent="BattleBoard" unique_id=311361959]
+[node name="Highlight_4_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1099875922]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_hrp7r")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_fnqk3")
 
-[node name="Cell_4_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1409059514]
+[node name="Cell_4_4" type="MeshInstance3D" parent="BattleBoard" unique_id=524534010]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 9)
 material_override = SubResource("StandardMaterial3D_irvv6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_luxwv")
 
-[node name="GridH_4_4" type="MeshInstance3D" parent="BattleBoard" unique_id=416668340]
+[node name="GridH_4_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1682509868]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_07grp")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_o1662")
 
-[node name="GridV_4_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1013918666]
+[node name="GridV_4_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1904276775]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_07grp")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_l5dh3")
 
-[node name="Highlight_4_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1452387669]
+[node name="Highlight_4_4" type="MeshInstance3D" parent="BattleBoard" unique_id=247170180]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_3pdgf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_1vqhv")
 
-[node name="Cell_4_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1227705184]
+[node name="Cell_4_5" type="MeshInstance3D" parent="BattleBoard" unique_id=515781893]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 11)
 material_override = SubResource("StandardMaterial3D_wrlwu")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_58qpg")
 
-[node name="GridH_4_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1860330291]
+[node name="GridH_4_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1833394554]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_h2wj4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_vil72")
 
-[node name="GridV_4_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1760442261]
+[node name="GridV_4_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1902157983]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_h2wj4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_st1qu")
 
-[node name="Highlight_4_5" type="MeshInstance3D" parent="BattleBoard" unique_id=2034255875]
+[node name="Highlight_4_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1753519880]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_vnhia")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_88tb4")
 
-[node name="Cell_4_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1906380712]
+[node name="Cell_4_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1552747119]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 13)
 material_override = SubResource("StandardMaterial3D_wtcjb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gqij2")
 
-[node name="GridH_4_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1550677577]
+[node name="GridH_4_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1840384356]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_luu81")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_nrxrb")
 
-[node name="GridV_4_6" type="MeshInstance3D" parent="BattleBoard" unique_id=681482452]
+[node name="GridV_4_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1920981939]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_luu81")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6307g")
 
-[node name="Highlight_4_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1394134040]
+[node name="Highlight_4_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1655445765]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_ubj5d")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7y67l")
 
-[node name="Cell_4_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1442313964]
+[node name="Cell_4_7" type="MeshInstance3D" parent="BattleBoard" unique_id=387346051]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 15)
 material_override = SubResource("StandardMaterial3D_4cco0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_a2vku")
 
-[node name="GridH_4_7" type="MeshInstance3D" parent="BattleBoard" unique_id=771759672]
+[node name="GridH_4_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1352042605]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_d5x04")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_uonrf")
 
-[node name="GridV_4_7" type="MeshInstance3D" parent="BattleBoard" unique_id=626301685]
+[node name="GridV_4_7" type="MeshInstance3D" parent="BattleBoard" unique_id=341955631]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_d5x04")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_k36vd")
 
-[node name="Highlight_4_7" type="MeshInstance3D" parent="BattleBoard" unique_id=612994962]
+[node name="Highlight_4_7" type="MeshInstance3D" parent="BattleBoard" unique_id=936036471]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_xm2kk")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_pmt6x")
 
-[node name="Cell_4_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1506467662]
+[node name="Cell_4_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1100551628]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 17)
 material_override = SubResource("StandardMaterial3D_qr5lq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_x3cgt")
 
-[node name="GridH_4_8" type="MeshInstance3D" parent="BattleBoard" unique_id=2066548072]
+[node name="GridH_4_8" type="MeshInstance3D" parent="BattleBoard" unique_id=806717395]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_e4bsq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0kt80")
 
-[node name="GridV_4_8" type="MeshInstance3D" parent="BattleBoard" unique_id=250387227]
+[node name="GridV_4_8" type="MeshInstance3D" parent="BattleBoard" unique_id=740458214]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_e4bsq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_e7y5d")
 
-[node name="Highlight_4_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1576228788]
+[node name="Highlight_4_8" type="MeshInstance3D" parent="BattleBoard" unique_id=594301631]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_xh08m")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4kaml")
 
-[node name="Cell_4_9" type="MeshInstance3D" parent="BattleBoard" unique_id=566849579]
+[node name="Cell_4_9" type="MeshInstance3D" parent="BattleBoard" unique_id=296077113]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 19)
 material_override = SubResource("StandardMaterial3D_d1ndw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mrq7y")
 
-[node name="GridH_4_9" type="MeshInstance3D" parent="BattleBoard" unique_id=168681688]
+[node name="GridH_4_9" type="MeshInstance3D" parent="BattleBoard" unique_id=893089938]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_2m7uh")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0lr0j")
 
-[node name="GridV_4_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1377386965]
+[node name="GridV_4_9" type="MeshInstance3D" parent="BattleBoard" unique_id=135795659]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_2m7uh")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_lk8is")
 
-[node name="GridHEnd_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1507333294]
+[node name="GridHEnd_4" type="MeshInstance3D" parent="BattleBoard" unique_id=163815203]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_2m7uh")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_aqstn")
 
-[node name="Highlight_4_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1526783849]
+[node name="Highlight_4_9" type="MeshInstance3D" parent="BattleBoard" unique_id=188583486]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_h34ho")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_cmv6l")
 
-[node name="Cell_5_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1538409141]
+[node name="Cell_5_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1915793769]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 1)
 material_override = SubResource("StandardMaterial3D_w4uyo")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2t0rg")
 
-[node name="GridH_5_0" type="MeshInstance3D" parent="BattleBoard" unique_id=808441066]
+[node name="GridH_5_0" type="MeshInstance3D" parent="BattleBoard" unique_id=679390495]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_b6d4l")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_j8ico")
 
-[node name="GridV_5_0" type="MeshInstance3D" parent="BattleBoard" unique_id=937033661]
+[node name="GridV_5_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1699969426]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_b6d4l")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_l1x45")
 
-[node name="Highlight_5_0" type="MeshInstance3D" parent="BattleBoard" unique_id=2044012313]
+[node name="Highlight_5_0" type="MeshInstance3D" parent="BattleBoard" unique_id=996095294]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_cjh1x")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ojnly")
 
-[node name="Cell_5_1" type="MeshInstance3D" parent="BattleBoard" unique_id=512606632]
+[node name="Cell_5_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1378800806]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 3)
 material_override = SubResource("StandardMaterial3D_nn1g7")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2qxba")
 
-[node name="GridH_5_1" type="MeshInstance3D" parent="BattleBoard" unique_id=302272245]
+[node name="GridH_5_1" type="MeshInstance3D" parent="BattleBoard" unique_id=377835911]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_2sskb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_o42ey")
 
-[node name="GridV_5_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1929976551]
+[node name="GridV_5_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1634535024]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_2sskb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_uwiqh")
 
-[node name="Highlight_5_1" type="MeshInstance3D" parent="BattleBoard" unique_id=936094225]
+[node name="Highlight_5_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1121084626]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_qc5iv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_kcpyw")
 
-[node name="Cell_5_2" type="MeshInstance3D" parent="BattleBoard" unique_id=220068199]
+[node name="Cell_5_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1392105224]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 5)
 material_override = SubResource("StandardMaterial3D_7w8gh")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_v1a4y")
 
-[node name="GridH_5_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1040496778]
+[node name="GridH_5_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1283963173]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_wr2y7")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gpvkc")
 
-[node name="GridV_5_2" type="MeshInstance3D" parent="BattleBoard" unique_id=42903454]
+[node name="GridV_5_2" type="MeshInstance3D" parent="BattleBoard" unique_id=777625306]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_wr2y7")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5l88w")
 
-[node name="Highlight_5_2" type="MeshInstance3D" parent="BattleBoard" unique_id=2098579713]
+[node name="Highlight_5_2" type="MeshInstance3D" parent="BattleBoard" unique_id=553073100]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_spo6o")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_xdflv")
 
-[node name="Cell_5_3" type="MeshInstance3D" parent="BattleBoard" unique_id=569161661]
+[node name="Cell_5_3" type="MeshInstance3D" parent="BattleBoard" unique_id=107894136]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 7)
 material_override = SubResource("StandardMaterial3D_7lxdr")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_b6c0n")
 
-[node name="GridH_5_3" type="MeshInstance3D" parent="BattleBoard" unique_id=849850016]
+[node name="GridH_5_3" type="MeshInstance3D" parent="BattleBoard" unique_id=2122038379]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_wt6s1")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_otdda")
 
-[node name="GridV_5_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1583415372]
+[node name="GridV_5_3" type="MeshInstance3D" parent="BattleBoard" unique_id=189805259]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_wt6s1")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_etvkb")
 
-[node name="Highlight_5_3" type="MeshInstance3D" parent="BattleBoard" unique_id=895496652]
+[node name="Highlight_5_3" type="MeshInstance3D" parent="BattleBoard" unique_id=2095061904]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_l684g")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_b50rp")
 
-[node name="Cell_5_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1061015422]
+[node name="Cell_5_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1119409599]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 9)
 material_override = SubResource("StandardMaterial3D_wcsaj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_kc5nm")
 
-[node name="GridH_5_4" type="MeshInstance3D" parent="BattleBoard" unique_id=246263049]
+[node name="GridH_5_4" type="MeshInstance3D" parent="BattleBoard" unique_id=276106529]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_llfqa")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_3vfs5")
 
-[node name="GridV_5_4" type="MeshInstance3D" parent="BattleBoard" unique_id=2038880838]
+[node name="GridV_5_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1253201173]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_llfqa")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_8ook7")
 
-[node name="Highlight_5_4" type="MeshInstance3D" parent="BattleBoard" unique_id=7136311]
+[node name="Highlight_5_4" type="MeshInstance3D" parent="BattleBoard" unique_id=356075541]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_1hoj5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2j8sx")
 
-[node name="Cell_5_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1048053539]
+[node name="Cell_5_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1641746623]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 11)
 material_override = SubResource("StandardMaterial3D_lxfns")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4d8l4")
 
-[node name="GridH_5_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1482974013]
+[node name="GridH_5_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1222199763]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_obfr1")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_my6f7")
 
-[node name="GridV_5_5" type="MeshInstance3D" parent="BattleBoard" unique_id=51319170]
+[node name="GridV_5_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1623627449]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_obfr1")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_py1lp")
 
-[node name="Highlight_5_5" type="MeshInstance3D" parent="BattleBoard" unique_id=320427988]
+[node name="Highlight_5_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1374313461]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_ooqps")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_fodsg")
 
-[node name="Cell_5_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1969643292]
+[node name="Cell_5_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1121753001]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 13)
 material_override = SubResource("StandardMaterial3D_v66np")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jr38f")
 
-[node name="GridH_5_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1150564563]
+[node name="GridH_5_6" type="MeshInstance3D" parent="BattleBoard" unique_id=673588845]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_74l8t")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_vi55d")
 
-[node name="GridV_5_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1404534507]
+[node name="GridV_5_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1751003181]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_74l8t")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gca7p")
 
-[node name="Highlight_5_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1896622883]
+[node name="Highlight_5_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1561801354]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_f1xtv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4dhru")
 
-[node name="Cell_5_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1616024678]
+[node name="Cell_5_7" type="MeshInstance3D" parent="BattleBoard" unique_id=560505649]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 15)
 material_override = SubResource("StandardMaterial3D_u7l38")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_w28go")
 
-[node name="GridH_5_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1133744186]
+[node name="GridH_5_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1995928923]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_7ey2h")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_rq1q6")
 
-[node name="GridV_5_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1130081724]
+[node name="GridV_5_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1659971144]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_7ey2h")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_exhx6")
 
-[node name="Highlight_5_7" type="MeshInstance3D" parent="BattleBoard" unique_id=110063064]
+[node name="Highlight_5_7" type="MeshInstance3D" parent="BattleBoard" unique_id=260454242]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_7eunb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mawgd")
 
-[node name="Cell_5_8" type="MeshInstance3D" parent="BattleBoard" unique_id=193943158]
+[node name="Cell_5_8" type="MeshInstance3D" parent="BattleBoard" unique_id=12850789]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 17)
 material_override = SubResource("StandardMaterial3D_msfap")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_34f6q")
 
-[node name="GridH_5_8" type="MeshInstance3D" parent="BattleBoard" unique_id=241553209]
+[node name="GridH_5_8" type="MeshInstance3D" parent="BattleBoard" unique_id=380106803]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_kwegc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_y7cg7")
 
-[node name="GridV_5_8" type="MeshInstance3D" parent="BattleBoard" unique_id=735246138]
+[node name="GridV_5_8" type="MeshInstance3D" parent="BattleBoard" unique_id=8983783]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_kwegc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_8n754")
 
-[node name="Highlight_5_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1205043633]
+[node name="Highlight_5_8" type="MeshInstance3D" parent="BattleBoard" unique_id=776525717]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_66tw4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ovala")
 
-[node name="Cell_5_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1211494684]
+[node name="Cell_5_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1601901064]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 19)
 material_override = SubResource("StandardMaterial3D_qqr03")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_lam1c")
 
-[node name="GridH_5_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1299371627]
+[node name="GridH_5_9" type="MeshInstance3D" parent="BattleBoard" unique_id=919247175]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_0l084")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_hyhka")
 
-[node name="GridV_5_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1651045782]
+[node name="GridV_5_9" type="MeshInstance3D" parent="BattleBoard" unique_id=193162850]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_0l084")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_nbhjg")
 
-[node name="GridHEnd_5" type="MeshInstance3D" parent="BattleBoard" unique_id=437947715]
+[node name="GridHEnd_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1535778494]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_0l084")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ur8h3")
 
-[node name="Highlight_5_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1599351891]
+[node name="Highlight_5_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1455067269]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_58rv1")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_03aqi")
 
-[node name="Cell_6_0" type="MeshInstance3D" parent="BattleBoard" unique_id=748561363]
+[node name="Cell_6_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1444058525]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 1)
 material_override = SubResource("StandardMaterial3D_ip307")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_afvbe")
 
-[node name="GridH_6_0" type="MeshInstance3D" parent="BattleBoard" unique_id=464161246]
+[node name="GridH_6_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1334749511]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_n3b4r")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_adopw")
 
-[node name="GridV_6_0" type="MeshInstance3D" parent="BattleBoard" unique_id=61456843]
+[node name="GridV_6_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1663468272]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_n3b4r")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_3x0yd")
 
-[node name="Highlight_6_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1656374667]
+[node name="Highlight_6_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1751749118]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_o2t67")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_oql1h")
 
-[node name="Cell_6_1" type="MeshInstance3D" parent="BattleBoard" unique_id=656781892]
+[node name="Cell_6_1" type="MeshInstance3D" parent="BattleBoard" unique_id=381835099]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 3)
 material_override = SubResource("StandardMaterial3D_bbrvu")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_xcho7")
 
-[node name="GridH_6_1" type="MeshInstance3D" parent="BattleBoard" unique_id=465775889]
+[node name="GridH_6_1" type="MeshInstance3D" parent="BattleBoard" unique_id=2100707900]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_jdkl4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0aly6")
 
-[node name="GridV_6_1" type="MeshInstance3D" parent="BattleBoard" unique_id=976666575]
+[node name="GridV_6_1" type="MeshInstance3D" parent="BattleBoard" unique_id=362197118]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_jdkl4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2pmxi")
 
-[node name="Highlight_6_1" type="MeshInstance3D" parent="BattleBoard" unique_id=50404108]
+[node name="Highlight_6_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1998237450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_78th6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_pkfgf")
 
-[node name="Cell_6_2" type="MeshInstance3D" parent="BattleBoard" unique_id=561177487]
+[node name="Cell_6_2" type="MeshInstance3D" parent="BattleBoard" unique_id=309870552]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 5)
 material_override = SubResource("StandardMaterial3D_nnrc8")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_v62vs")
 
-[node name="GridH_6_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1257871572]
+[node name="GridH_6_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1608429615]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_bje34")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5kyo4")
 
-[node name="GridV_6_2" type="MeshInstance3D" parent="BattleBoard" unique_id=2128703188]
+[node name="GridV_6_2" type="MeshInstance3D" parent="BattleBoard" unique_id=365621032]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_bje34")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_obfrt")
 
-[node name="Highlight_6_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1999301795]
+[node name="Highlight_6_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1637733121]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_jmpej")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_sb5lh")
 
-[node name="Cell_6_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1404773353]
+[node name="Cell_6_3" type="MeshInstance3D" parent="BattleBoard" unique_id=651494500]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 7)
 material_override = SubResource("StandardMaterial3D_5jw12")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7y80i")
 
-[node name="GridH_6_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1751106154]
+[node name="GridH_6_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1906907760]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_hg4by")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_wpp7n")
 
-[node name="GridV_6_3" type="MeshInstance3D" parent="BattleBoard" unique_id=99284154]
+[node name="GridV_6_3" type="MeshInstance3D" parent="BattleBoard" unique_id=525884534]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_hg4by")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_uc457")
 
-[node name="Highlight_6_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1226551502]
+[node name="Highlight_6_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1852875511]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_441vq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_u1rh3")
 
-[node name="Cell_6_4" type="MeshInstance3D" parent="BattleBoard" unique_id=985205946]
+[node name="Cell_6_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1965736690]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 9)
 material_override = SubResource("StandardMaterial3D_lwidv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_lt5cf")
 
-[node name="GridH_6_4" type="MeshInstance3D" parent="BattleBoard" unique_id=541294792]
+[node name="GridH_6_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1064294669]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_uqxmm")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_krpkk")
 
-[node name="GridV_6_4" type="MeshInstance3D" parent="BattleBoard" unique_id=401992350]
+[node name="GridV_6_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1283641184]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_uqxmm")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_hlf35")
 
-[node name="Highlight_6_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1402040412]
+[node name="Highlight_6_4" type="MeshInstance3D" parent="BattleBoard" unique_id=577681083]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_fypkn")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_l2elw")
 
-[node name="Cell_6_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1728379529]
+[node name="Cell_6_5" type="MeshInstance3D" parent="BattleBoard" unique_id=296126691]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 11)
 material_override = SubResource("StandardMaterial3D_vmm1i")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7wqxg")
 
-[node name="GridH_6_5" type="MeshInstance3D" parent="BattleBoard" unique_id=35374995]
+[node name="GridH_6_5" type="MeshInstance3D" parent="BattleBoard" unique_id=727668383]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_tymvn")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ixfue")
 
-[node name="GridV_6_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1935813493]
+[node name="GridV_6_5" type="MeshInstance3D" parent="BattleBoard" unique_id=2040735668]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_tymvn")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_doihy")
 
-[node name="Highlight_6_5" type="MeshInstance3D" parent="BattleBoard" unique_id=845595844]
+[node name="Highlight_6_5" type="MeshInstance3D" parent="BattleBoard" unique_id=258289340]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_82yh2")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ui80c")
 
-[node name="Cell_6_6" type="MeshInstance3D" parent="BattleBoard" unique_id=107164059]
+[node name="Cell_6_6" type="MeshInstance3D" parent="BattleBoard" unique_id=571582543]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 13)
 material_override = SubResource("StandardMaterial3D_hpqtd")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2gcb4")
 
-[node name="GridH_6_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1027708785]
+[node name="GridH_6_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1992442152]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_xqcab")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_21ftj")
 
-[node name="GridV_6_6" type="MeshInstance3D" parent="BattleBoard" unique_id=2100537724]
+[node name="GridV_6_6" type="MeshInstance3D" parent="BattleBoard" unique_id=993865327]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_xqcab")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_q2var")
 
-[node name="Highlight_6_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1780527582]
+[node name="Highlight_6_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1059729687]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_isdc5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6o7j6")
 
-[node name="Cell_6_7" type="MeshInstance3D" parent="BattleBoard" unique_id=428787185]
+[node name="Cell_6_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1505507727]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 15)
 material_override = SubResource("StandardMaterial3D_ivk87")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_qp5br")
 
-[node name="GridH_6_7" type="MeshInstance3D" parent="BattleBoard" unique_id=2121110525]
+[node name="GridH_6_7" type="MeshInstance3D" parent="BattleBoard" unique_id=922680407]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_2wl0k")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_a6qvs")
 
-[node name="GridV_6_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1847782714]
+[node name="GridV_6_7" type="MeshInstance3D" parent="BattleBoard" unique_id=14001286]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_2wl0k")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_hejhu")
 
-[node name="Highlight_6_7" type="MeshInstance3D" parent="BattleBoard" unique_id=637768053]
+[node name="Highlight_6_7" type="MeshInstance3D" parent="BattleBoard" unique_id=30833208]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_rg1cg")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jfldt")
 
-[node name="Cell_6_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1424100303]
+[node name="Cell_6_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1090988244]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 17)
 material_override = SubResource("StandardMaterial3D_hveu0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6a7xf")
 
-[node name="GridH_6_8" type="MeshInstance3D" parent="BattleBoard" unique_id=931946055]
+[node name="GridH_6_8" type="MeshInstance3D" parent="BattleBoard" unique_id=841596258]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_50kks")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_q5jbg")
 
-[node name="GridV_6_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1594393696]
+[node name="GridV_6_8" type="MeshInstance3D" parent="BattleBoard" unique_id=2092598965]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_50kks")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7in4g")
 
-[node name="Highlight_6_8" type="MeshInstance3D" parent="BattleBoard" unique_id=921692956]
+[node name="Highlight_6_8" type="MeshInstance3D" parent="BattleBoard" unique_id=213703922]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_prxgy")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ibg7v")
 
-[node name="Cell_6_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1757968157]
+[node name="Cell_6_9" type="MeshInstance3D" parent="BattleBoard" unique_id=287044304]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 19)
 material_override = SubResource("StandardMaterial3D_xntmi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_groe7")
 
-[node name="GridH_6_9" type="MeshInstance3D" parent="BattleBoard" unique_id=784989631]
+[node name="GridH_6_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1470761550]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_gfw10")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_woqt6")
 
-[node name="GridV_6_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1753708396]
+[node name="GridV_6_9" type="MeshInstance3D" parent="BattleBoard" unique_id=959661024]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_gfw10")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_is64e")
 
-[node name="GridHEnd_6" type="MeshInstance3D" parent="BattleBoard" unique_id=225882579]
+[node name="GridHEnd_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1428853643]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_gfw10")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_su2oe")
 
-[node name="Highlight_6_9" type="MeshInstance3D" parent="BattleBoard" unique_id=275516931]
+[node name="Highlight_6_9" type="MeshInstance3D" parent="BattleBoard" unique_id=832856001]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_65g34")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_582cf")
 
-[node name="Cell_7_0" type="MeshInstance3D" parent="BattleBoard" unique_id=551900422]
+[node name="Cell_7_0" type="MeshInstance3D" parent="BattleBoard" unique_id=608562184]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 1)
 material_override = SubResource("StandardMaterial3D_70eh4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_pqyit")
 
-[node name="GridH_7_0" type="MeshInstance3D" parent="BattleBoard" unique_id=783267865]
+[node name="GridH_7_0" type="MeshInstance3D" parent="BattleBoard" unique_id=221740343]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_oboij")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_3ly4a")
 
-[node name="GridV_7_0" type="MeshInstance3D" parent="BattleBoard" unique_id=135320840]
+[node name="GridV_7_0" type="MeshInstance3D" parent="BattleBoard" unique_id=340728212]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_oboij")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ryqyj")
 
-[node name="Highlight_7_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1117040382]
+[node name="Highlight_7_0" type="MeshInstance3D" parent="BattleBoard" unique_id=601733465]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_p1xfc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_e70on")
 
-[node name="Cell_7_1" type="MeshInstance3D" parent="BattleBoard" unique_id=868811673]
+[node name="Cell_7_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1863090505]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 3)
 material_override = SubResource("StandardMaterial3D_rgs50")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_he4qt")
 
-[node name="GridH_7_1" type="MeshInstance3D" parent="BattleBoard" unique_id=484396894]
+[node name="GridH_7_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1883830068]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_0wrvt")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_orh0d")
 
-[node name="GridV_7_1" type="MeshInstance3D" parent="BattleBoard" unique_id=945762873]
+[node name="GridV_7_1" type="MeshInstance3D" parent="BattleBoard" unique_id=603075310]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_0wrvt")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_g3w35")
 
-[node name="Highlight_7_1" type="MeshInstance3D" parent="BattleBoard" unique_id=61212639]
+[node name="Highlight_7_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1070384505]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_lseqi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5cbx0")
 
-[node name="Cell_7_2" type="MeshInstance3D" parent="BattleBoard" unique_id=555590357]
+[node name="Cell_7_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1196055302]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 5)
 material_override = SubResource("StandardMaterial3D_bohia")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_uvofk")
 
-[node name="GridH_7_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1164381439]
+[node name="GridH_7_2" type="MeshInstance3D" parent="BattleBoard" unique_id=796613262]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_0xpv6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_n7gda")
 
-[node name="GridV_7_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1448042275]
+[node name="GridV_7_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1212745456]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_0xpv6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_uxkal")
 
-[node name="Highlight_7_2" type="MeshInstance3D" parent="BattleBoard" unique_id=951048040]
+[node name="Highlight_7_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1387771292]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_sqtf5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_kr0ra")
 
-[node name="Cell_7_3" type="MeshInstance3D" parent="BattleBoard" unique_id=2031485210]
+[node name="Cell_7_3" type="MeshInstance3D" parent="BattleBoard" unique_id=2055428364]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 7)
 material_override = SubResource("StandardMaterial3D_tlfn5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ld1na")
 
-[node name="GridH_7_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1162026160]
+[node name="GridH_7_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1439427413]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_hlkln")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_bqb0q")
 
-[node name="GridV_7_3" type="MeshInstance3D" parent="BattleBoard" unique_id=909582123]
+[node name="GridV_7_3" type="MeshInstance3D" parent="BattleBoard" unique_id=546532248]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_hlkln")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_bqbpa")
 
-[node name="Highlight_7_3" type="MeshInstance3D" parent="BattleBoard" unique_id=750971153]
+[node name="Highlight_7_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1884016673]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_5mwup")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_in2km")
 
-[node name="Cell_7_4" type="MeshInstance3D" parent="BattleBoard" unique_id=544502771]
+[node name="Cell_7_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1434493856]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 9)
 material_override = SubResource("StandardMaterial3D_umevg")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_tixhp")
 
-[node name="GridH_7_4" type="MeshInstance3D" parent="BattleBoard" unique_id=2129884430]
+[node name="GridH_7_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1802185528]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_470u0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_1jfwc")
 
-[node name="GridV_7_4" type="MeshInstance3D" parent="BattleBoard" unique_id=740297999]
+[node name="GridV_7_4" type="MeshInstance3D" parent="BattleBoard" unique_id=185622290]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_470u0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_223su")
 
-[node name="Highlight_7_4" type="MeshInstance3D" parent="BattleBoard" unique_id=226476112]
+[node name="Highlight_7_4" type="MeshInstance3D" parent="BattleBoard" unique_id=953090556]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_5utaw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_l05b5")
 
-[node name="Cell_7_5" type="MeshInstance3D" parent="BattleBoard" unique_id=68015329]
+[node name="Cell_7_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1922930413]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 11)
 material_override = SubResource("StandardMaterial3D_ii8rd")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_abfva")
 
-[node name="GridH_7_5" type="MeshInstance3D" parent="BattleBoard" unique_id=833329492]
+[node name="GridH_7_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1976748860]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_3tl60")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yh0ma")
 
-[node name="GridV_7_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1074100687]
+[node name="GridV_7_5" type="MeshInstance3D" parent="BattleBoard" unique_id=336798985]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_3tl60")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ojj4m")
 
-[node name="Highlight_7_5" type="MeshInstance3D" parent="BattleBoard" unique_id=20627101]
+[node name="Highlight_7_5" type="MeshInstance3D" parent="BattleBoard" unique_id=209006328]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_6hv3t")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_44ywo")
 
-[node name="Cell_7_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1647606425]
+[node name="Cell_7_6" type="MeshInstance3D" parent="BattleBoard" unique_id=102498879]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 13)
 material_override = SubResource("StandardMaterial3D_g1vir")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dc8th")
 
-[node name="GridH_7_6" type="MeshInstance3D" parent="BattleBoard" unique_id=970164599]
+[node name="GridH_7_6" type="MeshInstance3D" parent="BattleBoard" unique_id=350639181]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_p0eaw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_xj3kd")
 
-[node name="GridV_7_6" type="MeshInstance3D" parent="BattleBoard" unique_id=481562429]
+[node name="GridV_7_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1901804829]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_p0eaw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_s8cqr")
 
-[node name="Highlight_7_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1265074768]
+[node name="Highlight_7_6" type="MeshInstance3D" parent="BattleBoard" unique_id=122592608]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_0bjeh")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6q117")
 
-[node name="Cell_7_7" type="MeshInstance3D" parent="BattleBoard" unique_id=725352735]
+[node name="Cell_7_7" type="MeshInstance3D" parent="BattleBoard" unique_id=143725780]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 15)
 material_override = SubResource("StandardMaterial3D_v3qoa")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jfso8")
 
-[node name="GridH_7_7" type="MeshInstance3D" parent="BattleBoard" unique_id=2139157761]
+[node name="GridH_7_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1723624756]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_fgrhv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_tu4s4")
 
-[node name="GridV_7_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1673000905]
+[node name="GridV_7_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1164373219]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_fgrhv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_lrc24")
 
-[node name="Highlight_7_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1175701132]
+[node name="Highlight_7_7" type="MeshInstance3D" parent="BattleBoard" unique_id=845345444]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_0u0qq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_myqmk")
 
-[node name="Cell_7_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1549713128]
+[node name="Cell_7_8" type="MeshInstance3D" parent="BattleBoard" unique_id=469189500]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 17)
 material_override = SubResource("StandardMaterial3D_5yhyn")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2cuex")
 
-[node name="GridH_7_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1046101712]
+[node name="GridH_7_8" type="MeshInstance3D" parent="BattleBoard" unique_id=938502667]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_ujfmj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_78lx0")
 
-[node name="GridV_7_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1439943347]
+[node name="GridV_7_8" type="MeshInstance3D" parent="BattleBoard" unique_id=2102401431]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_ujfmj")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dpmcw")
 
-[node name="Highlight_7_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1895069610]
+[node name="Highlight_7_8" type="MeshInstance3D" parent="BattleBoard" unique_id=966935167]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_oqpnh")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_cxlex")
 
-[node name="Cell_7_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2086882279]
+[node name="Cell_7_9" type="MeshInstance3D" parent="BattleBoard" unique_id=587683850]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 19)
 material_override = SubResource("StandardMaterial3D_upkpi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_fbpbo")
 
-[node name="GridH_7_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1299232811]
+[node name="GridH_7_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2066448286]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_q4h3h")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_wcpeq")
 
-[node name="GridV_7_9" type="MeshInstance3D" parent="BattleBoard" unique_id=272220745]
+[node name="GridV_7_9" type="MeshInstance3D" parent="BattleBoard" unique_id=767107711]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_q4h3h")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yhcyc")
 
-[node name="GridHEnd_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1908925358]
+[node name="GridHEnd_7" type="MeshInstance3D" parent="BattleBoard" unique_id=817613556]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_q4h3h")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2en8x")
 
-[node name="Highlight_7_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1073925903]
+[node name="Highlight_7_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2074970497]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_a34r5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0q5lj")
 
-[node name="Cell_8_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1112388257]
+[node name="Cell_8_0" type="MeshInstance3D" parent="BattleBoard" unique_id=954950806]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 1)
 material_override = SubResource("StandardMaterial3D_l7t8l")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_g5nfj")
 
-[node name="GridH_8_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1869700181]
+[node name="GridH_8_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1344022177]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_23phi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jdao2")
 
-[node name="GridV_8_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1786613436]
+[node name="GridV_8_0" type="MeshInstance3D" parent="BattleBoard" unique_id=972582255]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_23phi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_nt6r7")
 
-[node name="Highlight_8_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1539251865]
+[node name="Highlight_8_0" type="MeshInstance3D" parent="BattleBoard" unique_id=421661004]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_atbh4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ilik5")
 
-[node name="Cell_8_1" type="MeshInstance3D" parent="BattleBoard" unique_id=2101233065]
+[node name="Cell_8_1" type="MeshInstance3D" parent="BattleBoard" unique_id=2001281377]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 3)
 material_override = SubResource("StandardMaterial3D_5qp4u")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_k0bpx")
 
-[node name="GridH_8_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1127482172]
+[node name="GridH_8_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1608517959]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_oqjvx")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_s6mu2")
 
-[node name="GridV_8_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1980950145]
+[node name="GridV_8_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1682497772]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_oqjvx")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_cxhyq")
 
-[node name="Highlight_8_1" type="MeshInstance3D" parent="BattleBoard" unique_id=87665738]
+[node name="Highlight_8_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1628632101]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_ov6gk")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_fc57n")
 
-[node name="Cell_8_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1773950050]
+[node name="Cell_8_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1286452504]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 5)
 material_override = SubResource("StandardMaterial3D_sbslu")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_f6nro")
 
-[node name="GridH_8_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1856127456]
+[node name="GridH_8_2" type="MeshInstance3D" parent="BattleBoard" unique_id=701468075]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_8u6ys")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gwwc2")
 
-[node name="GridV_8_2" type="MeshInstance3D" parent="BattleBoard" unique_id=2003946791]
+[node name="GridV_8_2" type="MeshInstance3D" parent="BattleBoard" unique_id=466494182]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_8u6ys")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2lsmc")
 
-[node name="Highlight_8_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1877351961]
+[node name="Highlight_8_2" type="MeshInstance3D" parent="BattleBoard" unique_id=814596744]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_tqa3y")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4iqpn")
 
-[node name="Cell_8_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1844657573]
+[node name="Cell_8_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1660048654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 7)
 material_override = SubResource("StandardMaterial3D_5l0sf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_oey47")
 
-[node name="GridH_8_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1477922610]
+[node name="GridH_8_3" type="MeshInstance3D" parent="BattleBoard" unique_id=349278284]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_t8tgc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jtcnv")
 
-[node name="GridV_8_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1549210261]
+[node name="GridV_8_3" type="MeshInstance3D" parent="BattleBoard" unique_id=927032884]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_t8tgc")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_j6av0")
 
-[node name="Highlight_8_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1074537173]
+[node name="Highlight_8_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1496535951]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_trqwa")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mtss8")
 
-[node name="Cell_8_4" type="MeshInstance3D" parent="BattleBoard" unique_id=182621427]
+[node name="Cell_8_4" type="MeshInstance3D" parent="BattleBoard" unique_id=707915453]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 9)
 material_override = SubResource("StandardMaterial3D_giw48")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_vt8tl")
 
-[node name="GridH_8_4" type="MeshInstance3D" parent="BattleBoard" unique_id=459466024]
+[node name="GridH_8_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1859228808]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_0ornt")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ihpqo")
 
-[node name="GridV_8_4" type="MeshInstance3D" parent="BattleBoard" unique_id=494121699]
+[node name="GridV_8_4" type="MeshInstance3D" parent="BattleBoard" unique_id=367360394]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_0ornt")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gxqco")
 
-[node name="Highlight_8_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1131338967]
+[node name="Highlight_8_4" type="MeshInstance3D" parent="BattleBoard" unique_id=365019756]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_ikr4u")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_s764d")
 
-[node name="Cell_8_5" type="MeshInstance3D" parent="BattleBoard" unique_id=849576638]
+[node name="Cell_8_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1505445657]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 11)
 material_override = SubResource("StandardMaterial3D_2apvw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mytt8")
 
-[node name="GridH_8_5" type="MeshInstance3D" parent="BattleBoard" unique_id=967166868]
+[node name="GridH_8_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1871166741]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_n845g")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_e8037")
 
-[node name="GridV_8_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1351397077]
+[node name="GridV_8_5" type="MeshInstance3D" parent="BattleBoard" unique_id=2046052975]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_n845g")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0xiu8")
 
-[node name="Highlight_8_5" type="MeshInstance3D" parent="BattleBoard" unique_id=699128102]
+[node name="Highlight_8_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1457678496]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_cbnhp")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_3w0cy")
 
-[node name="Cell_8_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1961526125]
+[node name="Cell_8_6" type="MeshInstance3D" parent="BattleBoard" unique_id=210346591]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 13)
 material_override = SubResource("StandardMaterial3D_lnkn7")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0kqg6")
 
-[node name="GridH_8_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1730252349]
+[node name="GridH_8_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1366602701]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_kvwfa")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ds5om")
 
-[node name="GridV_8_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1552763250]
+[node name="GridV_8_6" type="MeshInstance3D" parent="BattleBoard" unique_id=511436238]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_kvwfa")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_l1o3f")
 
-[node name="Highlight_8_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1393011426]
+[node name="Highlight_8_6" type="MeshInstance3D" parent="BattleBoard" unique_id=495420821]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_otojs")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_w7c12")
 
-[node name="Cell_8_7" type="MeshInstance3D" parent="BattleBoard" unique_id=619787650]
+[node name="Cell_8_7" type="MeshInstance3D" parent="BattleBoard" unique_id=971280913]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 15)
 material_override = SubResource("StandardMaterial3D_fbj5i")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6sy0r")
 
-[node name="GridH_8_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1554335412]
+[node name="GridH_8_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1354830119]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_qi6f6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_t6rn0")
 
-[node name="GridV_8_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1304835580]
+[node name="GridV_8_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1825451169]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_qi6f6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_mp1ws")
 
-[node name="Highlight_8_7" type="MeshInstance3D" parent="BattleBoard" unique_id=686314314]
+[node name="Highlight_8_7" type="MeshInstance3D" parent="BattleBoard" unique_id=119599891]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_uanq5")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gj4g7")
 
-[node name="Cell_8_8" type="MeshInstance3D" parent="BattleBoard" unique_id=757249525]
+[node name="Cell_8_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1565454889]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 17)
 material_override = SubResource("StandardMaterial3D_s3pw0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_0wawy")
 
-[node name="GridH_8_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1323794428]
+[node name="GridH_8_8" type="MeshInstance3D" parent="BattleBoard" unique_id=646563319]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_16444")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_fuvqn")
 
-[node name="GridV_8_8" type="MeshInstance3D" parent="BattleBoard" unique_id=451899103]
+[node name="GridV_8_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1909815313]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_16444")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_g1eka")
 
-[node name="Highlight_8_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1029604424]
+[node name="Highlight_8_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1595130382]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_2l1d8")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_uxj1e")
 
-[node name="Cell_8_9" type="MeshInstance3D" parent="BattleBoard" unique_id=455141474]
+[node name="Cell_8_9" type="MeshInstance3D" parent="BattleBoard" unique_id=771971585]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, 19)
 material_override = SubResource("StandardMaterial3D_qhgtn")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_fp78o")
 
-[node name="GridH_8_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2027168240]
+[node name="GridH_8_9" type="MeshInstance3D" parent="BattleBoard" unique_id=984652210]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_efonb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_s4qgd")
 
-[node name="GridV_8_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1270716262]
+[node name="GridV_8_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1738446861]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_efonb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ko21i")
 
-[node name="GridHEnd_8" type="MeshInstance3D" parent="BattleBoard" unique_id=2065761473]
+[node name="GridHEnd_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1892178956]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_efonb")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_68yky")
 
-[node name="Highlight_8_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2034408138]
+[node name="Highlight_8_9" type="MeshInstance3D" parent="BattleBoard" unique_id=919622905]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_4t3eo")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4a3hf")
 
-[node name="Cell_9_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1443182768]
+[node name="Cell_9_0" type="MeshInstance3D" parent="BattleBoard" unique_id=303129632]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 1)
 material_override = SubResource("StandardMaterial3D_vyxqq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_82gmm")
 
-[node name="GridH_9_0" type="MeshInstance3D" parent="BattleBoard" unique_id=465361072]
+[node name="GridH_9_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1035585369]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 0)
 material_override = SubResource("StandardMaterial3D_43ro4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gugqg")
 
-[node name="GridV_9_0" type="MeshInstance3D" parent="BattleBoard" unique_id=2138838207]
+[node name="GridV_9_0" type="MeshInstance3D" parent="BattleBoard" unique_id=442197477]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_43ro4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4xsn1")
 
-[node name="GridVEnd_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1542230899]
+[node name="GridVEnd_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1478187399]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 1)
 material_override = SubResource("StandardMaterial3D_43ro4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_bc0hy")
 
-[node name="Highlight_9_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1486475749]
+[node name="Highlight_9_0" type="MeshInstance3D" parent="BattleBoard" unique_id=1477251609]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 1)
 visible = false
 material_override = SubResource("StandardMaterial3D_8m6ox")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_l6xdl")
 
-[node name="Cell_9_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1490444347]
+[node name="Cell_9_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1578481195]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 3)
 material_override = SubResource("StandardMaterial3D_crjv1")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_g8qtr")
 
-[node name="GridH_9_1" type="MeshInstance3D" parent="BattleBoard" unique_id=13612638]
+[node name="GridH_9_1" type="MeshInstance3D" parent="BattleBoard" unique_id=448761369]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 2)
 material_override = SubResource("StandardMaterial3D_di70q")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5do2x")
 
-[node name="GridV_9_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1665949113]
+[node name="GridV_9_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1276793798]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_di70q")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_1rpoy")
 
-[node name="GridVEnd_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1623673371]
+[node name="GridVEnd_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1132665873]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 3)
 material_override = SubResource("StandardMaterial3D_di70q")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ff38j")
 
-[node name="Highlight_9_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1567898417]
+[node name="Highlight_9_1" type="MeshInstance3D" parent="BattleBoard" unique_id=1637106609]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 3)
 visible = false
 material_override = SubResource("StandardMaterial3D_xulp4")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2yce0")
 
-[node name="Cell_9_2" type="MeshInstance3D" parent="BattleBoard" unique_id=836172947]
+[node name="Cell_9_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1738033239]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 5)
 material_override = SubResource("StandardMaterial3D_8q3og")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_fvwyf")
 
-[node name="GridH_9_2" type="MeshInstance3D" parent="BattleBoard" unique_id=296425319]
+[node name="GridH_9_2" type="MeshInstance3D" parent="BattleBoard" unique_id=245358329]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 4)
 material_override = SubResource("StandardMaterial3D_epovf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7wlls")
 
-[node name="GridV_9_2" type="MeshInstance3D" parent="BattleBoard" unique_id=337104684]
+[node name="GridV_9_2" type="MeshInstance3D" parent="BattleBoard" unique_id=2123579709]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_epovf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_qwi7k")
 
-[node name="GridVEnd_2" type="MeshInstance3D" parent="BattleBoard" unique_id=1275654256]
+[node name="GridVEnd_2" type="MeshInstance3D" parent="BattleBoard" unique_id=848234904]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 5)
 material_override = SubResource("StandardMaterial3D_epovf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yxlo4")
 
-[node name="Highlight_9_2" type="MeshInstance3D" parent="BattleBoard" unique_id=31190645]
+[node name="Highlight_9_2" type="MeshInstance3D" parent="BattleBoard" unique_id=706327878]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 5)
 visible = false
 material_override = SubResource("StandardMaterial3D_u6lm2")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_u7gvk")
 
-[node name="Cell_9_3" type="MeshInstance3D" parent="BattleBoard" unique_id=834553848]
+[node name="Cell_9_3" type="MeshInstance3D" parent="BattleBoard" unique_id=96462210]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 7)
 material_override = SubResource("StandardMaterial3D_y2xkq")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_sgnb0")
 
-[node name="GridH_9_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1983363131]
+[node name="GridH_9_3" type="MeshInstance3D" parent="BattleBoard" unique_id=582147708]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 6)
 material_override = SubResource("StandardMaterial3D_a3g14")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_se7hr")
 
-[node name="GridV_9_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1469021329]
+[node name="GridV_9_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1187409514]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_a3g14")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_h84xb")
 
-[node name="GridVEnd_3" type="MeshInstance3D" parent="BattleBoard" unique_id=1881342341]
+[node name="GridVEnd_3" type="MeshInstance3D" parent="BattleBoard" unique_id=668919342]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 7)
 material_override = SubResource("StandardMaterial3D_a3g14")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_p3q30")
 
-[node name="Highlight_9_3" type="MeshInstance3D" parent="BattleBoard" unique_id=708152148]
+[node name="Highlight_9_3" type="MeshInstance3D" parent="BattleBoard" unique_id=401716682]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 7)
 visible = false
 material_override = SubResource("StandardMaterial3D_3egmv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ftxxq")
 
-[node name="Cell_9_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1530849032]
+[node name="Cell_9_4" type="MeshInstance3D" parent="BattleBoard" unique_id=78141697]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 9)
 material_override = SubResource("StandardMaterial3D_q13bl")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_a3fhk")
 
-[node name="GridH_9_4" type="MeshInstance3D" parent="BattleBoard" unique_id=933921872]
+[node name="GridH_9_4" type="MeshInstance3D" parent="BattleBoard" unique_id=112617413]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 8)
 material_override = SubResource("StandardMaterial3D_rvh3b")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_dbdck")
 
-[node name="GridV_9_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1289752469]
+[node name="GridV_9_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1149538762]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_rvh3b")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_i5als")
 
-[node name="GridVEnd_4" type="MeshInstance3D" parent="BattleBoard" unique_id=167959155]
+[node name="GridVEnd_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1080176519]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 9)
 material_override = SubResource("StandardMaterial3D_rvh3b")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_4r6jl")
 
-[node name="Highlight_9_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1117898859]
+[node name="Highlight_9_4" type="MeshInstance3D" parent="BattleBoard" unique_id=1949237903]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 9)
 visible = false
 material_override = SubResource("StandardMaterial3D_oadai")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_7rsl0")
 
-[node name="Cell_9_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1095550923]
+[node name="Cell_9_5" type="MeshInstance3D" parent="BattleBoard" unique_id=457201732]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 11)
 material_override = SubResource("StandardMaterial3D_fvlc6")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_ete8u")
 
-[node name="GridH_9_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1770200000]
+[node name="GridH_9_5" type="MeshInstance3D" parent="BattleBoard" unique_id=580309124]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 10)
 material_override = SubResource("StandardMaterial3D_q7qn3")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yuln4")
 
-[node name="GridV_9_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1153539136]
+[node name="GridV_9_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1237875545]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_q7qn3")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jipfl")
 
-[node name="GridVEnd_5" type="MeshInstance3D" parent="BattleBoard" unique_id=89148955]
+[node name="GridVEnd_5" type="MeshInstance3D" parent="BattleBoard" unique_id=426356271]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 11)
 material_override = SubResource("StandardMaterial3D_q7qn3")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jrith")
 
-[node name="Highlight_9_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1603137658]
+[node name="Highlight_9_5" type="MeshInstance3D" parent="BattleBoard" unique_id=1582352185]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 11)
 visible = false
 material_override = SubResource("StandardMaterial3D_s7kjm")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_jdnku")
 
-[node name="Cell_9_6" type="MeshInstance3D" parent="BattleBoard" unique_id=915198641]
+[node name="Cell_9_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1797802163]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 13)
 material_override = SubResource("StandardMaterial3D_q6syi")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_h7pfa")
 
-[node name="GridH_9_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1617535601]
+[node name="GridH_9_6" type="MeshInstance3D" parent="BattleBoard" unique_id=124146746]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 12)
 material_override = SubResource("StandardMaterial3D_c582w")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_y0iyj")
 
-[node name="GridV_9_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1804401734]
+[node name="GridV_9_6" type="MeshInstance3D" parent="BattleBoard" unique_id=389383787]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_c582w")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_17sxa")
 
-[node name="GridVEnd_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1406535611]
+[node name="GridVEnd_6" type="MeshInstance3D" parent="BattleBoard" unique_id=267447459]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 13)
 material_override = SubResource("StandardMaterial3D_c582w")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_frftu")
 
-[node name="Highlight_9_6" type="MeshInstance3D" parent="BattleBoard" unique_id=444412773]
+[node name="Highlight_9_6" type="MeshInstance3D" parent="BattleBoard" unique_id=1321092117]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 13)
 visible = false
 material_override = SubResource("StandardMaterial3D_kt2o1")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_6xqgw")
 
-[node name="Cell_9_7" type="MeshInstance3D" parent="BattleBoard" unique_id=55403247]
+[node name="Cell_9_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1585028460]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 15)
 material_override = SubResource("StandardMaterial3D_8m8st")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_l68vx")
 
-[node name="GridH_9_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1970798157]
+[node name="GridH_9_7" type="MeshInstance3D" parent="BattleBoard" unique_id=398873651]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 14)
 material_override = SubResource("StandardMaterial3D_l71aw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_u37uw")
 
-[node name="GridV_9_7" type="MeshInstance3D" parent="BattleBoard" unique_id=287425152]
+[node name="GridV_9_7" type="MeshInstance3D" parent="BattleBoard" unique_id=323535621]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_l71aw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_2kd7t")
 
-[node name="GridVEnd_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1963120458]
+[node name="GridVEnd_7" type="MeshInstance3D" parent="BattleBoard" unique_id=394832509]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 15)
 material_override = SubResource("StandardMaterial3D_l71aw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_rdp02")
 
-[node name="Highlight_9_7" type="MeshInstance3D" parent="BattleBoard" unique_id=529096748]
+[node name="Highlight_9_7" type="MeshInstance3D" parent="BattleBoard" unique_id=1678620106]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 15)
 visible = false
 material_override = SubResource("StandardMaterial3D_2yusa")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_rewy2")
 
-[node name="Cell_9_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1453821102]
+[node name="Cell_9_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1847077497]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 17)
 material_override = SubResource("StandardMaterial3D_g161p")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_t5mu1")
 
-[node name="GridH_9_8" type="MeshInstance3D" parent="BattleBoard" unique_id=469068978]
+[node name="GridH_9_8" type="MeshInstance3D" parent="BattleBoard" unique_id=331713634]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 16)
 material_override = SubResource("StandardMaterial3D_bqlcw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_j8opq")
 
-[node name="GridV_9_8" type="MeshInstance3D" parent="BattleBoard" unique_id=407434254]
+[node name="GridV_9_8" type="MeshInstance3D" parent="BattleBoard" unique_id=438709143]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_bqlcw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_sg3jb")
 
-[node name="GridVEnd_8" type="MeshInstance3D" parent="BattleBoard" unique_id=967393352]
+[node name="GridVEnd_8" type="MeshInstance3D" parent="BattleBoard" unique_id=704199662]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 17)
 material_override = SubResource("StandardMaterial3D_bqlcw")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_xxitq")
 
-[node name="Highlight_9_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1235550307]
+[node name="Highlight_9_8" type="MeshInstance3D" parent="BattleBoard" unique_id=1977165708]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 17)
 visible = false
 material_override = SubResource("StandardMaterial3D_paig0")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_3f4q6")
 
-[node name="Cell_9_9" type="MeshInstance3D" parent="BattleBoard" unique_id=680166758]
+[node name="Cell_9_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2631333]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, 19)
 material_override = SubResource("StandardMaterial3D_531ov")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_gtjut")
 
-[node name="GridH_9_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1149151389]
+[node name="GridH_9_9" type="MeshInstance3D" parent="BattleBoard" unique_id=336264952]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 18)
 material_override = SubResource("StandardMaterial3D_kcqmf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_5go4m")
 
-[node name="GridV_9_9" type="MeshInstance3D" parent="BattleBoard" unique_id=758501039]
+[node name="GridV_9_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1861408185]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_kcqmf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_wce22")
 
-[node name="GridHEnd_9" type="MeshInstance3D" parent="BattleBoard" unique_id=2022377872]
+[node name="GridHEnd_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1088658103]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.005, 20)
 material_override = SubResource("StandardMaterial3D_kcqmf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_yea1m")
 
-[node name="GridVEnd_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1069215829]
+[node name="GridVEnd_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1468001638]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.005, 19)
 material_override = SubResource("StandardMaterial3D_kcqmf")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_302bg")
 
-[node name="Highlight_9_9" type="MeshInstance3D" parent="BattleBoard" unique_id=373222361]
+[node name="Highlight_9_9" type="MeshInstance3D" parent="BattleBoard" unique_id=1520087762]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0.02, 19)
 visible = false
 material_override = SubResource("StandardMaterial3D_snf1j")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_21mks")
 
-[node name="BoardBase" type="MeshInstance3D" parent="BattleBoard" unique_id=295409089]
+[node name="BoardBase" type="MeshInstance3D" parent="BattleBoard" unique_id=750642080]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.095, 10)
 material_override = SubResource("StandardMaterial3D_on3bg")
 cast_shadow = 0
