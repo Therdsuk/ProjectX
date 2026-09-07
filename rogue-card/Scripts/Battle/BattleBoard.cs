@@ -31,8 +31,14 @@ public partial class BattleBoard : Node3D
     [Export] public float GridLineWidth { get; set; } = 0.03f;
     [Export] public int EnvironmentBorderSize { get; set; } = 3; // Cells of decoration around the grid
     [Export] public Color GroundColor { get; set; } = new Color(0.28f, 0.42f, 0.18f); // Forest green ground
+    [Export] public bool EnableCellNoise { get; set; } = true; // Toggle edge noise blending
+    [Export] public float CellNoiseBlend { get; set; } = 0.4f; // Max blend with ground color
+    [Export] public float CellNoiseFrequency { get; set; } = 0.15f; // Frequency of the noise map
 
     [ExportGroup("Environment")]
+    [Export] public long EnvironmentSeed { get; set; } = -1; // Set to -1 for a random seed
+    [Export] public float EnvironmentExtendX { get; set; } = 12f; // Distance environment extends left/right
+    [Export] public float EnvironmentExtendZ { get; set; } = 12f; // Distance environment extends top/bottom
     [Export] public PackedScene TreeScene;
     [Export] public PackedScene RockScene;
     [Export] public PackedScene BushScene;
@@ -392,13 +398,34 @@ public partial class BattleBoard : Node3D
 
     private void DrawBoardVisuals()
     {
+        var noise = new FastNoiseLite
+        {
+            Seed = EnvironmentSeed == -1 ? (int)GD.Randi() : (int)EnvironmentSeed,
+            NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
+            Frequency = CellNoiseFrequency
+        };
+
         for (int col = 0; col < Columns; col++)
         {
             for (int row = 0; row < Rows; row++)
             {
                 // Checkerboard pattern
                 bool isDark = (col + row) % 2 == 0;
-                Color cellColor = isDark ? CellColorA : CellColorB;
+                Color baseColor = isDark ? CellColorA : CellColorB;
+
+                float blendFactor = 0f;
+                if (EnableCellNoise)
+                {
+                    float noiseVal = noise.GetNoise2D(col * CellSize, row * CellSize);
+                    
+                    // Only affect outer cells of the board
+                    float minDist = Mathf.Min(Mathf.Min(col, Columns - 1 - col), Mathf.Min(row, Rows - 1 - row));
+                    float edgeMask = Mathf.Clamp(1.0f - minDist, 0.0f, 1.0f);
+                    
+                    blendFactor = ((noiseVal + 1f) / 2f) * CellNoiseBlend * edgeMask;
+                }
+                
+                Color cellColor = baseColor.Lerp(GroundColor, blendFactor);
 
                 var material = new StandardMaterial3D
                 {
@@ -574,46 +601,45 @@ public partial class BattleBoard : Node3D
         // --- 1) Draw road tiles extending left and right (looks like board, but not playable) ---
         DrawRoadExtension(boardW, boardH);
 
-        // --- 2) Environment ground for top/bottom strips ---
+        // --- 2) Environment ground (full plane covering under the board and all sides) ---
         var groundMat = new StandardMaterial3D
         {
             AlbedoColor = GroundColor,
             Roughness = 0.95f,
         };
 
-        float groundExtraZ = 12f;   // How far the environment extends above/below
-        float totalRoadW = (RoadExtendLeft + Columns + RoadExtendRight) * CellSize;
+        float groundExtraZ = EnvironmentExtendZ;   // How far the environment extends above/below
+        float groundExtraX = EnvironmentExtendX;   // How far the environment extends left/right
         float roadLeftEdge = -RoadExtendLeft * CellSize;
         float roadRightEdge = boardW + RoadExtendRight * CellSize;
         float roadCenterX = (roadLeftEdge + roadRightEdge) / 2f;
+        float totalRoadW = roadRightEdge - roadLeftEdge;
+        
+        float fullGroundW = totalRoadW + groundExtraX * 2;
+        float fullGroundH = boardH + groundExtraZ * 2;
 
-        // Top environment strip (behind the board, low Z)
-        var topGround = new MeshInstance3D
+        var fullGround = new MeshInstance3D
         {
-            Mesh = new PlaneMesh { Size = new Vector2(totalRoadW + 4f, groundExtraZ) },
+            Mesh = new PlaneMesh { Size = new Vector2(fullGroundW, fullGroundH) },
             MaterialOverride = groundMat,
-            Position = new Vector3(roadCenterX, -0.01f, -groundExtraZ / 2f),
+            Position = new Vector3(roadCenterX, -0.01f, boardH / 2f),
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-            Name = "EnvironmentGroundTop"
+            Name = "EnvironmentGround"
         };
-        AddChild(topGround);
+        AddChild(fullGround);
 
-        // Bottom environment strip (in front of the board, high Z)
-        var bottomGround = new MeshInstance3D
-        {
-            Mesh = new PlaneMesh { Size = new Vector2(totalRoadW + 4f, groundExtraZ) },
-            MaterialOverride = groundMat,
-            Position = new Vector3(roadCenterX, -0.01f, boardH + groundExtraZ / 2f),
-            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-            Name = "EnvironmentGroundBottom"
-        };
-        AddChild(bottomGround);
-
-        // --- 3) Spawn decorative objects in the top/bottom environment strips ---
+        // --- 3) Spawn decorative objects around the edges ---
         var rng = new RandomNumberGenerator();
-        rng.Seed = 42;
+        if (EnvironmentSeed == -1)
+        {
+            rng.Randomize(); // Generates a time-based random seed
+        }
+        else
+        {
+            rng.Seed = (ulong)EnvironmentSeed;
+        }
 
-        SpawnBorderDecorations(rng, roadCenterX, totalRoadW, boardH, groundExtraZ);
+        SpawnBorderDecorations(rng, roadLeftEdge, roadRightEdge, boardH, groundExtraZ, groundExtraX);
     }
 
     /// <summary>Draw visual-only checkerboard tiles extending left and right of the playable board (the "road").</summary>
@@ -623,12 +649,19 @@ public partial class BattleBoard : Node3D
         Color roadColorA = CellColorA.Darkened(0.15f);
         Color roadColorB = CellColorB.Darkened(0.15f);
 
+        var noise = new FastNoiseLite
+        {
+            Seed = EnvironmentSeed == -1 ? (int)GD.Randi() : (int)EnvironmentSeed,
+            NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
+            Frequency = CellNoiseFrequency
+        };
+
         // Left extension: columns from -RoadExtendLeft to -1
         for (int col = -RoadExtendLeft; col < 0; col++)
         {
             for (int row = 0; row < Rows; row++)
             {
-                DrawRoadTile(col, row, roadColorA, roadColorB);
+                DrawRoadTile(col, row, roadColorA, roadColorB, noise);
             }
         }
 
@@ -637,15 +670,23 @@ public partial class BattleBoard : Node3D
         {
             for (int row = 0; row < Rows; row++)
             {
-                DrawRoadTile(col, row, roadColorA, roadColorB);
+                DrawRoadTile(col, row, roadColorA, roadColorB, noise);
             }
         }
     }
 
-    private void DrawRoadTile(int col, int row, Color colorA, Color colorB)
+    private void DrawRoadTile(int col, int row, Color colorA, Color colorB, FastNoiseLite noise)
     {
         bool isDark = (col + row) % 2 == 0;
-        Color tileColor = isDark ? colorA : colorB;
+        Color baseColor = isDark ? colorA : colorB;
+
+        float blendFactor = 0f;
+        if (EnableCellNoise)
+        {
+            float noiseVal = noise.GetNoise2D(col * CellSize, row * CellSize);
+            blendFactor = ((noiseVal + 1f) / 2f) * CellNoiseBlend;
+        }
+        Color tileColor = baseColor.Lerp(GroundColor, blendFactor);
 
         var material = new StandardMaterial3D
         {
@@ -669,61 +710,70 @@ public partial class BattleBoard : Node3D
         AddChild(mi);
     }
 
-    private void SpawnBorderDecorations(RandomNumberGenerator rng, float centerX, float totalW, float boardH, float envDepth)
+    private void SpawnBorderDecorations(RandomNumberGenerator rng, float leftEdge, float rightEdge, float boardH, float envDepth, float envWidth)
     {
-        // Decorations go in top/bottom strips (along Z), spanning the full road width
-        float minX = centerX - totalW / 2f - 2f;
-        float maxX = centerX + totalW / 2f + 2f;
-
+        // We'll increase the count slightly to account for the larger area (left and right sides added)
         // Trees
-        for (int i = 0; i < TreeCount; i++)
+        for (int i = 0; i < TreeCount + (TreeCount / 2); i++)
         {
-            Vector3 pos = GetRandomEnvPosition(rng, minX, maxX, boardH, envDepth, 0.3f);
+            Vector3 pos = GetRandomEnvPosition(rng, leftEdge, rightEdge, boardH, envDepth, envWidth, 0.3f);
             var deco = SpawnTree(pos);
             if (deco != null) _decorations.Add(deco);
         }
 
         // Rocks
-        for (int i = 0; i < RockCount; i++)
+        for (int i = 0; i < RockCount + (RockCount / 2); i++)
         {
-            Vector3 pos = GetRandomEnvPosition(rng, minX, maxX, boardH, envDepth, 0.1f);
+            Vector3 pos = GetRandomEnvPosition(rng, leftEdge, rightEdge, boardH, envDepth, envWidth, 0.1f);
             var deco = SpawnRock(pos);
             if (deco != null) _decorations.Add(deco);
         }
 
         // Bushes
-        for (int i = 0; i < BushCount; i++)
+        for (int i = 0; i < BushCount + (BushCount / 2); i++)
         {
-            Vector3 pos = GetRandomEnvPosition(rng, minX, maxX, boardH, envDepth, 0.1f);
+            Vector3 pos = GetRandomEnvPosition(rng, leftEdge, rightEdge, boardH, envDepth, envWidth, 0.1f);
             var deco = SpawnBush(pos);
             if (deco != null) _decorations.Add(deco);
         }
 
         // Grass patches
-        for (int i = 0; i < GrassCount; i++)
+        for (int i = 0; i < GrassCount + (GrassCount / 2); i++)
         {
-            Vector3 pos = GetRandomEnvPosition(rng, minX, maxX, boardH, envDepth, 0.0f);
+            Vector3 pos = GetRandomEnvPosition(rng, leftEdge, rightEdge, boardH, envDepth, envWidth, 0.0f);
             var deco = SpawnGrassPatch(pos);
             if (deco != null) _decorations.Add(deco);
         }
     }
 
-    /// <summary>Returns a random position in the top or bottom environment strip (along Z axis).</summary>
-    private Vector3 GetRandomEnvPosition(RandomNumberGenerator rng, float minX, float maxX, float boardH, float envDepth, float padding)
+    /// <summary>Returns a random position in the top, bottom, left, or right environment strips.</summary>
+    private Vector3 GetRandomEnvPosition(RandomNumberGenerator rng, float leftEdge, float rightEdge, float boardH, float envDepth, float envWidth, float padding)
     {
-        // 50/50: top strip (negative Z) or bottom strip (positive Z past board)
-        bool topSide = rng.Randf() < 0.5f;
-        float z;
-        if (topSide)
+        // 4 sides: 0=Top, 1=Bottom, 2=Left, 3=Right
+        int side = rng.RandiRange(0, 3);
+        float x = 0, z = 0;
+
+        if (side == 0) // Top (Negative Z)
         {
             z = rng.RandfRange(-envDepth, -padding);
+            x = rng.RandfRange(leftEdge - envWidth, rightEdge + envWidth);
         }
-        else
+        else if (side == 1) // Bottom (Positive Z)
         {
             z = rng.RandfRange(boardH + padding, boardH + envDepth);
+            x = rng.RandfRange(leftEdge - envWidth, rightEdge + envWidth);
+        }
+        else if (side == 2) // Left (Negative X)
+        {
+            x = rng.RandfRange(leftEdge - envWidth, leftEdge - padding);
+            z = rng.RandfRange(0, boardH); // alongside the board
+        }
+        else // Right (Positive X)
+        {
+            x = rng.RandfRange(rightEdge + padding, rightEdge + envWidth);
+            z = rng.RandfRange(0, boardH); // alongside the board
         }
 
-        float x = rng.RandfRange(minX, maxX);
         return new Vector3(x, 0, z);
     }
 

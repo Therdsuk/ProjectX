@@ -31,12 +31,20 @@ public partial class CameraController : Camera3D
     /// <summary>The fixed Z position of the focus point (board center Z).</summary>
     public float RailZ { get; set; } = 6f;
 
+    [ExportGroup("Zoom")]
+    [Export] public float MinZoom { get; set; } = 0.4f;
+    [Export] public float MaxZoom { get; set; } = 2.0f;
+    [Export] public float ZoomSpeed { get; set; } = 0.15f;
+    [Export] public float ZoomSmoothSpeed { get; set; } = 10f;
+
     // Internal state
     private float _targetX;
     private float _currentX;
     private float _targetYaw;
     private float _currentYaw;
     private float _baseYaw;
+    private float _targetZoom = 1.0f;
+    private float _currentZoom = 1.0f;
 
     public override void _Ready()
     {
@@ -64,6 +72,20 @@ public partial class CameraController : Camera3D
                 _targetYaw -= 45f;
             }
         }
+
+        // Mouse wheel for zoom
+        if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed)
+        {
+            if (mouseEvent.ButtonIndex == MouseButton.WheelUp)
+            {
+                _targetZoom -= ZoomSpeed;
+            }
+            else if (mouseEvent.ButtonIndex == MouseButton.WheelDown)
+            {
+                _targetZoom += ZoomSpeed;
+            }
+            _targetZoom = Mathf.Clamp(_targetZoom, MinZoom, MaxZoom);
+        }
     }
 
     public override void _PhysicsProcess(double delta)
@@ -89,13 +111,18 @@ public partial class CameraController : Camera3D
         rot.Y = _currentYaw;
         RotationDegrees = rot;
 
+        // Smooth zoom
+        _currentZoom = Mathf.Lerp(_currentZoom, _targetZoom, dt * ZoomSmoothSpeed);
+
         // --- Position: orbit the offset around the focus point ---
         // Focus point (the "pin") slides along the rail
         Vector3 focusPoint = new Vector3(_currentX, 0, RailZ);
 
         // Rotate the offset around Y by the yaw delta from base
         Basis yawRotation = Basis.FromEuler(new Vector3(0, Mathf.DegToRad(_currentYaw - _baseYaw), 0));
-        Vector3 rotatedOffset = yawRotation * Offset;
+        
+        // Apply zoom to the distance of the offset
+        Vector3 rotatedOffset = yawRotation * (Offset * _currentZoom);
 
         GlobalPosition = focusPoint + rotatedOffset;
     }
